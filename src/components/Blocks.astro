@@ -1,0 +1,28 @@
+---
+import type { Block } from '../data/guides.ts';
+import Compare from './Compare.astro';
+import Notice from './Notice.astro';
+import { isLive } from '../data/routes.ts';
+const { body } = Astro.props as { body: Block[] };
+---
+{body.map((b) => {
+  if (b.t === 'p') return <p>{b.x}</p>;
+  if (b.t === 'h2') return <h2>{b.x}</h2>;
+  if (b.t === 'ul') return <ul>{b.items.map((i) => <li>{i}</li>)}</ul>;
+  if (b.t === 'ol') return <ol>{b.items.map((i) => <li>{i}</li>)}</ol>;
+  if (b.t === 'callout') return <Notice h={b.h} kind="info">{b.x}</Notice>;
+  if (b.t === 'compare') return <Compare pair={b.pair} />;
+  if (b.t === 'links') {
+    const live = b.items.filter((i) => isLive(i.href));
+    return live.length > 0 && <div class="related-links"><h2>{b.h}</h2><ul>{live.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul></div>;
+  }
+  if (b.t === 'table') return (
+    <div class="table-wrap" tabindex="0" role="region" aria-label={b.caption}>
+      <table>
+        <caption>{b.caption}</caption>
+        <thead><tr>{b.head.map((h) => <th scope="col">{h || <span class="visually-hidden">Topic</span>}</th>)}</tr></thead>
+        <tbody>{b.rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+  );
+})}

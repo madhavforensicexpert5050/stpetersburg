@@ -1,0 +1,56 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import { pricing } from '../data/content.ts';
+import { services, trackLabel } from '../data/services.ts';
+import { isLive, isPreview } from '../data/routes.ts';
+const quoteLive = isLive('/request-quote/');
+const rows = pricing.rows.filter((r) => isLive(services.find((s) => s.slug === r.slug)!.path));
+const lede = pricing.anyApproved
+  ? 'See the published per-image rates below. For anything unusual, a quote confirms the cost before work begins.'
+  : 'We quote each request, so you see an exact figure for your listing before any work begins. Here is what affects it.';
+---
+<PageHero path="/pricing/" eyebrow="Pricing" h1={pricing.anyApproved ? 'Pricing' : 'Get a quote for your listing'} lede={lede}>
+  {quoteLive && <div class="btn-row" style="margin-top:22px"><a class="btn btn--primary" href="/request-quote/">Request a Quote</a></div>}
+</PageHero>
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">What affects a quote</p><h2>Six things that shape the cost</h2></div>
+    <div class="grid grid--3">
+      {pricing.factors.map((f) => <div class="card card--flat"><h3>{f.h}</h3><p>{f.b}</p></div>)}
+    </div>
+  </div>
+</section>
+<section class="section section--wall">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">By service</p><h2>What can be quoted</h2></div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Pricing by service">
+      <table>
+        <caption>Rates appear here only once they have been set</caption>
+        <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Price per image</th></tr></thead>
+        <tbody>
+          {rows.map((r) => <tr><td>{r.name}</td><td>{trackLabel[r.track]}</td><td>{r.price === null ? 'Quote on request' : `$${r.price.toFixed(2)}`}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    {isPreview && <p class="small muted">A row here does not mean the service is available. Each service page shows its status.</p>}
+  </div>
+</section>
+{isPreview && (
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><p class="eyebrow">Internal: pricing structures under consideration</p><h2>How pricing could be arranged</h2><p class="lede">Preview only. None of these is decided, and no discount or package exists.</p></div>
+      <div class="grid grid--4">
+        {pricing.structures.map((s) => <div class="card"><span class="pill pill--warn" style="align-self:start">{s.state}</span><h3>{s.name}</h3><p>{s.body}</p></div>)}
+      </div>
+    </div>
+  </section>
+)}
+<section class="section">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Questions</p><h2>About pricing</h2>{isLive('/guides/virtual-staging-cost/') && <p style="margin-top:14px"><a class="textlink" href="/guides/virtual-staging-cost/">What virtual staging costs across the market</a></p>}</div>
+    <Faq items={pricing.faqs} />
+  </div>
+</section>
+<Cta h="Find out what your listing would cost" />

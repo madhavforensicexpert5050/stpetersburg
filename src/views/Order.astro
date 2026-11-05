@@ -1,0 +1,27 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+import { services, availabilityLabel } from '../data/services.ts';
+import { pricing } from '../data/content.ts';
+---
+<PageHero path="/order/" eyebrow="Internal draft" h1="Order flow" lede="This screen shows the intended flow. It cannot create an order, calculate a charge or take a payment." />
+<section class="section">
+  <div class="wrap">
+    <Notice h="Ordering is not active">No orders can be placed. Payment provider, prices and fulfillment are unapproved. This route is excluded from production builds until the backend exists and has been tested.</Notice>
+    <ol class="stepper">
+      <li aria-current="step">1. Service<small>Choose what you need</small></li>
+      <li>2. Photos<small>Secure upload</small></li>
+      <li>3. Details<small>Style and notes</small></li>
+      <li>4. Review<small>Confirm photo rights</small></li>
+      <li>5. Pay<small>Hosted checkout</small></li>
+    </ol>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Services in the order flow">
+      <table>
+        <caption>Service selection preview. All options are disabled.</caption>
+        <thead><tr><th scope="col">Select</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Per image</th></tr></thead>
+        <tbody>{services.map((s) => { const row = pricing.rows.find((r) => r.slug === s.slug)!; return <tr><td><input type="checkbox" disabled aria-label={`Select ${s.name} (disabled)`} /></td><td>{s.name}</td><td>{availabilityLabel(s.slug)}</td><td>{row.price === null ? 'Not set' : `$${row.price.toFixed(2)}`}</td></tr>; })}</tbody>
+      </table>
+    </div>
+    <p style="margin-top:20px"><button class="btn" type="button" disabled>Continue (disabled)</button></p>
+  </div>
+</section>

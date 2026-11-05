@@ -1,0 +1,19 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Blocks from '../components/Blocks.astro';
+import Notice from '../components/Notice.astro';
+import { getLegal } from '../data/legal.ts';
+import { approvals } from '../data/approvals.ts';
+const { slug } = Astro.props as { slug: string };
+const d = getLegal(slug);
+const reviewed = Boolean(approvals.legalReview[slug]);
+---
+<PageHero path={d.path} eyebrow={reviewed ? 'Legal' : 'Legal draft'} h1={d.h1} />
+<section class="section">
+  <div class="wrap">
+    <div class="prose">
+      {!reviewed && <Notice h="Draft: not reviewed by a lawyer">This text has not had legal review. Items in square brackets are waiting on owner or attorney input. Last edited November 5, 2026.</Notice>}
+      <Blocks body={d.body} />
+    </div>
+  </div>
+</section>

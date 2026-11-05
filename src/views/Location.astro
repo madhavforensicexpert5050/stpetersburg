@@ -1,0 +1,112 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+import Cta from '../components/Cta.astro';
+import { getLocation, locations, stPeteZips, decisionLabel } from '../data/locations.ts';
+import { isLive, isPreview } from '../data/routes.ts';
+const { slug } = Astro.props as { slug: string };
+const l = getLocation(slug);
+const usd = (n: number) => `$${n.toLocaleString('en-US')}`;
+const isAnchor = slug === 'st-petersburg-fl';
+// Facts known only from a search summary stay out of public builds.
+const facts = isPreview ? l.facts : l.facts.filter((f) => f.evidence !== 'snippet');
+const other = Math.max(0, 100 - l.detached - l.tenPlus - l.mobile);
+const mix = [
+  { label: 'Single detached', v: l.detached, c: '#2a78d6' },
+  { label: '10 or more units', v: l.tenPlus, c: '#eb6834' },
+  { label: 'Mobile homes', v: l.mobile, c: '#1baf7a' },
+  { label: 'Other', v: other, c: '#a9b4b8' },
+];
+const islands = isAnchor ? locations.filter((x) => ['st-pete-beach', 'treasure-island', 'madeira-beach'].includes(x.slug)) : [];
+---
+<PageHero path={l.path} eyebrow={`${l.name}, Pinellas County, Florida`} h1={l.headline} lede={l.intro} />
+<section class="section section--tight">
+  <div class="wrap">
+    <Notice h="No local office">StageLiora works remotely and has no office, staff or storefront in {l.name}. This page is about listing photos in this market.</Notice>
+    {isPreview && (
+      <Notice h={`Publication decision: ${decisionLabel[l.decision]}`} kind="info">{l.decisionWhy}</Notice>
+    )}
+    <h2 style="font-size:1.7rem;margin-bottom:14px">Housing mix</h2>
+    <div class="stats">
+      <div class="stat"><b>{l.units.toLocaleString('en-US')}</b><span>total housing units</span></div>
+      <div class="stat"><b>{l.detached}%</b><span>single detached homes</span></div>
+      <div class="stat"><b>{l.tenPlus}%</b><span>in buildings of 10 or more units</span></div>
+      <div class="stat"><b>{l.mobile}%</b><span>mobile homes</span></div>
+    </div>
+    <div class="mixbar" role="img" aria-label={`Housing mix in ${l.name}: ${mix.map((m) => `${m.v}% ${m.label.toLowerCase()}`).join(', ')}`}>
+      {mix.filter((m) => m.v > 0).map((m) => <span style={`flex:${m.v} 1 0;background:${m.c}`} title={`${m.label}: ${m.v}%`}></span>)}
+    </div>
+    <ul class="mixkey">{mix.map((m) => <li><i style={`background:${m.c}`}></i>{m.label} {m.v}%</li>)}</ul>
+    <p class="small muted" style="margin-top:12px">U.S. Census Bureau, American Community Survey 2020–2024 5-year estimates, table B25024. Percentages rounded, margins of error omitted. These describe building types and are not a measure of condominium ownership.</p>
+  </div>
+</section>
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div>
+      <p class="eyebrow">What this means for photos</p>
+      <h2>Local points to keep in mind</h2>
+    </div>
+    <div class="grid">
+      {l.localAngle.map((a) => <div class="card"><h3>{a.h}</h3><p>{a.b}</p></div>)}
+    </div>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap">
+    <h2 style="font-size:1.7rem;margin-bottom:14px">Listing data: {l.listing.label}</h2>
+    {isAnchor ? (
+      <div class="table-wrap" tabindex="0" role="region" aria-label="October 2026 listing data by ZIP">
+        <table>
+          <caption>Realtor.com, October 2026, by ZIP labeled Saint Petersburg</caption>
+          <thead><tr><th scope="col">ZIP</th><th scope="col">Active</th><th scope="col">New</th><th scope="col">Median days on market</th><th scope="col">Median list price</th></tr></thead>
+          <tbody>{stPeteZips.map((z) => <tr><td>{z.zip}</td><td>{z.active}</td><td>{z.fresh}</td><td>{z.dom}</td><td>{usd(z.price)}</td></tr>)}</tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="stats">
+        <div class="stat"><b>{l.listing.active?.toLocaleString('en-US')}</b><span>active listings, October 2026</span></div>
+        <div class="stat"><b>{l.listing.fresh?.toLocaleString('en-US')}</b><span>new listings, October 2026</span></div>
+        <div class="stat"><span style="font:700 1.25rem/1.2 var(--display);color:var(--ink);margin:0">{l.listing.dom}</span><span>median days on market</span></div>
+        <div class="stat"><span style="font:700 1.25rem/1.2 var(--display);color:var(--ink);margin:0">{l.listing.price}</span></div>
+      </div>
+    )}
+    <p class="small muted" style="margin-top:12px">Source: Realtor.com, one month of data for {l.listing.zips}. {l.listing.caveat} Listing counts are housing data, and they do not measure demand for virtual staging.</p>
+  </div>
+</section>
+{isAnchor && (
+  <section class="section section--wall">
+    <div class="wrap two-col">
+      <div>
+        <p class="eyebrow">The beach cities</p>
+        <h2>Separate cities, reported under one name</h2>
+        <p class="lede" style="margin-top:16px">Listing data labeled Saint Petersburg includes ZIPs that also serve neighboring beach communities. If your listing is on the islands, keep these points in mind.</p>
+      </div>
+      <div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Housing mix in three beach cities">
+          <table>
+            <caption>Census: ACS 2020–2024 5-year estimates. Building types, not ownership form.</caption>
+            <thead><tr><th scope="col">City</th><th scope="col">Housing units</th><th scope="col">Detached</th><th scope="col">10+ units</th></tr></thead>
+            <tbody>{islands.map((x) => <tr><td>{x.name}</td><td>{x.units.toLocaleString('en-US')}</td><td>{x.detached}%</td><td>{x.tenPlus}%</td></tr>)}</tbody>
+          </table>
+        </div>
+        <ul class="tick">
+          <li>Expect larger-building interiors as often as houses, so plan furniture scale for each.</li>
+          <li>Leave the view alone. Stellar names an edited-in Gulf or ocean view as prohibited.</li>
+          <li>Show current condition. St. Pete Beach alone assessed more than 3,000 damaged structures after the 2024 storms.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+)}
+<section class="section section--tight">
+  <div class="wrap narrow">
+    <h2 style="font-size:1.7rem;margin-bottom:14px">About {l.name}</h2>
+    <p><strong>Status:</strong> {l.status}{l.officialNameVerified ? ` (${l.officialName})` : ''}, Pinellas County, Florida. {!isAnchor && <><strong>Location:</strong> {l.relationship}.</>}</p>
+    <ul>
+      {facts.map((f) => <li>{f.text} <a href={f.url} rel="noopener nofollow">{f.source}</a>{f.evidence === 'snippet' && <span class="muted"> (from a search summary; confirm before publication)</span>}</li>)}
+    </ul>
+    <p class="small muted">Sources checked November 5, 2026. Official site: <a href={l.website} rel="noopener nofollow">{l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>. St. Pete Beach figure: <a href="https://www.stpetebeach.org/829/Substantial-Damage-Determination-Appeal-" rel="noopener nofollow">City of St. Pete Beach</a>.</p>
+    {isLive('/guides/virtual-staging-disclosure-florida/') && <p><a class="textlink" href="/guides/virtual-staging-disclosure-florida/">Florida disclosure guide</a></p>}
+  </div>
+</section>
+<Cta h={`A listing in ${l.name}?`} p="Tell us about the property and where the images will be used. Remote work is the same wherever the home is." />

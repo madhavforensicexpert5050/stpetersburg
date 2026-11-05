@@ -1,0 +1,18 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+---
+<PageHero path="/upload/" eyebrow="Internal draft" h1="Photo upload" lede="This screen tests file checks in your browser. Nothing you choose here leaves your device." />
+<section class="section">
+  <div class="wrap narrow">
+    <Notice h="Files are not uploaded">Private storage, access control and a retention policy are not in place. This route is excluded from production builds until they exist and have been tested. Please do not treat this as a way to send us photos.</Notice>
+    <div class="drop" data-drop>
+      <label for="u-file" style="font:600 1.15rem var(--display)">Choose files to test, or drag them here</label>
+      <p class="hint">JPG, PNG or HEIC, up to 25 MB each. These limits are proposed and not yet approved.</p>
+      <input id="u-file" type="file" multiple accept=".jpg,.jpeg,.png,.heic" />
+    </div>
+    <ul class="file-list" data-files aria-live="polite"></ul>
+    <label class="check" style="margin-top:18px"><input type="checkbox" disabled /> <span>I own these photos, or am licensed to have them edited.</span></label>
+    <p style="margin-top:14px"><button class="btn" type="button" disabled>Upload (disabled)</button></p>
+  </div>
+</section>

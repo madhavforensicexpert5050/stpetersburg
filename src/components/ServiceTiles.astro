@@ -1,0 +1,23 @@
+---
+import { services, trackLabel } from '../data/services.ts';
+import { getPair } from '../data/media.ts';
+import { isLive } from '../data/routes.ts';
+const { only } = Astro.props as { only?: string[] };
+const list = services.filter((s) => isLive(s.path) && (!only || only.includes(s.slug)));
+---
+<div class="mosaic">
+  {list.map((s) => {
+    const { before, after } = getPair(s.pairKey);
+    return (
+      <a class="tile" href={s.path}>
+        <img src={before.src} alt="" width={before.width} height={before.height} loading="lazy" decoding="async" />
+        <img class="after" src={after.src} alt="" width={after.width} height={after.height} loading="lazy" decoding="async" />
+        <div class="tile__body">
+          <span class="tile__kind">{trackLabel[s.track]}</span>
+          <h3>{s.name}</h3>
+          <p>{s.short}</p>
+        </div>
+      </a>
+    );
+  })}
+</div>

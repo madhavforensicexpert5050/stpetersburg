@@ -1,0 +1,15 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+---
+<PageHero path="/account/" eyebrow="Internal draft" h1="Account" lede="This screen shows where sign-in will live. No account system is connected." />
+<section class="section">
+  <div class="wrap narrow">
+    <Notice h="Sign-in is not active">These fields are disabled and collect nothing. This route is excluded from production builds until a tested authentication backend exists.</Notice>
+    <div class="form">
+      <div class="field"><label for="a-email">Email</label><input id="a-email" type="email" disabled /></div>
+      <div class="field"><label for="a-pass">Password</label><input id="a-pass" type="password" disabled /></div>
+      <p><button class="btn" type="button" disabled>Sign in (disabled)</button></p>
+    </div>
+  </div>
+</section>

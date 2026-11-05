@@ -1,0 +1,70 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import Notice from '../components/Notice.astro';
+import ServiceTiles from '../components/ServiceTiles.astro';
+import { getService, availabilityLabel, isServiceApproved, trackLabel } from '../data/services.ts';
+import { isLive } from '../data/routes.ts';
+const { slug } = Astro.props as { slug: string };
+const s = getService(slug);
+const concept = s.track === 'concept-visualization';
+const useClass = s.stellar.use === 'not-for-listing-photos' || s.stellar.use === 'not-addressed' ? 'pill--no' : s.stellar.use === 'conditional' ? 'pill--warn' : 'pill--ok';
+---
+<PageHero path={s.path} eyebrow={trackLabel[s.track]} h1={s.h1} lede={s.intro} pair={s.pairKey}>
+  <p style="margin:18px 0 0;display:flex;flex-wrap:wrap;gap:8px"><span class:list={['pill', isServiceApproved(slug) ? 'pill--ok' : 'pill--warn']}>{availabilityLabel(slug)}</span></p>
+  <div class="btn-row" style="margin-top:22px">
+    {isLive('/request-quote/') && <a class="btn btn--primary" href="/request-quote/">Request a Quote</a>}
+    {isLive('/how-it-works/') && <a class="btn" href="/how-it-works/">How It Works</a>}
+  </div>
+</PageHero>
+
+<section class="section section--tight">
+  <div class="wrap">
+    {concept && <Notice h="This is a concept service, not a listing photo edit">The images are for planning and for discussing ideas. Do not present them as the current condition of a property.</Notice>}
+    <div class="mls">
+      <h2 class="h3-size">Stellar MLS listing use <span class:list={['pill', useClass]}>{s.stellar.label}</span></h2>
+      <p>{s.stellar.detail}</p>
+      <p class="small muted">Source: {s.stellar.source}, read November 5, 2026. Other MLSs differ. This is not legal advice, and it is not a promise that an image will be accepted.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="wrap grid grid--2">
+    <div class="card card--flat"><h2 style="font-size:1.6rem">What is included</h2><ul class="tick">{s.includes.map((x) => <li>{x}</li>)}</ul></div>
+    <div class="card card--flat"><h2 style="font-size:1.6rem">What is not</h2><ul class="cross">{s.excludes.map((x) => <li>{x}</li>)}</ul></div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div>
+      <p class="eyebrow">Fit</p><h2>Who this suits</h2>
+      <ul class="tick" style="margin-top:18px">{s.audience.map((x) => <li>{x}</li>)}</ul>
+      <h3 style="margin-top:28px">Photos that work best</h3>
+      <ul style="margin-top:10px">{s.goodPhotos.map((x) => <li>{x}</li>)}</ul>
+    </div>
+    <div>
+      <p class="eyebrow">Workflow</p><h2>What happens</h2>
+      <ol class="steps" style="margin-top:18px">
+        {s.steps.map((x, i) => <li><span class="n" aria-hidden="true">{i + 1}</span><div><p>{x}</p></div></li>)}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Questions</p><h2>About {s.name.toLowerCase()}</h2></div>
+    <Faq items={s.faqs} />
+  </div>
+</section>
+
+<section class="section section--tight section--wall">
+  <div class="wrap">
+    <h2 style="margin-bottom:24px;font-size:1.8rem">Related services</h2>
+    <ServiceTiles only={s.related} />
+  </div>
+</section>
+<Cta h={`Ask about ${s.name.toLowerCase()}`} />

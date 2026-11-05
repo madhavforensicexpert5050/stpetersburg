@@ -1,0 +1,18 @@
+---
+import PageHero from '../components/PageHero.astro';
+import InquiryForm from '../components/InquiryForm.astro';
+import { business } from '../data/business.ts';
+import { isLive } from '../data/routes.ts';
+---
+<PageHero path="/request-quote/" eyebrow="Request a quote" h1="Tell us about your listing" lede="A quote request is not an order. We will reply with what can be done, what cannot, and what it would cost." />
+<section class="section">
+  <div class="wrap doc-side">
+    <div><InquiryForm full /></div>
+    <aside class="side-box on-ink">
+      <h2>What helps us quote</h2>
+      <p>The number of rooms, whether they are empty or occupied, and which MLS the images are for. Some edits are not allowed in listing photos, and we would rather tell you up front.</p>
+      <p class="small">Prefer email? <a href={business.emailHref}>{business.email}</a></p>
+      {isLive('/guides/how-to-prepare-photos-for-virtual-staging/') && <p class="small"><a href="/guides/how-to-prepare-photos-for-virtual-staging/">How to prepare your photos</a></p>}
+    </aside>
+  </div>
+</section>

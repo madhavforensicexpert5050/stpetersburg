@@ -1,0 +1,49 @@
+---
+import { business } from '../data/business.ts';
+import { services } from '../data/services.ts';
+import { guides } from '../data/guides.ts';
+import { legalDocs } from '../data/legal.ts';
+import { isLive } from '../data/routes.ts';
+import { media } from '../data/media.ts';
+const company = [
+  ['/about/', 'About'], ['/how-it-works/', 'How It Works'], ['/pricing/', 'Pricing'], ['/faq/', 'FAQ'], ['/reviews/', 'Reviews'], ['/contact/', 'Contact'], ['/locations/', 'Locations researched'],
+  ['/for-real-estate-agents/', 'For agents'], ['/for-real-estate-photographers/', 'For photographers'], ['/for-brokerages/', 'For brokerages'],
+].filter(([p]) => isLive(p));
+const visual = [['/portfolio/', 'Portfolio'], ['/design-library/', 'Design Library'], ['/design-styles/', 'Design Styles'], ['/online-interior-design/', 'Online Interior Design'], ['/interior-designers/', 'Interior Designers'], ['/interior-design-projects/', 'Interior Design Projects']].filter(([p]) => isLive(p));
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="logo" href={isLive('/') ? '/' : '#main'} aria-label="StageLiora home">Stage<i aria-hidden="true"></i>Liora</a>
+        <p>Virtual staging and real estate photo editing, written for the St. Petersburg, Florida market. We work remotely and have no public office in Florida.</p>
+        <p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
+      </div>
+      <div>
+        <h2>Services</h2>
+        <ul>{services.filter((s) => isLive(s.path)).map((s) => <li><a href={s.path}>{s.name}</a></li>)}</ul>
+      </div>
+      <div>
+        <h2>Company</h2>
+        <ul>{company.map(([p, l]) => <li><a href={p}>{l}</a></li>)}</ul>
+      </div>
+      {visual.length > 0 && (
+        <div>
+          <h2>Visual</h2>
+          <ul>{visual.map(([p, l]) => <li><a href={p}>{l}</a></li>)}</ul>
+        </div>
+      )}
+      <div>
+        <h2>Guides</h2>
+        <ul>
+          {isLive('/guides/') && <li><a href="/guides/">All guides</a></li>}
+          {guides.filter((g) => isLive(g.path)).slice(0, 5).map((g) => <li><a href={g.path}>{g.h1}</a></li>)}
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <p>&copy; 2026 {business.brand}.{media.some((m) => m.rights === 'project-placeholder') && ' Illustrations marked as placeholders are not completed work.'}</p>
+      <p>{legalDocs.filter((d) => isLive(d.path)).map((d, i) => <>{i > 0 && ' · '}<a href={d.path} style="color:inherit">{d.h1}</a></>)}</p>
+    </div>
+  </div>
+</footer>

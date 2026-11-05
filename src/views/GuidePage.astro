@@ -1,0 +1,35 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Blocks from '../components/Blocks.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import { getGuide, guides } from '../data/guides.ts';
+import { isLive } from '../data/routes.ts';
+import { business } from '../data/business.ts';
+const { slug } = Astro.props as { slug: string };
+const g = getGuide(slug);
+const others = guides.filter((x) => x.slug !== slug && isLive(x.path)).slice(0, 4);
+---
+<PageHero path={g.path} eyebrow="Guide" h1={g.h1} lede={g.summary} pair={g.heroPair}>
+  <p class="small muted" style="margin:14px 0 0">{g.reading} read. Sources checked November 5, 2026.</p>
+</PageHero>
+<section class="section">
+  <div class="wrap doc-side">
+    <article class="prose">
+      <Blocks body={g.body} />
+      {g.faqs && <Faq items={g.faqs} open />}
+      {g.sources.length > 0 && (
+        <div class="sources">
+          <h2>Sources</h2>
+          <ul>{g.sources.map((s) => <li><a href={s.url} rel="noopener nofollow">{s.name}</a></li>)}</ul>
+        </div>
+      )}
+    </article>
+    <aside class="side-box on-ink">
+      <h2>Keep reading</h2>
+      {others.map((o) => <p><a href={o.path}>{o.h1}</a></p>)}
+      {isLive('/request-quote/') ? <a class="btn btn--primary" href="/request-quote/">Request a Quote</a> : <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
+    </aside>
+  </div>
+</section>
+<Cta />

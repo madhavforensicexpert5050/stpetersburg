@@ -1,0 +1,35 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Cta from '../components/Cta.astro';
+import Notice from '../components/Notice.astro';
+import { business } from '../data/business.ts';
+import { isLive } from '../data/routes.ts';
+---
+<PageHero path="/about/" eyebrow="About" h1="We edit the room, and leave the facts alone" lede="StageLiora is a virtual staging and real estate photo editing business, built for people who market property. This site is written for the St. Petersburg, Florida market." />
+<section class="section">
+  <div class="wrap two-col">
+    <div class="prose">
+      <h2>What we care about</h2>
+      <p>A listing photo is a statement about a property. Staging can add what moves in and out with a seller. It should not change what a buyer is actually going to get.</p>
+      <p>That sounds obvious until someone asks for greener grass, a fresh coat of paint or a better view. Our job is to help with the first kind of edit, to explain clearly why the second kind is different, and to keep planning concepts from being confused with listing photos.</p>
+      <h2>What we do not claim</h2>
+      <ul class="cross">
+        <li>A Florida office, branch or street address</li>
+        <li>A count of customers, projects or years in business</li>
+        <li>Awards, rankings or customer reviews we do not have</li>
+        <li>That any image is guaranteed to meet any MLS rule</li>
+      </ul>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Who we work with</h3><p>Real estate agents, photographers, brokerages and property marketers.</p></div>
+      <div class="card"><h3>How we work</h3><p>Remotely, by email and phone. {business.brand} has no public office in St. Petersburg or elsewhere in Florida.</p></div>
+      <div class="card"><h3>Reach us</h3><p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>{isLive('/contact/') && <a class="textlink" href="/contact/">Contact page</a>}</div>
+    </div>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap narrow">
+    <Notice h="Company details" kind="info">Our legal entity and postal address will be listed here once they are confirmed. They are not shown yet, and no substitute has been used.</Notice>
+  </div>
+</section>
+<Cta />

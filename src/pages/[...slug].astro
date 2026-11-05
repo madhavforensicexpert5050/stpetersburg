@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import { buildRoutes, findRoute, isPreview, type RouteDef } from '../data/routes.ts';
+import { getGuide } from '../data/guides.ts';
+import { getService } from '../data/services.ts';
+import { business } from '../data/business.ts';
+import Home from '../views/Home.astro';
+import About from '../views/About.astro';
+import Contact from '../views/Contact.astro';
+import How from '../views/How.astro';
+import Pricing from '../views/Pricing.astro';
+import FaqPage from '../views/FaqPage.astro';
+import Reviews from '../views/Reviews.astro';
+import ServicesHub from '../views/ServicesHub.astro';
+import Service from '../views/Service.astro';
+import Portfolio from '../views/Portfolio.astro';
+import Library from '../views/Library.astro';
+import StylesHub from '../views/StylesHub.astro';
+import Style from '../views/Style.astro';
+import Audience from '../views/Audience.astro';
+import InteriorDesign from '../views/InteriorDesign.astro';
+import Designers from '../views/Designers.astro';
+import DesignProjects from '../views/DesignProjects.astro';
+import GuidesHub from '../views/GuidesHub.astro';
+import GuidePage from '../views/GuidePage.astro';
+import LocationsHub from '../views/LocationsHub.astro';
+import Location from '../views/Location.astro';
+import Legal from '../views/Legal.astro';
+import Quote from '../views/Quote.astro';
+import Order from '../views/Order.astro';
+import Account from '../views/Account.astro';
+import Orders from '../views/Orders.astro';
+import Upload from '../views/Upload.astro';
+
+export function getStaticPaths() {
+  return buildRoutes.map((r) => ({ params: { slug: r.path === '/' ? undefined : r.path.replace(/^\/|\/$/g, '') } }));
+}
+const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const route = findRoute(path) as RouteDef;
+const views = { home: Home, about: About, contact: Contact, how: How, pricing: Pricing, faq: FaqPage, reviews: Reviews, servicesHub: ServicesHub, service: Service, portfolio: Portfolio, library: Library, stylesHub: StylesHub, style: Style, audience: Audience, interiorDesign: InteriorDesign, designers: Designers, designProjects: DesignProjects, guidesHub: GuidesHub, guide: GuidePage, locationsHub: LocationsHub, location: Location, legal: Legal, quote: Quote, order: Order, account: Account, orders: Orders, upload: Upload } as const;
+const View = views[route.template] as any;
+
+const canonical = new URL(path, business.siteUrl).href;
+const org = { '@id': `${business.siteUrl}/#org` };
+const schema: object[] = [];
+if (route.template === 'home') schema.push({ '@type': 'WebSite', name: business.brand, url: business.siteUrl, publisher: org });
+if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name }); }
+if (route.template === 'guide') {
+  const g = getGuide(route.ref!);
+  schema.push({ '@type': 'Article', headline: g.h1, description: g.description, url: canonical, dateModified: g.updated, inLanguage: 'en-US', author: org, publisher: org });
+}
+---
+<Base route={route} title={isPreview ? route.title : route.title.replace(/ \((Draft|Placeholders)\)/, '')} description={route.description} path={path} schema={schema} noCta={['order', 'account', 'orders', 'upload', 'library'].includes(route.template)}>
+  <View slug={route.ref} />
+</Base>

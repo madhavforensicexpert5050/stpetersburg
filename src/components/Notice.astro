@@ -1,0 +1,8 @@
+---
+interface Props { h: string; kind?: 'warn' | 'info' }
+const { h, kind = 'warn' } = Astro.props;
+---
+<aside class:list={['notice', { 'notice--info': kind === 'info' }]}>
+  <strong>{h}</strong>
+  <p><slot /></p>
+</aside>

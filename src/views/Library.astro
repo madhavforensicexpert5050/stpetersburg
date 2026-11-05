@@ -1,0 +1,55 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Lightbox from '../components/Lightbox.astro';
+import Notice from '../components/Notice.astro';
+import Cta from '../components/Cta.astro';
+import { library } from '../data/media.ts';
+import { styles, rooms } from '../data/taxonomy.ts';
+---
+<PageHero path="/design-library/" eyebrow="Design library" h1="Browse design directions by style and room" lede="Use the filters to narrow eight styles across thirteen room types. Open any image for its details." />
+<section class="section section--tight">
+  <div class="wrap" data-library>
+    <Notice h="Placeholders. Styles shown here cannot be ordered yet.">These drawings are for showing how the library will work. They are not furniture StageLiora can supply today, and they are not completed work.</Notice>
+    <div class="filters">
+      <fieldset class="filter-group">
+        <legend>Style</legend>
+        <div class="chips">
+          <button type="button" class="chip" data-filter="style" data-value="all" aria-pressed="true">All styles</button>
+          {styles.map((s) => <button type="button" class="chip" data-filter="style" data-value={s.id} aria-pressed="false">{s.name}</button>)}
+        </div>
+      </fieldset>
+      <fieldset class="filter-group">
+        <legend>Room</legend>
+        <div class="chips">
+          <button type="button" class="chip" data-filter="room" data-value="all" aria-pressed="true">All rooms</button>
+          {rooms.map((r) => <button type="button" class="chip" data-filter="room" data-value={r.id} aria-pressed="false">{r.name}</button>)}
+        </div>
+      </fieldset>
+    </div>
+    <div class="results-bar">
+      <p data-count role="status" aria-live="polite">{library.length} designs shown</p>
+      <button type="button" class="mini-btn" data-clear hidden>Clear filters</button>
+    </div>
+    <h2 class="visually-hidden">Designs</h2>
+    <div class="gal">
+      {library.map((it) => {
+        const st = styles.find((s) => s.id === it.style)!;
+        return (
+          <figure class="gal__item" data-item data-style={it.style} data-room={it.room}>
+            <button type="button" class="gal__btn" data-zoom={it.src} data-alt={it.alt} data-title={`${it.styleName} ${it.roomName} (placeholder)`} data-info={`${st.note} Materials: ${st.materials}.`} aria-label={`Enlarge placeholder image: ${it.styleName} ${it.roomName}`}>
+              <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" />
+            </button>
+            <figcaption><h3>{it.styleName} {it.roomName}</h3><p class="gal__meta">{st.materials}</p></figcaption>
+          </figure>
+        );
+      })}
+    </div>
+    <div class="empty" data-empty hidden>
+      <h2>No designs for this combination yet</h2>
+      <p>Try a different room or style. Some combinations have not been planned.</p>
+      <button type="button" class="btn" data-clear-2>Clear filters</button>
+    </div>
+    <Lightbox />
+  </div>
+</section>
+<Cta h="Prefer to describe the look?" p="Tell us about the property and who you expect to buy it. A quote request can note any style you have in mind." />

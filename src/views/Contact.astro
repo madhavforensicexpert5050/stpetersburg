@@ -1,0 +1,25 @@
+---
+import PageHero from '../components/PageHero.astro';
+import InquiryForm from '../components/InquiryForm.astro';
+import Notice from '../components/Notice.astro';
+import { business } from '../data/business.ts';
+import { isLive } from '../data/routes.ts';
+---
+<PageHero path="/contact/" eyebrow="Contact" h1="Talk to StageLiora" lede="Ask a question about a listing, a photo or a rule you are unsure of." />
+<section class="section">
+  <div class="wrap doc-side">
+    <div>
+      <h2 style="font-size:1.8rem;margin-bottom:20px">Send a message</h2>
+      <InquiryForm />
+    </div>
+    <aside class="side-box on-ink">
+      <h2>Direct contact</h2>
+      <p><strong style="color:#fff">Email</strong><br /><a href={business.emailHref}>{business.email}</a></p>
+      <p><strong style="color:#fff">Phone</strong><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
+      <p class="small">This is an international number. Your carrier's calling rates apply from the U.S.</p>
+      <p class="small">StageLiora works remotely and has no public office or walk-in location in Florida. Support hours have not been set.</p>
+      {isLive('/request-quote/') && <a class="btn btn--primary" href="/request-quote/">Request a Quote</a>}
+    </aside>
+  </div>
+</section>
+<section class="section section--tight"><div class="wrap narrow"><Notice h="Please do not send" kind="info">Card details or photos by form. If photos are needed, your quote will explain how to share them.</Notice></div></section>

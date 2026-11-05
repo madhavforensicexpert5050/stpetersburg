@@ -1,0 +1,6 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": { "allowImportingTsExtensions": true, "noEmit": true, "verbatimModuleSyntax": true },
+  "include": ["src", "server", "functions", "astro.config.mjs"],
+  "exclude": ["dist", "dist-qa", "node_modules"]
+}

@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { isLive } from '../data/routes.ts';
+import { business } from '../data/business.ts';
+const links = [['/', 'Home'], ['/services/', 'Services'], ['/guides/', 'Guides'], ['/contact/', 'Contact']].filter(([p]) => isLive(p));
+---
+<Base title="Page Not Found | StageLiora" description="This page could not be found." path="/404/" noCta>
+  <section class="section on-ink" style="min-height:62vh;display:grid;align-items:center">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1>Nothing is staged here</h1>
+      <p class="lede" style="margin-top:18px">That page does not exist, or is not available. Try one of these instead.</p>
+      <div class="btn-row" style="margin-top:22px">
+        {links.map(([p, l], i) => <a class:list={['btn', { 'btn--primary': i === 0 }]} href={p}>{l}</a>)}
+        {links.length === 0 && <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
+      </div>
+    </div>
+  </section>
+</Base>

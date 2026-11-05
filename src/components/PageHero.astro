@@ -1,0 +1,18 @@
+---
+import Crumbs from './Crumbs.astro';
+import Compare from './Compare.astro';
+interface Props { path: string; eyebrow?: string; h1: string; lede?: string; pair?: string }
+const { path, eyebrow, h1, lede, pair } = Astro.props;
+---
+<section class="page-hero">
+  <div class:list={['wrap', { 'page-hero--split': pair }]}>
+    <div>
+      <Crumbs path={path} />
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1>{h1}</h1>
+      {lede && <p class="lede">{lede}</p>}
+      <slot />
+    </div>
+    {pair && <Compare pair={pair} eager />}
+  </div>
+</section>

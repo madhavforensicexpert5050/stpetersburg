@@ -1,0 +1,13 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import { generalFaqs } from '../data/content.ts';
+---
+<PageHero path="/faq/" eyebrow="FAQ" h1="Frequently asked questions" lede="Short, honest answers, including where we do not have a final answer yet." />
+{generalFaqs.map((g, i) => (
+  <section class:list={['section section--tight', { 'section--wall': i % 2 === 1 }]}>
+    <div class="wrap two-col"><h2 style="font-size:1.8rem">{g.group}</h2><Faq items={g.items} /></div>
+  </section>
+))}
+<Cta h="Question not here?" p="Ask us directly. If we are not sure about a rule, we will say so and point you to the people who decide." />

@@ -1,0 +1,6 @@
+---
+import PageHero from '../components/PageHero.astro';
+import { isLive } from '../data/routes.ts';
+---
+<PageHero path="/interior-designers/" eyebrow="Interior designers" h1="No designers are listed" lede="Profiles will appear here only for real designers who have authorized them." />
+<section class="section"><div class="wrap"><div class="empty"><h2>The directory is empty</h2><p>We have not invented designers or portfolios to fill this page. Each future profile will need the designer's written consent.</p>{isLive('/online-interior-design/') && <a class="btn" href="/online-interior-design/">About Online Interior Design</a>}</div></div></section>

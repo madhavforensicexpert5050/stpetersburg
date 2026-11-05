@@ -1,0 +1,24 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Compare from '../components/Compare.astro';
+import Cta from '../components/Cta.astro';
+import Notice from '../components/Notice.astro';
+import { portfolioPairs } from '../data/media.ts';
+import { rooms, styles } from '../data/taxonomy.ts';
+---
+<PageHero path="/portfolio/" eyebrow="Portfolio" h1="Real work will go here" lede="We will publish only images we have the right to show, with each edit paired with its original and labeled." />
+<section class="section">
+  <div class="wrap">
+    <Notice h="No completed projects are shown">Every comparison on this page is a placeholder drawing that shows the layout. None is a photo of a property, or a project StageLiora has completed.</Notice>
+    <div class="grid grid--2">
+      {portfolioPairs.map((p) => (
+        <article>
+          <Compare pair={p.key} />
+          <h2 style="font-size:1.25rem;margin-top:6px">{rooms.find((r) => r.id === p.room)!.name}</h2>
+          <p class="gal__meta">Portfolio slot. {styles.find((s) => s.id === p.style)!.name} direction.</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+<Cta />

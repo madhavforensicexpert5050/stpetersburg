@@ -1,0 +1,87 @@
+---
+import { business } from '../data/business.ts';
+import { services } from '../data/services.ts';
+import { isLive } from '../data/routes.ts';
+interface Props { full?: boolean }
+const { full = false } = Astro.props;
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT || '';
+const privacy = isLive('/privacy-policy/');
+---
+<form class="form" novalidate data-inquiry data-endpoint={endpoint} data-email={business.email} data-subject={full ? 'Quote request from the StageLiora website' : 'Question from the StageLiora website'}>
+  <div class="field-row">
+    <div class="field">
+      <label for="f-name">Name <span class="req">(required)</span></label>
+      <input id="f-name" name="name" type="text" autocomplete="name" aria-describedby="e-name" />
+      <p class="err" id="e-name" data-err="name" hidden></p>
+    </div>
+    <div class="field">
+      <label for="f-email">Email <span class="req">(required)</span></label>
+      <input id="f-email" name="email" type="email" autocomplete="email" aria-describedby="e-email" />
+      <p class="err" id="e-email" data-err="email" hidden></p>
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label for="f-phone">Phone</label>
+      <input id="f-phone" name="phone" type="tel" autocomplete="tel" />
+    </div>
+    <div class="field">
+      <label for="f-company">Brokerage or company</label>
+      <input id="f-company" name="company" type="text" autocomplete="organization" />
+    </div>
+  </div>
+  {full && (
+    <>
+      <div class="field">
+        <label for="f-role">You are a</label>
+        <select id="f-role" name="role">
+          <option value="">Choose one</option>
+          <option>Real estate agent</option><option>Real estate photographer</option><option>Broker or team leader</option><option>Property marketer</option><option>Homeowner</option><option>Other</option>
+        </select>
+      </div>
+      <fieldset class="field" aria-describedby="e-services">
+        <legend>Services you are interested in <span class="req">(required)</span></legend>
+        <div class="checks">
+          {services.filter((s) => isLive(s.path)).map((s) => <label class="check"><input type="checkbox" name="services" value={s.name} /> {s.name}</label>)}
+          <label class="check"><input type="checkbox" name="services" value="Not sure yet" /> Not sure yet</label>
+        </div>
+        <p class="err" id="e-services" data-err="services" hidden></p>
+      </fieldset>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-photos">Number of photos</label>
+          <select id="f-photos" name="photos"><option value="">Not sure</option><option>1 to 5</option><option>6 to 15</option><option>16 to 50</option><option>More than 50</option></select>
+        </div>
+        <div class="field">
+          <label for="f-location">Property city or ZIP</label>
+          <input id="f-location" name="location" type="text" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-mls">MLS</label>
+          <select id="f-mls" name="mls"><option value="">Not sure</option><option>Stellar MLS</option><option>Another MLS</option><option>No MLS use</option></select>
+        </div>
+        <div class="field">
+          <label for="f-use">Where will the images be used?</label>
+          <select id="f-use" name="use"><option value="">Not sure</option><option>MLS listing photos</option><option>Other listing marketing</option><option>Renovation or planning concept</option></select>
+        </div>
+      </div>
+    </>
+  )}
+  <div class="field">
+    <label for="f-message">{full ? 'Tell us about the project' : 'Your message'} <span class="req">(required)</span></label>
+    <textarea id="f-message" name="message" aria-describedby="h-message e-message"></textarea>
+    <p class="hint" id="h-message">Please do not include card details or attach photos yet.</p>
+    <p class="err" id="e-message" data-err="message" hidden></p>
+  </div>
+  <div class="hp" aria-hidden="true"><label for="f-website">Leave this empty</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+  <div class="field">
+    <label class="check"><input type="checkbox" name="consent" value="yes" aria-describedby="e-consent" /> <span>I understand how my details will be used, as explained in the {privacy ? <a href="/privacy-policy/">privacy policy</a> : 'privacy policy'}.</span></label>
+    <p class="err" id="e-consent" data-err="consent" hidden></p>
+  </div>
+  <p class="hint">We use your details only to reply about this request. They are not sold or added to a marketing list.</p>
+  <div class="btn-row"><button class="btn btn--primary" type="submit">{full ? 'Request a Quote' : 'Send Message'}</button></div>
+  <div class="form-status" data-status role="status" aria-live="polite" tabindex="-1" hidden></div>
+  {!endpoint && <p class="hint">Online delivery is not connected yet. After you check your details, this form helps you send them by email.</p>}
+</form>

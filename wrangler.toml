@@ -1,0 +1,4 @@
+# Prepared for Cloudflare Pages. Hosting has not been chosen, and this has never been deployed.
+name = "stageliora-st-petersburg"
+pages_build_output_dir = "dist-production"
+compatibility_date = "2026-10-01"

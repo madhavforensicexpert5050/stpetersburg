@@ -1,0 +1,31 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Cta from '../components/Cta.astro';
+import { styles } from '../data/taxonomy.ts';
+import { getMedia } from '../data/media.ts';
+import { isLive } from '../data/routes.ts';
+---
+<PageHero path="/design-styles/" eyebrow="Design styles" h1="Choose a style for the house, not the moodboard" lede="The best staging style is the one that suits the architecture in the photo and the people likely to buy it. Here are eight directions to start from." />
+<section class="section">
+  <div class="wrap">
+    <div class="gal">
+      {styles.map((s) => {
+        const img = getMedia(`lib-${s.id}-living-room`);
+        const page = `/design-styles/${s.id}/`;
+        const lib = isLive('/design-library/') ? `/design-library/?style=${s.id}` : null;
+        const href = s.hasPage && isLive(page) ? page : lib;
+        return (
+          <article class="gal__item">
+            {href ? <a href={href} aria-label={`${s.name} style`}><img src={img.src} alt={img.alt} width={img.width} height={img.height} loading="lazy" /></a> : <img src={img.src} alt={img.alt} width={img.width} height={img.height} loading="lazy" />}
+            <h2 style="font-size:1.4rem;margin-top:12px">{s.name}</h2>
+            <p class="gal__meta">{s.note}</p>
+            <p class="gal__meta">{s.materials}</p>
+            {href && <a class="textlink small" href={href}>{s.hasPage && isLive(page) ? `About ${s.name.toLowerCase()} staging` : 'See in the Design Library'}</a>}
+          </article>
+        );
+      })}
+    </div>
+    <p class="small muted" style="margin-top:22px">Placeholder drawings. Styles are shown to explain the options and cannot be ordered yet.</p>
+  </div>
+</section>
+<Cta />

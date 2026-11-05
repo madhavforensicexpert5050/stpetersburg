@@ -1,0 +1,39 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Cta from '../components/Cta.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { stylePages } from '../data/content.ts';
+import { styles } from '../data/taxonomy.ts';
+import { library } from '../data/media.ts';
+import { isLive } from '../data/routes.ts';
+const { slug } = Astro.props as { slug: string };
+const p = stylePages[slug];
+const s = styles.find((x) => x.id === slug)!;
+const items = library.filter((l) => l.style === slug);
+---
+<PageHero path={`/design-styles/${slug}/`} eyebrow={`${s.name} style`} h1={p.h1} lede={p.intro} />
+<section class="section">
+  <div class="wrap grid grid--3">
+    <div class="card card--flat"><h2 style="font-size:1.4rem">Tends to suit</h2><ul class="tick">{p.bestFor.map((x) => <li>{x}</li>)}</ul></div>
+    <div class="card card--flat"><h2 style="font-size:1.4rem">Typical pieces</h2><ul>{p.pieces.map((x) => <li>{x}</li>)}</ul></div>
+    <div class="card card--flat"><h2 style="font-size:1.4rem">Watch for</h2><p>{p.watch}</p></div>
+  </div>
+</section>
+<section class="section section--wall">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">By room</p><h2>{s.name} room directions</h2><p>Placeholder drawings that show how each room will be presented. They cannot be ordered yet.</p></div>
+    <div class="gal">
+      {items.map((it) => (
+        <figure class="gal__item">
+          <button type="button" class="gal__btn" data-zoom={it.src} data-alt={it.alt} data-title={`${it.styleName} ${it.roomName} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${it.roomName}`}>
+            <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
+          </button>
+          <figcaption><h3>{it.roomName}</h3></figcaption>
+        </figure>
+      ))}
+    </div>
+    {isLive('/design-library/') && <p style="margin-top:22px"><a class="textlink" href={`/design-library/?style=${slug}`}>Open {s.name.toLowerCase()} in the Design Library</a></p>}
+    <Lightbox />
+  </div>
+</section>
+<Cta />

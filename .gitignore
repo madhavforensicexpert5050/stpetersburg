@@ -1,0 +1,26 @@
+node_modules/
+dist/
+dist-qa/
+.astro/
+.env
+.env.*
+!.env.example
+qa-output/
+dist-production/
+dist-candidate/
+
+# Private business records: kept locally, never public
+single-source-of-truth.md
+docs/
+docs-src/
+scripts/generate-docs.mjs
+scripts/generate-release-docs.mjs
+scripts/generate-qa-report.mjs
+
+# Local and generated
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+coverage/

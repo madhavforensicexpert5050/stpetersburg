@@ -1,0 +1,19 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Cta from '../components/Cta.astro';
+import { guides } from '../data/guides.ts';
+import { isLive } from '../data/routes.ts';
+---
+<PageHero path="/guides/" eyebrow="Guides" h1="Plain guides to virtual staging" lede="What it is, what it costs, how to shoot for it, and how to disclose it in Florida. Sources are listed in each guide." />
+<section class="section">
+  <div class="wrap grid grid--3">
+    {guides.filter((g) => isLive(g.path)).map((g) => (
+      <a class="card card--link" href={g.path}>
+        <h2 style="font-size:1.35rem">{g.h1}</h2>
+        <p>{g.summary}</p>
+        <span class="gal__meta">{g.reading} read</span>
+      </a>
+    ))}
+  </div>
+</section>
+<Cta />

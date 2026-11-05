@@ -1,0 +1,24 @@
+---
+import { getPair } from '../data/media.ts';
+interface Props { pair: string; eager?: boolean; animate?: boolean; hideCaption?: boolean }
+const { pair, eager = false, animate = false } = Astro.props;
+const { before, after } = getPair(pair);
+const placeholder = before.rights === 'project-placeholder';
+const tagB = placeholder ? 'Placeholder: before' : 'Before';
+const tagA = placeholder ? 'Placeholder: after' : 'After';
+---
+<figure class:list={['compare-wrap', { 'anim-reveal': animate }]} data-compare>
+  <div class="compare">
+    <img src={before.src} alt={before.alt} width={before.width} height={before.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    <img class="compare__after" src={after.src} alt={after.alt} width={after.width} height={after.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    <span class="compare__tag compare__tag--b">{tagB}</span>
+    <span class="compare__tag compare__tag--a">{tagA}</span>
+    <span class="compare__line" aria-hidden="true"></span>
+    <span class="compare__knob" aria-hidden="true">↔</span>
+    <input type="range" min="0" max="100" value="50" step="1" aria-label={`Compare before and after: ${before.label} and ${after.label}`} aria-valuetext="50 percent" />
+  </div>
+  <figcaption>
+    <p>{placeholder ? 'Placeholder illustration, not a photo of completed work.' : after.caption}</p>
+    <button type="button" class="mini-btn compare-noscript-hide" data-compare-toggle aria-pressed="false">Side by side</button>
+  </figcaption>
+</figure>

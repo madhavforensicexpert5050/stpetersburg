@@ -1,0 +1,21 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+import { locations, decisionLabel } from '../data/locations.ts';
+import { isLive, isPreview } from '../data/routes.ts';
+---
+<PageHero path="/locations/" eyebrow="Locations" h1="Places researched for this site" lede="All twelve are incorporated municipalities in Pinellas County, Florida. StageLiora works remotely and has no office in any of them." />
+<section class="section">
+  <div class="wrap">
+    {isPreview && <Notice h="Research candidates, not service-area claims">Listing a place here does not mean it is an approved service area or a page ready to publish. Decisions below are recommendations for the owner.</Notice>}
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Researched locations">
+      <table>
+        <caption>Census data: ACS 2020–2024 5-year estimates, table B25024. Building types, not ownership form.</caption>
+        <thead><tr><th scope="col">Place</th><th scope="col">Relationship to St. Petersburg</th><th scope="col">Detached</th><th scope="col">10+ units</th><th scope="col">Mobile</th>{isPreview && <th scope="col">Decision</th>}</tr></thead>
+        <tbody>
+          {locations.map((l) => <tr><td>{isLive(l.path) ? <a href={l.path}>{l.name}</a> : l.name}</td><td>{l.relationship}</td><td>{l.detached}%</td><td>{l.tenPlus}%</td><td>{l.mobile}%</td>{isPreview && <td>{decisionLabel[l.decision]}</td>}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

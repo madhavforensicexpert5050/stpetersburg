@@ -1,0 +1,18 @@
+---
+import { isLive } from '../data/routes.ts';
+import { business } from '../data/business.ts';
+interface Props { h?: string; p?: string }
+const { h = 'Have a listing in mind?', p = 'Tell us about the rooms and where the images will be used. We will tell you what can be done, and what should not be.' } = Astro.props;
+---
+<section class="cta-band">
+  <div class="wrap">
+    <div>
+      <h2>{h}</h2>
+      <p>{p}</p>
+    </div>
+    <div class="btn-row">
+      {isLive('/request-quote/') ? <a class="btn btn--primary" href="/request-quote/">Request a Quote</a> : <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
+      {isLive('/how-it-works/') && <a class="btn" href="/how-it-works/">How It Works</a>}
+    </div>
+  </div>
+</section>

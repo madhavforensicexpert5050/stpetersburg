@@ -1,0 +1,24 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Cta from '../components/Cta.astro';
+import Notice from '../components/Notice.astro';
+import { audiences } from '../data/content.ts';
+import { routes } from '../data/routes.ts';
+const { slug } = Astro.props as { slug: keyof typeof audiences };
+const a = audiences[slug];
+const path = routes.find((r) => r.template === 'audience' && r.ref === slug)!.path;
+---
+<PageHero path={path} eyebrow={a.eyebrow} h1={a.h1} lede={a.intro} pair={a.pairKey} />
+<section class="section">
+  <div class="wrap">
+    <div class="grid grid--3">{a.needs.map((n) => <div class="card card--flat"><h2 style="font-size:1.4rem">{n.h}</h2><p>{n.b}</p></div>)}</div>
+  </div>
+</section>
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Checklist</p><h2>Before an edited photo goes out</h2></div>
+    <ul class="tick">{a.checklist.map((x) => <li>{x}</li>)}</ul>
+  </div>
+</section>
+{slug !== 'agents' && <section class="section section--tight"><div class="wrap narrow"><Notice h="Not available yet" kind="info">This page describes a possible way of working. No {slug === 'photographers' ? 'partner program' : 'team plan'} exists today, and no terms have been set.</Notice></div></section>}
+<Cta />

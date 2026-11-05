@@ -1,0 +1,14 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+const stages = ['Received', 'Photos checked', 'In editing', 'Quality check', 'Delivered', 'Revision requested'];
+---
+<PageHero path="/orders/" eyebrow="Internal draft" h1="Orders" lede="This screen shows where order tracking will live. No orders exist, and no backend is connected." />
+<section class="section">
+  <div class="wrap">
+    <Notice h="Order tracking is not active">This route is excluded from production builds until order storage exists and has been tested.</Notice>
+    <div class="empty"><h2>No orders</h2><p>Orders will be listed here once ordering is live.</p></div>
+    <h2 style="font-size:1.4rem;margin:32px 0 12px">Planned status labels</h2>
+    <ol class="stepper">{stages.map((s) => <li>{s}</li>)}</ol>
+  </div>
+</section>

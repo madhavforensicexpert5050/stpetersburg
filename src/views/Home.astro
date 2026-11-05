@@ -1,0 +1,173 @@
+---
+import Compare from '../components/Compare.astro';
+import ServiceTiles from '../components/ServiceTiles.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { process, generalFaqs } from '../data/content.ts';
+import { styles, rooms } from '../data/taxonomy.ts';
+import { library, getMedia } from '../data/media.ts';
+import { isLive } from '../data/routes.ts';
+import { services } from '../data/services.ts';
+const styleCards = styles.filter((s) => s.hasPage).map((s) => ({ s, img: getMedia(`lib-${s.id}-living-room`) }));
+const roomCards = ['primary-bedroom', 'dining-room', 'home-office', 'sunroom', 'kitchen', 'patio'].map((id) => {
+  const it = library.find((l) => l.room === id)!;
+  return { name: rooms.find((r) => r.id === id)!.name, it };
+});
+const faqs = [generalFaqs[0].items[0], generalFaqs[1].items[0], generalFaqs[1].items[2], generalFaqs[0].items[2]];
+const lib = isLive('/design-library/');
+const liveServices = services.filter((s) => isLive(s.path));
+const bothTracks = liveServices.some((s) => s.track === 'concept-visualization') && liveServices.some((s) => s.track === 'listing-editing');
+const showStyles = isLive('/design-styles/') || lib;
+const showRooms = isLive('/portfolio/') || lib;
+---
+<section class="hero on-ink">
+  <div class="hero__grid">
+    <div class="hero__copy">
+      <p class="eyebrow" style="margin:0">St. Petersburg, Florida</p>
+      <h1>Virtual Staging for Real Estate Listings in <em>St. Petersburg, FL</em></h1>
+      <p>Drag the line. The furniture changes. The walls, windows, floors and fixtures do not. That is the rule we build everything around.</p>
+      <div class="btn-row">
+        {isLive('/request-quote/') && <a class="btn btn--primary" href="/request-quote/">Request a Quote</a>}
+        {isLive('/services/virtual-staging/') && <a class="btn" href="/services/virtual-staging/">Explore Virtual Staging</a>}
+      </div>
+    </div>
+    <div class="hero__art"><Compare pair="hero-living" eager animate /></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">Before and after</p><h2>A room is easier to judge with something in it</h2></div>
+      <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Try it on either image.</p>
+    </div>
+    <div class="grid grid--2">
+      <Compare pair="showcase-bedroom" />
+      <Compare pair="showcase-dining" />
+    </div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      {bothTracks
+        ? <div><p class="eyebrow">Services</p><h2>Two kinds of work. We keep them apart.</h2></div>
+        : <div><p class="eyebrow">Services</p><h2>Edits that show the property as it is</h2></div>}
+      {bothTracks
+        ? <p class="lede">Listing photo edits are meant to show a property as it really is. Concept visualizations show what could be, and they are for planning, not for an MLS listing photo.</p>
+        : <p class="lede">Listing photo edits are meant to show a real property clearly, with limits that protect you and the buyer.</p>}
+    </div>
+    <ServiceTiles />
+    {isLive('/services/') && <p style="margin-top:22px"><a class="textlink" href="/services/">Compare all services and their MLS notes</a></p>}
+  </div>
+</section>
+
+<section class="section on-ink">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">How it works</p><h2>From first message to published listing</h2></div>
+    <ol class="steps">
+      {process.map((s) => <li><span class="n" aria-hidden="true">{s.n}</span><div><h3>{s.h}</h3><p>{s.b}</p></div></li>)}
+    </ol>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two-col two-col--media">
+    <div>
+      <p class="eyebrow">For listing agents</p>
+      <h2>Useful where photos are the problem</h2>
+      <p class="lede" style="margin-top:16px">Virtual staging cannot fix a price or a roof. It can give buyers a better read of a room they are seeing on a phone.</p>
+      <ul class="tick">
+        <li>Show the scale and purpose of vacant rooms</li>
+        <li>Replace distracting movable furniture in occupied homes</li>
+        <li>Get a read on MLS limits before any work starts</li>
+        <li>Keep the original beside every edited image</li>
+      </ul>
+      {isLive('/for-real-estate-agents/') && <a class="textlink" href="/for-real-estate-agents/">More for real estate agents</a>}
+    </div>
+    <Compare pair="svc-furniture-removal" />
+  </div>
+</section>
+
+{showStyles && <section class="section section--tight section--wall">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">Design styles</p><h2>Match the style to the house in the photo</h2></div>
+      <p>Choose a direction that suits the architecture and the likely buyer. Every image below is a placeholder drawing.</p>
+    </div>
+  </div>
+  <div class="strip" tabindex="0" role="region" aria-label="Design style previews">
+    {styleCards.map(({ s, img }) => (
+      isLive(`/design-styles/${s.id}/`)
+        ? <a href={`/design-styles/${s.id}/`}><img src={img.src} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
+        : <a href={lib ? `/design-library/?style=${s.id}` : '#main'}><img src={img.src} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
+    ))}
+  </div>
+</section>}
+
+{showRooms && <section class="section">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">Portfolio and rooms</p><h2>Space held for real work</h2></div>
+      <p>We have no customer examples to show yet, and we will not invent any. These slots show how rooms will be presented once licensed photos are approved.</p>
+    </div>
+    <div class="gal">
+      {roomCards.map(({ name, it }) => (
+        <figure class="gal__item">
+          <button type="button" class="gal__btn" data-zoom={it.src} data-alt={it.alt} data-title={`${name} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${name}`}>
+            <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
+          </button>
+          <figcaption><h3>{name}</h3><p class="gal__meta">Placeholder. {it.styleName} direction.</p></figcaption>
+        </figure>
+      ))}
+    </div>
+    <div class="btn-row" style="margin-top:26px">
+      {isLive('/portfolio/') && <a class="btn" href="/portfolio/">View Portfolio Layout</a>}
+      {lib && <a class="btn" href="/design-library/">Browse the Design Library</a>}
+    </div>
+  </div>
+</section>}
+
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div>
+      <p class="eyebrow">Pricing</p>
+      <h2>Quotes first, until prices are set</h2>
+      <p class="lede" style="margin-top:16px">StageLiora's prices have not been finalized, and we would rather say so than post a number that might change. Ask for a quote and you will see the cost before any work begins.</p>
+      {isLive('/pricing/') && <a class="textlink" href="/pricing/">How pricing works</a>}
+    </div>
+    <div class="mls">
+      <h3>Image accuracy and disclosure</h3>
+      <p>Stellar MLS Article 04.04 requires "Virtually staged" in the photo description, the virtually staged field checked, and public remarks that begin "One or more photo(s) was virtually staged."</p>
+      <p>It also strictly prohibits words on property photos, so the labels on this website are explanations and not MLS labels. We cannot promise compliance. The rules change, and the listing is yours.</p>
+      {isLive('/guides/virtual-staging-disclosure-florida/') && <a class="textlink" href="/guides/virtual-staging-disclosure-florida/">Read the Florida disclosure guide</a>}
+    </div>
+  </div>
+</section>
+
+<section class="section on-ink">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">St. Petersburg property marketing</p><h2>One city name. Very different listings.</h2></div>
+      <p class="lede">Realtor.com data for October 2026 shows how widely ZIPs labeled Saint Petersburg vary. These are housing figures. They do not measure demand for staging.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>3,049</b><span>active listings across 16 Saint Petersburg postal ZIPs</span></div>
+      <div class="stat"><b>60–133</b><span>days, the range of median days on market by ZIP</span></div>
+      <div class="stat"><b>$219.5K–$1.2M</b><span>the range of median list prices by ZIP</span></div>
+      <div class="stat"><b>26%</b><span>of city housing units are in buildings with 10 or more units (ACS 2020–2024)</span></div>
+    </div>
+    <p class="small" style="margin-top:20px">Postal ZIPs are not city limits. StageLiora works remotely and has no office in St. Petersburg.{isLive('/locations/st-petersburg-fl/') && <> <a href="/locations/st-petersburg-fl/">See the St. Petersburg guide</a>.</>}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Questions</p><h2>What people ask first</h2>{isLive('/faq/') && <p style="margin-top:16px"><a class="textlink" href="/faq/">See all FAQs</a></p>}</div>
+    <Faq items={faqs} open />
+  </div>
+</section>
+<Lightbox />
+<Cta />

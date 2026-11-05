@@ -1,0 +1,40 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Cta from '../components/Cta.astro';
+import Notice from '../components/Notice.astro';
+import { process } from '../data/content.ts';
+---
+<PageHero path="/how-it-works/" eyebrow="How it works" h1="Five steps, and one rule that never moves" lede="Add what moves. Leave what stays. Everything in the process exists to protect that line." pair="svc-virtual-staging" />
+<section class="section on-ink">
+  <div class="wrap">
+    <ol class="steps">{process.map((s) => <li><span class="n" aria-hidden="true">{s.n}</span><div><h2 style="font-size:1.5rem;margin-bottom:6px">{s.h}</h2><p>{s.b}</p></div></li>)}</ol>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap two-col">
+    <div class="prose">
+      <h2>What we check before editing</h2>
+      <ul class="tick">
+        <li>Is the requested change allowed for the intended use?</li>
+        <li>Does the edit touch anything permanent, or hide a defect?</li>
+        <li>Will the furniture be true to the size of the room?</li>
+        <li>Do you have the right to have this photo edited?</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <h2>What you need to do</h2>
+      <ul class="tick">
+        <li>Keep the original of every edited photo</li>
+        <li>Tell us which MLS you will use</li>
+        <li>Complete your MLS disclosure yourself</li>
+        <li>Tell buyers and showing agents the rooms are staged in the images</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section section--tight">
+  <div class="wrap narrow">
+    <Notice h="Still being finalized" kind="info">Secure upload, online ordering, turnaround times and the tools used to produce images have not been finalized. Before any work begins, we will tell you plainly how your images will be made, including any use of AI.</Notice>
+  </div>
+</section>
+<Cta />

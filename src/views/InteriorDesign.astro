@@ -1,0 +1,14 @@
+---
+import PageHero from '../components/PageHero.astro';
+import Notice from '../components/Notice.astro';
+import Cta from '../components/Cta.astro';
+import { interiorDesign } from '../data/content.ts';
+---
+<PageHero path="/online-interior-design/" eyebrow="Online interior design" h1="Online interior design is not offered today" lede="This draft shows what such a service could include, in case StageLiora offers it in the future." />
+<section class="section">
+  <div class="wrap">
+    <Notice h="Capability not approved">StageLiora does not provide interior designers, 3D room plans, shopping lists or design consultations today. Nothing on this page can be ordered.</Notice>
+    <div class="grid grid--4">{interiorDesign.deliverables.map((d) => <div class="card"><h2 style="font-size:1.25rem">{d.h}</h2><p>{d.b}</p></div>)}</div>
+  </div>
+</section>
+<Cta h="Interested in staging instead?" p="If you are marketing a property, the services on this site may be a better fit. Tell us about it." />

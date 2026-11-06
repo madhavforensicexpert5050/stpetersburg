@@ -4,6 +4,7 @@ import MediaImage from '../components/MediaImage.astro';
 import Compare from '../components/Compare.astro';
 import CallButton from '../components/CallButton.astro';
 import { founder } from '../data/founder.ts';
+import { anyPlanPriced, rateText } from '../data/pricing-plans.ts';
 import ShowcaseTabs, { type ShowcaseItem } from '../components/ShowcaseTabs.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
@@ -247,7 +248,7 @@ const stepIcons = [
     <div>
       <p class="eyebrow">Pricing</p>
       <h2>Priced before any work begins</h2>
-      <p class="lede" style="margin-top:16px">Cost depends on the service, the number of images and what each room needs. Rates are not published on the site, so ask about your listing directly. Any project is priced before work begins.</p>
+      <p class="lede" style="margin-top:16px">{anyPlanPriced() && rateText('pay-as-you-go') ? `Pay As You Go is ${rateText('pay-as-you-go')}, with lower per-photo rates for bundled sets. Cost depends on the service, the number of images and what each room needs, and any project is priced before work begins.` : 'Cost depends on the service, the number of images and what each room needs. Rates are not published on the site, so ask about your listing directly. Any project is priced before work begins.'}</p>
       {isLive('/pricing/') && <a class="textlink" href={url('/pricing/')}>How pricing works</a>}
     </div>
     <div class="mls">

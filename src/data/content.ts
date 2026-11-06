@@ -1,4 +1,5 @@
 import { approvals } from './approvals.ts';
+import { anyPlanPriced } from './pricing-plans.ts';
 import { services } from './services.ts';
 
 /** Pricing renders from approved values only. An empty approval list means "quote on request". */
@@ -17,7 +18,7 @@ export const pricing = {
     { h: 'Room complexity', b: 'An open plan with several zones, or a room shot from a wide angle, takes more placement work than a simple bedroom.' },
     { h: 'Furniture and styling', b: 'A full furnished look, a particular design direction or matching several rooms to one style all shape the effort involved.' },
     { h: 'Scope of changes', b: 'An occupied room needs belongings removed before staging. Concept edits to paint, floors or landscaping are separate work.' },
-    { h: 'Revisions', b: 'How changes after the first version are handled is agreed in writing before any work starts.' },
+    { h: 'Revision requirements', b: 'How changes after the first version are handled is agreed in writing before any work starts.' },
   ],
   expect: [
     { h: 'Photo requirements', b: 'Level, well-lit, full-resolution photos with the floor visible give the most believable result. Send only photos you have the right to edit.', href: '/guides/how-to-prepare-photos-for-virtual-staging/', link: 'How to prepare your photos' },
@@ -42,7 +43,7 @@ export const generalFaqs = [
     { q: 'Who is StageLiora for?', a: 'Real estate agents, photographers, brokerages and other people who market property.' },
     { q: 'Do the walls, windows and floors stay the same?', a: 'In a listing photo edit, yes. Virtual staging adds or replaces movable furniture and decor. Walls, windows, flooring, fixtures and the view stay as photographed. Changing those is a concept visualization, which should not be used as a current listing photo.' },
     { q: 'Can I see the same room in more than one style?', a: 'The Design Library shows each room type across several of the eight design directions, so you can compare them side by side. For a listing, one direction per home usually keeps the photos consistent.' },
-    { q: 'How is the price of a project set?', a: 'By the service, the number of images, what each room needs and the quality of the source photo. Rates are not published on the site. The pricing page explains how each factor affects the cost.' },
+    { q: 'How is the price of a project set?', a: `By the service, the number of images, what each room needs and the quality of the source photo. ${anyPlanPriced() ? 'The pricing page lists the current rates' : 'Rates are not published on the site'}, and explains how each factor affects the cost.` },
     { q: 'Do you have an office in St. Petersburg?', a: 'No. StageLiora works remotely and has no public office or storefront in Florida. St. Petersburg is the market this site is written for.' },
     { q: 'Can I see your finished work?', a: 'The before-and-after examples on this site are AI-created concepts of fictional rooms. They show the approach and the editing limits. Client work will be published only with permission, and labeled as client work.' },
   ] },

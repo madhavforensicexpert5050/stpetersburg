@@ -115,8 +115,11 @@ const claimHits = [];
 for (const [p, html] of all) { const t = visible(html); for (const re of banned) { const m = t.match(re); if (m) claimHits.push(`${p}: "${m[0]}"`); } }
 check('No banned brand, ranking, guarantee, count or office claims', !claimHits.length, claimHits);
 const priceHits = [];
-for (const { r, html } of pages) { if (['guide', 'guidesHub', 'location'].includes(r.template)) continue; const m = visible(html).replace(/\$[\d.,]+[KM]/g, '').match(/\$\d[\d,.]*/g) || []; if (m.length) priceHits.push(`${r.path}: ${m.join(', ')}`); }
-check('No StageLiora prices shown outside guide market context and listing data', !priceHits.length, priceHits);
+// Only figures recorded in approvals.planPricing may appear (none at all when nothing is approved).
+const { plans: qaPlans, headline: qaHeadline } = await import('../src/data/pricing-plans.ts');
+const approvedAmounts = new Set(qaPlans.map((p) => qaHeadline(p.planId)?.amount).filter(Boolean));
+for (const { r, html } of pages) { if (['guide', 'guidesHub', 'location'].includes(r.template)) continue; const m = (visible(html).replace(/\$[\d.,]+[KM]/g, '').match(/\$\d[\d,.]*/g) || []).map((x) => x.replace(/[.,]$/, '')).filter((x) => !approvedAmounts.has(x)); if (m.length) priceHits.push(`${r.path}: ${m.join(', ')}`); }
+check('No StageLiora price shown unless it matches an owner-approved figure', !priceHits.length, priceHits);
 check('No street address pattern anywhere', !all.some(([, h]) => /\b\d{2,5} [A-Z][a-z]+ (St|Street|Ave|Avenue|Blvd|Road|Rd|Suite)\b/.test(visible(h))));
 
 // Near-duplicate location check on main content
@@ -171,6 +174,14 @@ check('Owner content and design approval is recorded for all 60 routes', routes.
   const shown = [...pricingHtml.matchAll(/\$\d[\d,]*(?:\.\d+)?/g)].map((m) => m[0]);
   check('Pricing: exactly four plan cards in the configured order', plans.map((p) => p.planName).join('|') === 'Pay As You Go|Essential Bundle|Plus Bundle|Dedicated Assistance' && (pricingHtml.match(/class="plan(?: plan--assist)?"/g) || []).length === 4, (pricingHtml.match(/class="plan[^"]*"/g) || []).join(' '));
   check('Pricing: no dollar figure is shown unless an owner record approves it', plans.some((p) => approvedPrice(p.planId)) || shown.length === 0, shown.join(' '));
+  const pp = await import('../src/data/pricing-plans.ts');
+  check('Pricing math: $20 base less 10%, 20%, 30% is exactly $18, $16, $14 (integer cents)', pp.discounted(2000, 10) === 1800 && pp.discounted(2000, 20) === 1600 && pp.discounted(2000, 30) === 1400 && pp.proposals['pay-as-you-go'].calculatedRate === 1800 && pp.proposals['essential-bundle'].calculatedRate === 1600 && pp.proposals['plus-bundle'].calculatedRate === 1400);
+  check('Pricing: USD formatting', pp.usd(1800) === '$18' && pp.usd(300000) === '$3,000' && pp.usd(1450) === '$14.50' && pp.usd(2000) === '$20');
+  check('Pricing: unknown terms are null, never zero; no bundle total without approved quantity', Object.values(pp.proposals).every((t) => t.bundleQuantity === null && t.bundlePrepayment === null && t.includedCredits === null && t.minimumOrder === null && !t.isApproved) && pp.bundleTotal(null, 1600) === null && pp.bundleTotal(10, null) === null && pp.bundleTotal(10, 1600) === 16000);
+  check('Pricing: proposed rates are never published without approval', plans.some((p) => approvedPrice(p.planId)) || !/\$18\b|\$16\b|\$14\b|\$3,000|\$12\b|\$20\b/.test(pricingHtml));
+  check('Pricing: no crossed-out prices, savings claims, totals or checkout links', !/<(s|del|strike)\b|line-through|Save \d+%|\d+% off|Total:|href="[^"]*\/(order|upload|account|checkout)\//i.test(pricingHtml));
+  check('Pricing: Dedicated Assistance offers Call StageLiora (tel) and Contact Us', /plan--assist[\s\S]*?href="tel:\+918890929329"[\s\S]*?Contact Us/.test(pricingHtml));
+  check('Pricing: no rendered figure differs from the approval records', (() => { const allowed = new Set(plans.map((p) => pp.headline(p.planId)?.amount).filter(Boolean)); const inCards = [...pricingHtml.matchAll(/class="plan__amount"><span>([^<]+)<\/span>/g)].map((m) => m[1]); return inCards.every((a) => allowed.has(a)); })());
   check('Pricing: no reference-site prices, savings badges or Individuals/Teams tabs', !/\$35\b|\$28\b|\$24\.50|\$399|\$799|Save \d+%|Most Popular|For Individuals|For Teams/.test(pricingHtml));
 }
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));

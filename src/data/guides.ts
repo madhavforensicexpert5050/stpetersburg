@@ -1,3 +1,4 @@
+import { anyPlanPriced } from './pricing-plans.ts';
 /** Original guides. Body blocks are rendered by GuideBody. Links use root-relative paths and are filtered in production builds. */
 export type Block =
   | { t: 'p'; x: string }
@@ -57,7 +58,7 @@ export const guides: Guide[] = [
       { t: 'ol', items: ['Do you get the unaltered original back as well as the edited image?', 'What does the revision policy cover, and when does it end?', 'Are there extra charges for removal, rush handling or more styles?', 'Does the vendor understand your MLS, or does it just say "compliant"?', 'Who owns the result, and may the vendor use your photos in its own marketing?'] },
       { t: 'callout', h: 'A price is only useful if the image can be used', x: 'A cheap edit that adds a fixture, hides a defect or puts words on a Stellar listing photo can cost more than it saved. Stellar\'s penalty for non-compliant virtually staged photos is removal plus an automatic fine.' },
       { t: 'h2', x: 'StageLiora pricing' },
-      { t: 'p', x: 'StageLiora does not list rates on this site. Any StageLiora project is priced before work starts.' },
+      { t: 'p', x: anyPlanPriced() ? 'StageLiora lists its current rates on the pricing page. Any StageLiora project is priced before work starts.' : 'StageLiora does not list rates on this site. Any StageLiora project is priced before work starts.' },
       { t: 'links', h: 'Related', items: [{ href: '/pricing/', label: 'What affects a StageLiora quote' }, { href: '/request-quote/', label: 'Request a quote' }, { href: '/guides/virtual-staging-vs-traditional-staging/', label: 'Virtual or traditional staging?' }] },
     ],
   },

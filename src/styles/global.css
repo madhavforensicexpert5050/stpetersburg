@@ -557,3 +557,12 @@ input:disabled, select:disabled { background: var(--wall); }
 .expect .card .textlink { margin-top: auto; }
 @media (max-width: 1100px) { .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 620px) { .plan-grid { grid-template-columns: minmax(0, 1fr); } .plan__sub { min-height: 0; } }
+
+/* ================= V12: pricing comparison ================= */
+.compare-plans table { min-width: 720px; }
+.compare-plans thead td { border: 0; }
+.compare-plans thead th { font: 650 1rem/1.3 var(--text); color: var(--ink); text-align: left; border-bottom: 3px solid var(--sun); }
+.compare-plans thead th:last-child { border-bottom-color: var(--ink); }
+.compare-plans tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.compare-plans tbody td { color: var(--body); }
+.plan--assist .plan__amount small { color: var(--on-ink-muted); }

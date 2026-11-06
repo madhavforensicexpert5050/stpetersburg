@@ -15,9 +15,13 @@ export interface ApprovalRecord { by: string; date: string; reference: string }
 /** Owner-approved figures for one pricing card on /pricing/. Every number must come from a written owner decision. */
 export interface PlanPrice extends ApprovalRecord {
   currency: 'USD';
-  pricePerPhoto?: number;
-  prepaidAmount?: number;
+  /** Integer cents. Leave a field out when it has not been approved; never use 0 for unknown. */
+  pricePerPhotoCents?: number;
+  annualFeeCents?: number;
+  prepaidCents?: number;
   includedPhotos?: number;
+  minimumPhotos?: number;
+  includedCreditsCents?: number;
 }
 
 /** Every field must be answered before a service can be sold. A competitor offering it proves nothing. */
@@ -82,7 +86,12 @@ const OWNER_APPROVALS: OwnerApprovals = {
   indexing: {},
   services: {},
   prices: {},
-  planPricing: {},
+  planPricing: {
+    'pay-as-you-go': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $18 per photo approved for publication as a net price (no comparison or savings claim)', currency: 'USD', pricePerPhotoCents: 1800 },
+    'essential-bundle': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $16 per photo approved as a net price. Bundle size, prepayment, expiry and refunds not yet set', currency: 'USD', pricePerPhotoCents: 1600 },
+    'plus-bundle': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $14 per photo approved as a net price. Bundle size, prepayment, expiry and refunds not yet set', currency: 'USD', pricePerPhotoCents: 1400 },
+    'dedicated-assistance': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $3,000 per year fee approved for display only. Credits, a $12 rate and an assigned person NOT approved', currency: 'USD', annualFeeCents: 300000 },
+  },
   legalReview: {},
   coverage: {},
   formDeliveryVerified: null,

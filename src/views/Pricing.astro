@@ -1,8 +1,8 @@
 ---
 /**
- * Pricing: four cards (Pay As You Go, Essential Bundle, Plus Bundle, Dedicated Assistance).
- * Figures appear only from approvals.planPricing (see src/data/pricing-plans.ts). No reference-site prices.
- * Every button is an inquiry (Contact page or phone); there is no checkout.
+ * Pricing (V12): hero, four cards, comparison, cost factors, project expectations, FAQ, contact CTA.
+ * Figures come only from approvals.planPricing via src/data/pricing-plans.ts. Proposed V12 rates are
+ * never rendered. No crossed-out prices, savings badges, bundle totals or checkout links.
  */
 import { url } from '../lib/url.ts';
 import Crumbs from '../components/Crumbs.astro';
@@ -10,19 +10,31 @@ import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
 import CallButton from '../components/CallButton.astro';
 import { pricing } from '../data/content.ts';
-import { plans, approvedPrice, anyPlanPriced, usd } from '../data/pricing-plans.ts';
-import { services, trackLabel } from '../data/services.ts';
+import { plans, anyPlanPriced, headline, rateText, approvedTerm } from '../data/pricing-plans.ts';
 import { business } from '../data/business.ts';
 import { isLive } from '../data/routes.ts';
 const contactHref = isLive('/contact/') ? url('/contact/') : business.emailHref;
-const rows = pricing.rows.filter((r) => r.price !== null && isLive(services.find((s) => s.slug === r.slug)!.path));
 const priced = anyPlanPriced();
+const confirm = 'Confirmed before you commit';
+
+// FAQs: answers mention a figure only when that figure is approved.
+const payg = rateText('pay-as-you-go'), ess = rateText('essential-bundle'), plus = rateText('plus-bundle'), da = rateText('dedicated-assistance');
+const faqs = [
+  { q: 'How much does a virtual staging image cost?', a: payg ? `Pay As You Go is ${payg}.${ess ? ` The Essential Bundle is ${ess}` : ''}${plus ? ` and the Plus Bundle is ${plus}` : ''}${ess || plus ? ' when photos are staged as a set.' : ''} The exact cost for your photos is confirmed before any work begins.` : 'It depends on the service, the number of photos and the work each room needs. Rates are not listed on the site yet, so ask about your listing directly and the cost will be confirmed before any work begins.' },
+  { q: 'How does Pay As You Go work?', a: `Each image is priced on its own${payg ? `, at ${payg}` : ''}. It suits a single room or a few photos, and the scope and cost are agreed before any work starts.` },
+  { q: 'What is the difference between Essential and Plus?', a: `Both price photos as a set instead of one by one. Plus is meant for larger sets or several listings${ess && plus ? `, with a lower rate (${plus} against ${ess})` : ', with a lower per-photo rate'}. Bundle sizes and terms are set out in writing before any payment.` },
+  { q: 'How are bundled images billed?', a: 'Bundle billing, including quantity, any prepayment and how unused images are handled, is agreed in writing before any payment. Nothing is billed through this website.' },
+  { q: 'What is Dedicated Assistance?', a: `An option for people with ongoing property-image needs who want to talk through requirements, scope and suitable services directly with StageLiora${da ? `. It is ${da}` : ''}. Call or use the Contact page to discuss it.` },
+  { q: 'How do I discuss a project?', a: 'Call StageLiora or use the Contact page. Have the number of photos, the rooms and where the images will be used ready.' },
+  ...pricing.faqs.filter((f) => /What affects the cost|How are revisions handled|Are design visualizations/.test(f.q)),
+  { q: 'How are payments collected?', a: 'There is no online checkout or prepayment on this site. How to pay is set out in writing before any work starts. Please do not send card details by email or through a form.' },
+];
 ---
 <section class="pricing-hero">
   <div class="wrap">
     <Crumbs path="/pricing/" />
     <h1>Virtual Staging Pricing</h1>
-    <p class="lede">Explore flexible pricing options for property image visualization, from individual images to larger photo requirements.</p>
+    <p class="lede">Straightforward pricing options for individual images, bundled property photos and ongoing visual presentation needs.</p>
   </div>
 </section>
 
@@ -31,18 +43,15 @@ const priced = anyPlanPriced();
     <h2 class="visually-hidden">Pricing options</h2>
     <ul class="plan-grid">
       {plans.map((p) => {
-        const price = approvedPrice(p.planId);
+        const h = headline(p.planId);
+        const prepay = approvedTerm(p.planId, 'prepay');
         return (
           <li class:list={['plan', { 'plan--assist': p.variant === 'assist' }]}>
             <h3 class="plan__name">{p.planName}</h3>
             <p class="plan__sub">{p.subtitle}</p>
             <div class="plan__price">
-              {price?.pricePerPhoto != null ? (
-                <p class="plan__amount"><span>{usd(price.pricePerPhoto)}</span> <small>/ photo</small></p>
-              ) : (
-                <p class="plan__amount plan__amount--model">{p.model}</p>
-              )}
-              <p class="plan__note">{price?.prepaidAmount != null ? `Prepay ${usd(price.prepaidAmount)}${price.includedPhotos ? ` · ${price.includedPhotos} photos` : ''}` : p.modelNote}</p>
+              {h ? <p class="plan__amount"><span>{h.amount}</span> <small>{h.unit}</small></p> : <p class="plan__amount plan__amount--model">{p.model}</p>}
+              <p class="plan__note">{prepay ? `Prepay ${prepay}` : p.modelNote}</p>
             </div>
             <ul class="plan__features">{p.features.map((f) => <li>{f}</li>)}</ul>
             <div class="plan__cta">
@@ -54,21 +63,30 @@ const priced = anyPlanPriced();
         );
       })}
     </ul>
-    <p class="plan-footnote">{priced ? 'Prices are per finished image for the virtual staging service. The exact cost for your photos is confirmed before any work begins.' : 'Rates are not listed on the site yet. Ask about pricing for your listing by phone or through the Contact page. Nothing can be purchased online.'}</p>
+    <p class="plan-footnote">{priced ? 'Prices are in US dollars, per finished image unless stated. The exact cost for your photos is confirmed before any work begins. Nothing can be purchased online.' : 'Rates are not listed on the site yet. Ask about pricing for your listing by phone or through the Contact page. Nothing can be purchased online.'}</p>
   </div>
 </section>
 
-{rows.length > 0 && <section class="section section--tight">
+<section class="section section--tight">
   <div class="wrap">
-    <div class="table-wrap" tabindex="0" role="region" aria-label="Pricing by service">
+    <div class="section-head"><p class="eyebrow">Compare</p><h2>Pricing options side by side</h2></div>
+    <div class="table-wrap compare-plans" tabindex="0" role="region" aria-label="Pricing options compared">
       <table>
-        <caption>Per-image rates by service</caption>
-        <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Price per image</th></tr></thead>
-        <tbody>{rows.map((r) => <tr><td>{r.name}</td><td>{trackLabel[r.track]}</td><td>{usd(r.price!)}</td></tr>)}</tbody>
+        <caption class="visually-hidden">How the four pricing options compare</caption>
+        <thead><tr><td></td>{plans.map((p) => <th scope="col">{p.planName}</th>)}</tr></thead>
+        <tbody>
+          <tr><th scope="row">Price</th>{plans.map((p) => { const h = headline(p.planId); return <td>{h ? `${h.amount} ${h.unit}` : p.ctaDestination === 'tel' ? 'Contact for details' : confirm}</td>; })}</tr>
+          <tr><th scope="row">Pricing unit</th>{plans.map((p) => <td>{p.compare.unit}</td>)}</tr>
+          <tr><th scope="row">Intended use</th>{plans.map((p) => <td>{p.compare.use}</td>)}</tr>
+          <tr><th scope="row">Prepayment</th>{plans.map((p) => <td>{approvedTerm(p.planId, 'prepay') ?? (p.ctaDestination === 'tel' ? 'Discussed directly' : confirm)}</td>)}</tr>
+          <tr><th scope="row">Minimum photos</th>{plans.map((p) => <td>{approvedTerm(p.planId, 'minimum') ?? (p.ctaDestination === 'tel' ? 'Discussed directly' : confirm)}</td>)}</tr>
+          <tr><th scope="row">Included credits</th>{plans.map((p) => <td>{approvedTerm(p.planId, 'credits') ?? (p.ctaDestination === 'tel' ? 'Discussed directly' : 'None stated')}</td>)}</tr>
+          <tr><th scope="row">How to ask</th>{plans.map((p) => <td>{p.ctaDestination === 'tel' ? <a href={business.phoneHref}>Call StageLiora</a> : <a href={contactHref}>Contact page</a>}</td>)}</tr>
+        </tbody>
       </table>
     </div>
   </div>
-</section>}
+</section>
 
 <section class="section section--wall">
   <div class="wrap">
@@ -97,11 +115,11 @@ const priced = anyPlanPriced();
   </div>
 </section>
 
-<Cta h="Questions about the right option?" p="Discuss your property images, visual goals and the type of presentation you are considering." />
-
-<section class="section">
+<section class="section section--wall">
   <div class="wrap two-col">
     <div><p class="eyebrow">Questions</p><h2>Pricing FAQ</h2>{isLive('/guides/virtual-staging-cost/') && <p style="margin-top:14px"><a class="textlink" href={url('/guides/virtual-staging-cost/')}>What virtual staging costs across the market</a></p>}</div>
-    <Faq items={pricing.faqs} />
+    <Faq items={faqs} />
   </div>
 </section>
+
+<Cta h="Talk to StageLiora about Dedicated Assistance" p="Discuss your property images, ongoing requirements and the type of presentation you are considering." />

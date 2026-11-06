@@ -5,6 +5,7 @@ import Compare from '../components/Compare.astro';
 import CallButton from '../components/CallButton.astro';
 import LinkButton from '../components/LinkButton.astro';
 import { founder } from '../data/founder.ts';
+import { approvals } from '../data/approvals.ts';
 import { anyPlanPriced, rateText } from '../data/pricing-plans.ts';
 import ShowcaseTabs, { type ShowcaseItem } from '../components/ShowcaseTabs.astro';
 import Faq from '../components/Faq.astro';
@@ -241,12 +242,14 @@ const stepIcons = [
 
 {isLive(founder.path) && <section class="section founder-home">
   <div class="wrap founder-home__in">
-    <div class="founder-mark founder-mark--sm" aria-hidden="true"><span>DG</span></div>
+    {approvals.founderPortrait
+      ? <img class="founder-headshot" src={url(founder.portrait.headshot)} srcset={`${url(founder.portrait.headshotSmall)} 200w, ${url(founder.portrait.headshot)} 400w`} sizes="132px" width="400" height="400" alt={founder.portrait.altHeadshot} loading="lazy" decoding="async" />
+      : <div class="founder-mark founder-mark--sm" aria-hidden="true"><span>DG</span></div>}
     <div>
       <p class="eyebrow">{founder.home.eyebrow}</p>
       <h2>{founder.home.h}</h2>
       <p class="lede">{founder.home.p}</p>
-      <div class="cta-row"><LinkButton href={founder.path} label="Read My Story" /></div>
+      <div class="cta-row"><LinkButton href={founder.path} label="Read My Story" variant="primary" /></div>
     </div>
   </div>
 </section>}

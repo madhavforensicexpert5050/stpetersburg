@@ -150,3 +150,16 @@ export function getPair(key: string): { before: MediaItem; after: MediaItem } {
   return { before: getMedia(`${key}-before`), after: getMedia(`${key}-after`) };
 }
 export const portfolioPairs = portfolioRooms.map(({ room, style }) => ({ key: `pf-${room}`, room, style }));
+
+/**
+ * Brand and people images: owner-supplied photographs that are not property examples, so they sit outside
+ * the example manifest above (and its AI-image QA). Every <img> on the site must come from `media` or here.
+ */
+import { founder as founderData } from './founder.ts';
+import { approvals as brandApprovals } from './approvals.ts';
+export interface BrandMediaItem { id: string; src: string; width: number; height: number; alt: string; rights: 'owner-licensed'; ownerApproved: boolean; source: string; responsive?: { src: string; width: number }[] }
+const portraitApproved = Boolean(brandApprovals.founderPortrait?.by && brandApprovals.founderPortrait?.date && brandApprovals.founderPortrait?.reference);
+export const brandMedia: BrandMediaItem[] = [
+  { id: 'founder-portrait', src: founderData.portrait.src, width: founderData.portrait.width, height: founderData.portrait.height, alt: founderData.portrait.alt, rights: 'owner-licensed', ownerApproved: portraitApproved, source: 'Owner-supplied photograph of Devender Garg (approvals.founderPortrait)', responsive: founderData.portrait.srcset.map(([src, width]) => ({ src, width })) },
+  { id: 'founder-headshot', src: founderData.portrait.headshot, width: 400, height: 400, alt: founderData.portrait.altHeadshot, rights: 'owner-licensed', ownerApproved: portraitApproved, source: 'Square crop of the owner-supplied photograph', responsive: [{ src: founderData.portrait.headshotSmall, width: 200 }, { src: founderData.portrait.headshot, width: 400 }] },
+];

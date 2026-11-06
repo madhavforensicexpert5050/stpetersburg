@@ -11,7 +11,7 @@ const valid = () => ({
   publication: rec(core), indexing: rec(indexed),
   services: { 'virtual-staging': service }, prices: {}, planPricing: {},
   legalReview: rec(['privacy-policy', 'terms-of-service']), coverage: rec(['st-petersburg-fl']),
-  formDeliveryVerified: null, genuineReviews: null, founderStatements: null, founderRole: null,
+  formDeliveryVerified: null, genuineReviews: null, founderStatements: null, founderRole: null, founderPortrait: null,
 });
 
 export function qaFixture(name: string) {

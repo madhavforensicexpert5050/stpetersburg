@@ -62,6 +62,8 @@ export interface OwnerApprovals {
   founderStatements: ApprovalRecord | null;
   /** Confirmation that Devender Garg is StageLiora's Founder & Owner. Required before that title is shown. */
   founderRole: ApprovalRecord | null;
+  /** Devender Garg's own photograph (or his approved professional edit), supplied for publication. Required before any portrait is shown. */
+  founderPortrait: ApprovalRecord | null;
 }
 
 /**
@@ -98,6 +100,7 @@ const OWNER_APPROVALS: OwnerApprovals = {
   genuineReviews: null,
   founderStatements: { by: 'Devender Garg (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V10.1: first-person statements in src/data/founder.ts approved as written' },
   founderRole: { by: 'Devender Garg (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V10.1: Founder & Owner of StageLiora confirmed' },
+  founderPortrait: { by: 'Devender Garg (supplied in the Claude Code session)', date: '2026-11-06', reference: 'V10.3: owner-supplied founder photograph (professional edit) for the founder page and homepage note' },
 };
 
 /** QA_FIXTURE swaps in clearly fake approvals to test the gates. The production build script refuses it. */

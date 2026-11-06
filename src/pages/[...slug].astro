@@ -8,6 +8,7 @@ import { business } from '../data/business.ts';
 import Home from '../views/Home.astro';
 import About from '../views/About.astro';
 import Founder from '../views/Founder.astro';
+import { founder } from '../data/founder.ts';
 import { approvals } from '../data/approvals.ts';
 import Contact from '../views/Contact.astro';
 import How from '../views/How.astro';
@@ -50,7 +51,8 @@ const schema: object[] = [];
 if (route.template === 'home') schema.push({ '@type': 'WebSite', name: business.brand, url: siteRoot, publisher: org });
 if (route.template === 'founder') {
   const roleOk = Boolean(approvals.founderRole?.by && approvals.founderRole?.date && approvals.founderRole?.reference);
-  schema.push({ '@type': 'ProfilePage', url: canonical, mainEntity: { '@type': 'Person', name: 'Devender Garg', ...(roleOk ? { jobTitle: 'Founder & Owner' } : {}), worksFor: org } });
+  const photoOk = Boolean(approvals.founderPortrait?.by && approvals.founderPortrait?.date && approvals.founderPortrait?.reference);
+  schema.push({ '@type': 'ProfilePage', url: canonical, mainEntity: { '@type': 'Person', name: 'Devender Garg', ...(roleOk ? { jobTitle: 'Founder & Owner' } : {}), ...(photoOk ? { image: absUrl(founder.portrait.src) } : {}), worksFor: org } });
 }
 if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name }); }
 if (route.template === 'guide') {

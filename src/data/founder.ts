@@ -7,13 +7,22 @@
  * are left out of the public build.
  *
  * Rules: first person throughout; no invented history, education, years, credentials, clients,
- * achievements or founding story; no portrait unless a genuine, approved photo is supplied.
+ * achievements or founding story. The portrait is Devender's own supplied photo (approvals.founderPortrait).
  */
 export const founder = {
   name: 'Devender Garg',
   /** Shown only when approvals.founderRole is recorded. */
   role: 'Founder & Owner',
   path: '/about/devender-garg/',
+  /** Owner-supplied portrait (approvals.founderPortrait). Full frame keeps the face and the StageLiora backdrop intact. */
+  portrait: {
+    src: '/media/founder/devender-garg-founder-stageliora.webp', width: 1199, height: 1312,
+    srcset: [['/media/founder/devender-garg-founder-stageliora-480w.webp', 480], ['/media/founder/devender-garg-founder-stageliora-800w.webp', 800], ['/media/founder/devender-garg-founder-stageliora.webp', 1199]] as [string, number][],
+    headshot: '/media/founder/devender-garg-founder-stageliora-headshot-400.webp',
+    headshotSmall: '/media/founder/devender-garg-founder-stageliora-headshot-200.webp',
+    alt: 'Devender Garg, Founder and Owner of StageLiora, seated at his desk in a navy and gold office',
+    altHeadshot: 'Portrait of Devender Garg, Founder and Owner of StageLiora',
+  },
 
   hero: {
     eyebrow: 'About me',
@@ -60,13 +69,12 @@ export const founder = {
     p: [
       'StageLiora is focused on virtual staging and real estate image visualization for the St. Petersburg, Florida market.',
       'I keep two kinds of work apart. Listing photo edits, such as virtual staging, furniture removal and restaging, photo enhancement and twilight exteriors, are meant to show a property as it is. Concept visualizations of paint, flooring, ceilings, exterior color and landscaping are for planning a change, not for a listing photo.',
-      'Project bookings are not open yet. The examples on this site are AI-created concepts that show the approach I want StageLiora to take.',
     ],
     links: [
-      ['/services/', 'Explore the services'],
-      ['/portfolio/', 'See before-and-after examples'],
-      ['/design-library/', 'Browse the Design Library'],
-    ] as [string, string][],
+      ['/services/', 'Explore Our Services', 'arrow'],
+      ['/portfolio/', 'View Before & After', 'arrow'],
+      ['/design-styles/', 'Browse Design Styles', 'guide'],
+    ] as [string, string, 'arrow' | 'guide'][],
   },
 
   message: {

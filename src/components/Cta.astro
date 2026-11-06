@@ -3,7 +3,7 @@ import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { business } from '../data/business.ts';
 interface Props { h?: string; p?: string }
-const { h = 'Have a listing in mind?', p = 'Tell us about the rooms and where the images will be used. We will tell you what can be done, and what should not be.' } = Astro.props;
+const { h = 'Have a property in mind?', p = 'Questions about virtual staging, a listing photo or which edits suit a room? Get in touch by email or phone.' } = Astro.props;
 ---
 <section class="cta-band">
   <div class="wrap">
@@ -14,7 +14,7 @@ const { h = 'Have a listing in mind?', p = 'Tell us about the rooms and where th
     <div class="btn-row">
       {isLive('/request-quote/') ? <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a> : <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
       {isLive('/how-it-works/') && <a class="btn" href={url('/how-it-works/')}>How It Works</a>}
-      <p class="cta-band__contact"><a href={business.emailHref}>{business.email}</a> · <a href={business.phoneHref}>{business.phoneDisplay}</a></p>
+      <p class="cta-band__contact"><a href={business.emailHref}>{business.email}</a> · <a href={business.phoneHref}>{business.phoneDisplay}</a>{!isLive('/request-quote/') && <span class="cta-band__note">Project bookings are not open yet. Questions are welcome.</span>}</p>
     </div>
   </div>
 </section>

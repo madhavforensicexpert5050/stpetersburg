@@ -4,7 +4,7 @@ import PageHero from '../components/PageHero.astro';
 import ServiceTiles from '../components/ServiceTiles.astro';
 import Cta from '../components/Cta.astro';
 import { services, trackLabel, availabilityLabel } from '../data/services.ts';
-import { isLive, isPreview } from '../data/routes.ts';
+import { isLive, isPreview, isInternalReview } from '../data/routes.ts';
 const shown = services.filter((s) => isPreview || isLive(s.path));
 const listing = shown.filter((s) => s.track === 'listing-editing');
 const concept = shown.filter((s) => s.track === 'concept-visualization');
@@ -33,9 +33,9 @@ const h1 = isPreview ? 'Nine image services, sorted by what they are for' : 'Ima
     <div class="table-wrap" tabindex="0" role="region" aria-label="Services and Stellar MLS listing use">
       <table>
         <caption>Summary of Stellar MLS Article 04.04 and photo rules, read November 5, 2026. Not legal advice.</caption>
-        <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Stellar listing use</th>{isPreview && <th scope="col">Status</th>}</tr></thead>
+        <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Stellar listing use</th>{isInternalReview && <th scope="col">Status</th>}</tr></thead>
         <tbody>
-          {shown.map((s) => <tr><td>{isLive(s.path) ? <a href={url(s.path)}>{s.name}</a> : s.name}</td><td>{trackLabel[s.track]}</td><td>{s.stellar.label}</td>{isPreview && <td>{availabilityLabel(s.slug)}</td>}</tr>)}
+          {shown.map((s) => <tr><td>{isLive(s.path) ? <a href={url(s.path)}>{s.name}</a> : s.name}</td><td>{trackLabel[s.track]}</td><td>{s.stellar.label}</td>{isInternalReview && <td>{availabilityLabel(s.slug)}</td>}</tr>)}
         </tbody>
       </table>
     </div>

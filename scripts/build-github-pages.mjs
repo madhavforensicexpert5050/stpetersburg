@@ -69,7 +69,13 @@ for (const f of htmlFiles) {
   const name = rel(f);
   for (const [re, label] of forbidden) if (re.test(html)) fail.push(`${name} contains ${label}`);
   if (!/<meta name="robots" content="noindex/.test(html)) fail.push(`${name} lacks a noindex robots meta tag`);
-  if (!/class="ribbon"/.test(html)) fail.push(`${name} lacks the visible preview notice`);
+  // No sitewide banner on the public site. Instead, disclosure must sit next to what it describes:
+  // any page showing a comparison or gallery image must label it as AI-created in visible text,
+  // and every contact point must say that project bookings are not open.
+  if (/class="ribbon"/.test(html)) fail.push(`${name} still shows a sitewide development banner`);
+  const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ');
+  if (/data-compare|class="gal__btn"/.test(html) && !/AI-created|AI concept/.test(visible)) fail.push(`${name} shows example images without a visible AI-created label`);
+  if (/class="cta-band"/.test(html) && !/Project bookings are not open yet/.test(visible)) fail.push(`${name} has a contact call to action without the bookings limitation`);
   for (const m of html.matchAll(attrRe)) {
     const v = m[1];
     if (!v.startsWith('/') || v.startsWith('//')) continue;

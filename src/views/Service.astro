@@ -6,14 +6,14 @@ import Cta from '../components/Cta.astro';
 import Notice from '../components/Notice.astro';
 import ServiceTiles from '../components/ServiceTiles.astro';
 import { getService, availabilityLabel, isServiceApproved, trackLabel } from '../data/services.ts';
-import { isLive } from '../data/routes.ts';
+import { isLive, isInternalReview } from '../data/routes.ts';
 const { slug } = Astro.props as { slug: string };
 const s = getService(slug);
 const concept = s.track === 'concept-visualization';
 const useClass = s.stellar.use === 'not-for-listing-photos' || s.stellar.use === 'not-addressed' ? 'pill--no' : s.stellar.use === 'conditional' ? 'pill--warn' : 'pill--ok';
 ---
 <PageHero path={s.path} eyebrow={trackLabel[s.track]} h1={s.h1} lede={s.intro} pair={s.pairKey}>
-  <p style="margin:18px 0 0;display:flex;flex-wrap:wrap;gap:8px"><span class:list={['pill', isServiceApproved(slug) ? 'pill--ok' : 'pill--warn']}>{availabilityLabel(slug)}</span></p>
+  {(isServiceApproved(slug) || isInternalReview) && <p style="margin:18px 0 0;display:flex;flex-wrap:wrap;gap:8px"><span class:list={['pill', isServiceApproved(slug) ? 'pill--ok' : 'pill--warn']}>{availabilityLabel(slug)}</span></p>}
   <div class="btn-row" style="margin-top:22px">
     {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
     {isLive('/how-it-works/') && <a class="btn" href={url('/how-it-works/')}>How It Works</a>}

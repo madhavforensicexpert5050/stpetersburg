@@ -427,3 +427,4 @@ input:disabled, select:disabled { background: var(--wall); }
   .tabs__list { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding: 2px var(--gutter) 8px; scrollbar-width: thin; }
   .tabs__tab { flex: none; white-space: nowrap; }
 }
+.cta-band__note { display: block; margin-top: 6px; font-size: .88rem; opacity: .85; }

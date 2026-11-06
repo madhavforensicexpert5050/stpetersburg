@@ -145,7 +145,7 @@ const srcs = media.map((m) => path.join('public', m.src));
 check(`All ${media.length} manifest images exist on disk`, srcs.every((s) => fs.existsSync(s)));
 check('Media ids are unique', new Set(media.map((m) => m.id)).size === media.length);
 check('Every before has an after in its pair', media.filter((m) => m.pair).every((m) => media.some((x) => x.pair === m.pair && x.role !== m.role)));
-check('Synthetic examples are disclosed and remain separate from licensed client work', media.every((m) => m.rights === 'owner-licensed' || (!m.ownerApproved && (m.rights === 'project-placeholder' ? fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') : m.rights === 'ai-generated' && m.publication === 'synthetic-preview-only' && /AI-generated/.test(m.caption)))));
+check('Synthetic examples are disclosed and remain separate from licensed client work', media.every((m) => m.rights === 'owner-licensed' || (!m.ownerApproved && (m.rights === 'project-placeholder' ? fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') : m.rights === 'ai-generated' && m.publication === 'synthetic-preview-only' && /AI-created|AI-generated/.test(m.caption) && /^AI-(created|generated)/.test(m.alt)))));
 check('Images are served only through the manifest', all.every(([, h]) => [...h.matchAll(/<img[^>]+src="(\/media[^"]+)"/g)].every((m) => media.some((x) => x.src === m[1]))));
 
 // Secrets and third parties

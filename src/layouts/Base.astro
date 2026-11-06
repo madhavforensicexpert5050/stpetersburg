@@ -6,7 +6,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { business } from '../data/business.ts';
-import { routes, isIndexable, isPreview, isPublicPreview, isLive, findRoute, type RouteDef } from '../data/routes.ts';
+import { isIndexable, isInternalReview, isLive, findRoute, type RouteDef } from '../data/routes.ts';
 
 interface Props { route?: RouteDef; title: string; description: string; path: string; schema?: object[]; noCta?: boolean }
 const { route, title, description, path, schema = [], noCta = false } = Astro.props;
@@ -50,11 +50,9 @@ const draft = route ? route.dev !== 'IMPLEMENTED' : false;
   </head>
   <body data-path={path}>
     <a class="skip" href="#main">Skip to content</a>
-    {isPreview && (isPublicPreview ? (
-      <aside class="ribbon" aria-label="Site notice">Project bookings are not open yet. Questions are welcome at <a href={business.emailHref}>{business.email}</a>.</aside>
-    ) : (
+    {isInternalReview && (
       <aside class="ribbon" aria-label="Preview notice"><strong>Local preview.</strong> Not public and not indexed. Images are illustrative demonstrations.{draft && <> This page is not cleared for release.</>}</aside>
-    ))}
+    )}
     <Header path={path} />
     <main id="main" tabindex="-1">
       <slot />

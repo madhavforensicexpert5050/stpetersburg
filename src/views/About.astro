@@ -2,9 +2,9 @@
 import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
-import Notice from '../components/Notice.astro';
 import { business } from '../data/business.ts';
 import { isLive } from '../data/routes.ts';
+import { anyIllustrations } from '../data/media.ts';
 ---
 <PageHero path="/about/" eyebrow="About" h1="We edit the room, and leave the facts alone" lede="StageLiora is a virtual staging and real estate photo editing business, built for people who market property. This site is written for the St. Petersburg, Florida market." />
 <section class="section">
@@ -13,13 +13,10 @@ import { isLive } from '../data/routes.ts';
       <h2>What we care about</h2>
       <p>A listing photo is a statement about a property. Staging can add what moves in and out with a seller. It should not change what a buyer is actually going to get.</p>
       <p>That sounds obvious until someone asks for greener grass, a fresh coat of paint or a better view. Our job is to help with the first kind of edit, to explain clearly why the second kind is different, and to keep planning concepts from being confused with listing photos.</p>
-      <h2>What we do not claim</h2>
-      <ul class="cross">
-        <li>A Florida office, branch or street address</li>
-        <li>A count of customers, projects or years in business</li>
-        <li>Awards, rankings or customer reviews we do not have</li>
-        <li>That any image is guaranteed to meet any MLS rule</li>
-      </ul>
+      <h2>What we work on</h2>
+      <p>Most of the work is virtual staging: furniture and decor added to photos of empty rooms, or swapped in for movable furniture in occupied ones. Alongside it sit photo corrections such as brighter exposure and twilight exteriors, and concept visualizations of paint, flooring, ceilings and landscaping for people planning a change.</p>
+      <h2>How we present it</h2>
+      <p>Every edit is labeled as either a listing photo edit or a concept, and each service page notes how Stellar MLS treats it. We do not list awards, ratings or customer numbers, and we do not promise that an image will meet a particular MLS rule. The listing, and its disclosure, stay with the agent.</p>
     </div>
     <div class="grid">
       <div class="card"><h3>Who we work with</h3><p>Real estate agents, photographers, brokerages and property marketers.</p></div>
@@ -28,9 +25,11 @@ import { isLive } from '../data/routes.ts';
     </div>
   </div>
 </section>
-<section class="section section--tight">
-  <div class="wrap narrow">
-    <Notice h="Company details" kind="info">Our legal entity and postal address will be listed here once they are confirmed. They are not shown yet, and no substitute has been used.</Notice>
+{anyIllustrations() && <section class="section section--tight section--wall" id="images">
+  <div class="wrap narrow prose">
+    <h2>About the images on this site</h2>
+    <p>The before-and-after comparisons and design examples on this site are AI-created concepts of fictional rooms and homes. Each comparison was made from a single base image, so the room, windows and camera position match from one side to the other.</p>
+    <p>They show the approach and its limits. They are not photographs of real listings or of client projects. Client work will be published only with the owner's permission, and labeled as client work.</p>
   </div>
-</section>
+</section>}
 <Cta />

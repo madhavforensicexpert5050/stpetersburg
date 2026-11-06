@@ -1,7 +1,6 @@
 ---
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
-import Notice from '../components/Notice.astro';
 import { audiences } from '../data/content.ts';
 import { routes } from '../data/routes.ts';
 const { slug } = Astro.props as { slug: keyof typeof audiences };
@@ -20,5 +19,4 @@ const path = routes.find((r) => r.template === 'audience' && r.ref === slug)!.pa
     <ul class="tick">{a.checklist.map((x) => <li>{x}</li>)}</ul>
   </div>
 </section>
-{slug !== 'agents' && <section class="section section--tight"><div class="wrap narrow"><Notice h={slug === 'photographers' ? 'No partner program yet' : 'No team plan yet'} kind="info">This page explains how StageLiora approaches this kind of work. There is no {slug === 'photographers' ? 'partner program' : 'team plan'} today, and no terms have been set.</Notice></div></section>}
 <Cta />

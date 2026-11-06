@@ -10,7 +10,7 @@ for(const m of media){
  if(m.rights!=='ai-generated'){errors.push(`${m.id}: unreplaced asset`);continue;}
  const p=provenance.find(p=>p.id===m.id);
  if(!p||p.src!==m.src||!p.visualReview||!p.prompt)errors.push(`${m.id}: provenance missing`);
- if(m.ownerApproved||m.publication!=='synthetic-preview-only'||!/AI-generated/.test(m.caption))errors.push(`${m.id}: synthetic classification or disclosure`);
+ if(m.ownerApproved||m.publication!=='synthetic-preview-only'||!/AI-created|AI-generated/.test(m.caption)||!/^AI-(created|generated)/.test(m.alt))errors.push(`${m.id}: synthetic classification or disclosure`);
  if(!m.alt||!m.responsive||m.responsive.length!==3)errors.push(`${m.id}: alt text or responsive variants`);
  for(const v of m.responsive||[]){
   const file=path.join('public',v.src);

@@ -10,7 +10,7 @@ const quoteLive = isLive('/request-quote/');
 const rows = pricing.rows.filter((r) => isLive(services.find((s) => s.slug === r.slug)!.path));
 const lede = pricing.anyApproved
   ? 'See the published per-image rates below. For anything unusual, a quote confirms the cost before work begins.'
-  : 'StageLiora has not published a rate card yet. Here is what shapes the cost of an edited listing photo, so you know what to ask about.';
+  : 'Every listing needs different work, so cost depends on the factors below. Rates are not published on the site. Ask about a specific listing by email or phone.';
 ---
 <PageHero path="/pricing/" eyebrow="Pricing" h1={pricing.anyApproved ? 'Pricing' : 'How virtual staging pricing works'} lede={lede}>
   {quoteLive && <div class="btn-row" style="margin-top:22px"><a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a></div>}
@@ -23,7 +23,7 @@ const lede = pricing.anyApproved
     </div>
   </div>
 </section>
-<section class="section section--wall">
+{(pricing.anyApproved || isInternalReview) && <section class="section section--wall">
   <div class="wrap">
     <div class="section-head"><p class="eyebrow">By service</p><h2>Rates by service</h2></div>
     <div class="table-wrap" tabindex="0" role="region" aria-label="Pricing by service">
@@ -37,7 +37,7 @@ const lede = pricing.anyApproved
     </div>
     {isPreview && <p class="small muted">A row here does not mean the service is available. Each service page shows its status.</p>}
   </div>
-</section>
+</section>}
 {isInternalReview && (
   <section class="section">
     <div class="wrap">

@@ -5,7 +5,7 @@ import { services } from '../data/services.ts';
 import { guides } from '../data/guides.ts';
 import { legalDocs } from '../data/legal.ts';
 import { isLive } from '../data/routes.ts';
-import { media, anyIllustrations } from '../data/media.ts';
+import { anyIllustrations } from '../data/media.ts';
 const company = [
   ['/about/', 'About'], ['/how-it-works/', 'How It Works'], ['/pricing/', 'Pricing'], ['/faq/', 'FAQ'], ['/reviews/', 'Reviews'], ['/contact/', 'Contact'], ['/locations/', 'Local market notes'],
   ['/for-real-estate-agents/', 'For agents'], ['/for-real-estate-photographers/', 'For photographers'], ['/for-brokerages/', 'For brokerages'],
@@ -43,7 +43,8 @@ const visual = [['/portfolio/', 'Portfolio'], ['/design-library/', 'Design Libra
       </div>
     </div>
     <div class="foot-base">
-      <p>&copy; 2026 {business.brand}.{media.some((m) => m.rights === 'ai-generated') ? ' Room images on this site are AI-generated demonstrations of fictional properties, not completed client projects.' : anyIllustrations() && ' Room visuals on this site are illustrative concepts, not completed client projects.'}</p>
+      <p>&copy; 2026 {business.brand}.</p>
+      {anyIllustrations() && isLive('/about/') && <p><a href={url('/about/#images')} style="color:inherit">About the images on this site</a></p>}
       <p>{legalDocs.filter((d) => isLive(d.path)).map((d, i) => <>{i > 0 && ' · '}<a href={url(d.path)} style="color:inherit">{d.h1}</a></>)}</p>
     </div>
   </div>

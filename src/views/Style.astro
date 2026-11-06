@@ -6,7 +6,7 @@ import Cta from '../components/Cta.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { stylePages } from '../data/content.ts';
 import { styles } from '../data/taxonomy.ts';
-import { library, zoomTitle, zoomLabel } from '../data/media.ts';
+import { library, zoomTitle, zoomLabel, isIllustration } from '../data/media.ts';
 import { isLive } from '../data/routes.ts';
 const { slug } = Astro.props as { slug: string };
 const p = stylePages[slug];
@@ -23,11 +23,11 @@ const items = library.filter((l) => l.style === slug);
 </section>
 <section class="section section--wall">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">By room</p><h2>{s.name} room directions</h2><p>AI-created concepts of how each room reads in this style. Compare them with other directions in the Design Library.</p></div>
+    <div class="section-head"><p class="eyebrow">By room</p><h2>{s.name} room directions</h2><p>How each room reads in this style. Compare them with other directions in the Design Library.</p></div>
     <div class="gal">
       {items.map((it) => (
         <figure class="gal__item">
-          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={it.caption} aria-label={zoomLabel(it, it.roomName)}>
+          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={isIllustration(it) ? '' : it.caption} aria-label={zoomLabel(it, it.roomName)}>
             <MediaImage media={it} />
           </button>
           <figcaption><h3>{it.roomName}</h3></figcaption>

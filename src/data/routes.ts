@@ -16,7 +16,7 @@ import { styles } from './taxonomy.ts';
 
 /** Legacy parity vocabulary required by the V2.0 brief. Describes development only. */
 export type DevStatus = 'IMPLEMENTED' | 'IMPLEMENTED AS INTERNAL DRAFT' | 'PENDING OWNER BUSINESS CAPABILITY' | 'PENDING ASSET APPROVAL' | 'PENDING BACKEND INTEGRATION';
-export type Template = 'home' | 'about' | 'contact' | 'how' | 'pricing' | 'faq' | 'reviews' | 'servicesHub' | 'service' | 'portfolio' | 'library' | 'stylesHub' | 'style' | 'audience' | 'interiorDesign' | 'designers' | 'designProjects' | 'guidesHub' | 'guide' | 'locationsHub' | 'location' | 'legal' | 'quote' | 'order' | 'account' | 'orders' | 'upload';
+export type Template = 'home' | 'about' | 'founder' | 'contact' | 'how' | 'pricing' | 'faq' | 'reviews' | 'servicesHub' | 'service' | 'portfolio' | 'library' | 'stylesHub' | 'style' | 'audience' | 'interiorDesign' | 'designers' | 'designProjects' | 'guidesHub' | 'guide' | 'locationsHub' | 'location' | 'legal' | 'quote' | 'order' | 'account' | 'orders' | 'upload';
 
 export type BuildStatus = 'COMPLETE' | 'COMPLETE_DRAFT_PENDING_INPUTS' | 'EMPTY_STATE_ONLY' | 'DISABLED_PREVIEW_ONLY';
 export type PublicationStatus = 'READY_FOR_OWNER_REVIEW' | 'APPROVED_FOR_PUBLICATION' | 'PUBLIC_BUT_NOINDEX' | 'PRIVATE_OR_DISABLED' | 'BLOCKED_PENDING_EVIDENCE';
@@ -51,6 +51,7 @@ const G = { main: 'Main business', svc: 'Services', vis: 'Portfolio & design lib
 export const routes: RouteDef[] = [
   r('/', 'Home', 'Virtual Staging for Listings in St. Petersburg, FL | StageLiora', 'Virtual staging and real estate photo editing for St. Petersburg, FL listings. See what changes, what must stay, and how to disclose it.', G.main, 'home', 'IMPLEMENTED', `${CORE}; DEC-008; DEC-023`, READY(['anyService'])),
   r('/about/', 'About', 'About StageLiora | Virtual Staging and Photo Editing', 'What StageLiora does, who it is for, how it approaches honest listing images, and what the company does not claim, including a Florida office.', G.main, 'about', 'IMPLEMENTED', 'DEC-005; owner facts', READY()),
+  r('/about/devender-garg/', 'Devender Garg', 'Devender Garg | About Me | StageLiora', 'Meet Devender Garg and his perspective on thoughtful virtual staging, realistic room visualization and the vision behind StageLiora.', G.main, 'founder', 'IMPLEMENTED', 'Devender Garg approval of first-person statements (V10.1)', { build: 'COMPLETE', proposed: 'READY_FOR_OWNER_REVIEW', indexing: 'INDEX_AFTER_APPROVAL', needs: ['founderStatements'] }),
   r('/contact/', 'Contact', 'Contact StageLiora | Email and Phone', 'Reach StageLiora by email or phone. StageLiora works remotely and has no public office in Florida. Send a question about a listing or a project.', G.main, 'contact', 'IMPLEMENTED', 'DEC-006; DEC-027; contact routing test', READY()),
   r('/how-it-works/', 'How It Works', 'How Virtual Staging Works at StageLiora', 'The steps from describing your listing to reviewing edited images, and what happens at each one, including photo rights and MLS disclosure.', G.main, 'how', 'IMPLEMENTED', 'DEC-007; DEC-013', READY(['anyService'])),
   r('/pricing/', 'Pricing', 'Virtual Staging Pricing and Quotes | StageLiora', 'What shapes the cost of edited listing photos: the service, the number of images, the room and the source photo. No invented discounts or packages.', G.main, 'pricing', 'IMPLEMENTED', 'DEC-009; DEC-010', READY(['anyService'])),
@@ -60,8 +61,8 @@ export const routes: RouteDef[] = [
   r('/services/', 'Services', 'Virtual Staging and Photo Editing Services | StageLiora', 'StageLiora image services, split between listing-photo edits and concept visualizations, each with its scope, limits and Stellar MLS notes.', G.svc, 'servicesHub', 'IMPLEMENTED', 'DEC-008', READY(['anyService'])),
   ...services.map((s) => r(s.path, s.name, s.title, s.description, G.svc, 'service', 'IMPLEMENTED AS INTERNAL DRAFT', s.track === 'concept-visualization' ? 'DEC-008; DEC-020 (finish and exterior edits)' : 'DEC-008; DEC-007; DEC-023', BLOCKED(s.track === 'concept-visualization' ? 'Concept only. Not approved for sale, and not usable as a Stellar listing photo.' : 'Content is ready, but the owner has not confirmed the service can be sold and delivered.', [`service:${s.slug}`]), s.slug)),
 
-  r('/portfolio/', 'Portfolio', 'Before and After Virtual Staging Concepts | StageLiora', 'Before-and-after virtual staging concepts for living rooms, bedrooms, dining rooms, offices and kitchens. AI-created examples of fictional rooms.', G.vis, 'portfolio', 'PENDING ASSET APPROVAL', 'DEC-023; written image rights', BLOCKED('Synthetic demonstrations do not substitute for licensed client portfolio evidence.', ['realImages:/portfolio/'], 'EMPTY_STATE_ONLY')),
-  r('/design-library/', 'Design Library', 'Virtual Staging Design Library | StageLiora', 'Browse design directions by style and room. Filter eight styles across thirteen room types. Each image is an AI-created concept of the direction.', G.vis, 'library', 'PENDING ASSET APPROVAL', 'DEC-023; DEC-008', BLOCKED('A library of placeholders offers no real design choice to a customer.', ['realImages:/design-library/', 'anyService'])),
+  r('/portfolio/', 'Portfolio', 'Before and After Virtual Staging Concepts | StageLiora', 'Before-and-after virtual staging examples for living rooms, bedrooms, dining rooms, home offices and kitchens, with walls, windows and floors left as photographed.', G.vis, 'portfolio', 'PENDING ASSET APPROVAL', 'DEC-023; written image rights', BLOCKED('Synthetic demonstrations do not substitute for licensed client portfolio evidence.', ['realImages:/portfolio/'], 'EMPTY_STATE_ONLY')),
+  r('/design-library/', 'Design Library', 'Virtual Staging Design Library | StageLiora', 'Browse design directions by style and room. Filter eight styles across thirteen room types.', G.vis, 'library', 'PENDING ASSET APPROVAL', 'DEC-023; DEC-008', BLOCKED('A library of placeholders offers no real design choice to a customer.', ['realImages:/design-library/', 'anyService'])),
   r('/design-styles/', 'Design Styles', 'Virtual Staging Design Styles | StageLiora', 'How to choose a staging style that suits the home in the photo. Compare modern, Scandinavian, farmhouse, contemporary and four more directions.', G.vis, 'stylesHub', 'IMPLEMENTED', 'DEC-023', BLOCKED('Style choices cannot be ordered, and examples are placeholders.', ['realImages:/design-library/', 'anyService'])),
   ...styles.filter((s) => s.hasPage).map((s) => r(`/design-styles/${s.id}/`, s.name, stylePages[s.id].title, stylePages[s.id].description, G.vis, 'style', 'IMPLEMENTED AS INTERNAL DRAFT', 'DEC-023: needs approved visual examples', BLOCKED('The brief allows style pages only with approved visual examples.', ['realImages:/design-library/', 'anyService']), s.id)),
 
@@ -117,6 +118,7 @@ export function publicPreviewExclusion(x: RouteDef): string | null {
   if (x.plan.proposed === 'PRIVATE_OR_DISABLED') return `Disabled route: ${x.plan.why}`;
   if (x.template === 'legal') return 'Unreviewed legal draft with unfilled items. Publishing draft terms could be read as the business\'s actual terms.';
   if (x.template === 'quote') return 'Quote requests depend on an owner-approved service, and none is approved yet.';
+  if (x.template === 'founder' && !validRecord(approvals.founderStatements)) return 'First-person statements are awaiting approval from Devender Garg.';
   if (x.template === 'reviews') return 'No genuine reviews exist yet. An empty review page offers visitors nothing.';
   if (x.template === 'location') {
     const decision = locations.find((l) => l.slug === x.ref)?.decision;
@@ -141,8 +143,8 @@ export const isIndexable = (p: string) => {
 export const sitemapRoutes = () => buildRoutes.filter((x) => isIndexable(x.path));
 
 export const buildStatusOf = (x: RouteDef): BuildStatus => x.plan.build;
-export const contentApprovalOf = (_x: RouteDef): ContentDesignStatus => (validRecord(approvals.websiteContent) ? 'APPROVED' : 'NOT_APPROVED');
-export const designApprovalOf = (_x: RouteDef): ContentDesignStatus => (validRecord(approvals.pageDesign) ? 'APPROVED' : 'NOT_APPROVED');
+export const contentApprovalOf = (x: RouteDef): ContentDesignStatus => (x.template === 'founder' ? validRecord(approvals.founderStatements) : validRecord(approvals.websiteContent)) ? 'APPROVED' : 'NOT_APPROVED';
+export const designApprovalOf = (x: RouteDef): ContentDesignStatus => (x.template === 'founder' ? validRecord(approvals.founderStatements) : validRecord(approvals.pageDesign)) ? 'APPROVED' : 'NOT_APPROVED';
 export const ownerApprovalOf = (x: RouteDef): OwnerApprovalStatus => (validRecord(approvals.publication[x.path]) ? (validRecord(approvals.indexing[x.path]) ? 'APPROVED_PUBLICATION_AND_INDEXING' : 'APPROVED_PUBLICATION_ONLY') : 'NOT_APPROVED');
 /** Only a documented owner approval can produce APPROVED_FOR_PUBLICATION. */
 export const publicationOf = (x: RouteDef): PublicationStatus => (validRecord(approvals.publication[x.path]) && x.plan.proposed !== 'PRIVATE_OR_DISABLED' ? 'APPROVED_FOR_PUBLICATION' : x.plan.proposed);

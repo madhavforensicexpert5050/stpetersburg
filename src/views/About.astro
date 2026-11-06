@@ -21,6 +21,7 @@ import { anyIllustrations } from '../data/media.ts';
     <div class="grid">
       <div class="card"><h3>Who we work with</h3><p>Real estate agents, photographers, brokerages and property marketers.</p></div>
       <div class="card"><h3>How we work</h3><p>Remotely, by email and phone. {business.brand} has no public office in St. Petersburg or elsewhere in Florida.</p></div>
+      {isLive('/about/devender-garg/') && <a class="card card--link" href={url('/about/devender-garg/')}><h3>Meet Devender Garg</h3><p>A personal note on the perspective behind StageLiora.</p></a>}
       <div class="card"><h3>Reach us</h3><p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>{isLive('/contact/') && <a class="textlink" href={url('/contact/')}>Contact page</a>}</div>
     </div>
   </div>
@@ -28,6 +29,7 @@ import { anyIllustrations } from '../data/media.ts';
 {anyIllustrations() && <section class="section section--tight section--wall" id="images">
   <div class="wrap narrow prose">
     <h2>About the images on this site</h2>
+    <p><strong>The room images on this site are AI-created examples of fictional properties, not photographs of completed client projects.</strong></p>
     <p>The before-and-after comparisons and design examples on this site are AI-created concepts of fictional rooms and homes. Each comparison was made from a single base image, so the room, windows and camera position match from one side to the other.</p>
     <p>They show the approach and its limits. They are not photographs of real listings or of client projects. Client work will be published only with the owner's permission, and labeled as client work.</p>
   </div>

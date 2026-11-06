@@ -129,6 +129,7 @@ li { margin-bottom: .4em; }
 @container (max-width: 400px) { .compare__tag-x { display: none; } }
 .compare-wrap figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; margin-top: 10px; font-size: .9rem; color: var(--muted); }
 .compare-wrap figcaption p { margin: 0; flex: 1 1 240px; }
+.compare-wrap figcaption .mini-btn { margin-left: auto; }
 .compare-wrap { margin: 0; }
 .mini-btn { min-height: 44px; padding: 6px 12px; background: none; border: 1px solid var(--line); color: var(--ink); font: 600 .85rem var(--text); border-radius: var(--radius); cursor: pointer; }
 .mini-btn:hover { border-color: var(--ink); }
@@ -256,6 +257,7 @@ dialog.lb::backdrop { background: rgba(6,16,24,.82); }
 .lb img { width: 100%; max-height: 74vh; object-fit: contain; background: #000; }
 .lb__info { padding: 12px 14px 16px; font-size: .95rem; }
 .lb__info p { margin: 0; }
+.lb__info:has(p:empty) { display: none; }
 
 /* FAQ */
 .faq details { border-top: 1px solid var(--line); }
@@ -485,3 +487,35 @@ input:disabled, select:disabled { background: var(--wall); }
 .foot-bar a { display: inline-block; padding: 6px 0; color: var(--on-ink); text-decoration: none; }
 .foot-bar a:hover { color: var(--sun); text-decoration: underline; }
 @media (max-width: 600px) { .foot-bar .wrap { flex-direction: column; text-align: center; } .foot-bar ul { justify-content: center; } }
+
+/* ================= V10.1: founder page and homepage note ================= */
+.founder-hero { padding-block: clamp(28px, 4vw, 56px) clamp(40px, 5vw, 72px); }
+.founder-hero__grid { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); align-items: center; margin-top: 18px; max-width: 980px; }
+.founder-hero h1 { color: #fff; font-size: clamp(2.2rem, 4.2vw, 3.8rem); margin: 10px 0 6px; }
+.founder-hero__sub { margin: 0 0 14px; color: var(--sun); font: 600 1.05rem/1.4 var(--text); }
+.founder-hero__sub span { color: var(--on-ink); font-weight: 500; }
+.founder-hero .lede { margin: 0; max-width: 58ch; }
+.founder-mark { width: clamp(96px, 12vw, 148px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--sun); background: radial-gradient(circle at 30% 25%, #1f4660, var(--ink-2)); }
+.founder-mark span { font: 700 clamp(1.9rem, 3.4vw, 2.9rem)/1 var(--display); color: var(--sun); letter-spacing: .02em; }
+.founder-mark--sm { width: 92px; }
+.founder-mark--sm span { font-size: 1.8rem; }
+@media (max-width: 600px) { .founder-hero__grid { grid-template-columns: minmax(0, 1fr); } .founder-mark { width: 88px; } .founder-mark span { font-size: 1.7rem; } }
+.standards--light { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
+.standards--light > div { border-top-color: var(--sun-deep); }
+.founder-n { display: block; font: 700 1rem/1 var(--display); color: var(--bay); margin-bottom: 8px; letter-spacing: .04em; }
+.founder-links { display: flex; flex-wrap: wrap; gap: 10px 26px; }
+.founder-note { margin: 18px 0 0; padding-left: 22px; border-left: 3px solid var(--sun); }
+.founder-note p { margin: 0; color: #fff; font: 500 clamp(1.25rem, 2.2vw, 1.7rem)/1.45 var(--display); }
+.founder-note footer { margin-top: 16px; color: var(--sun); font: 600 .95rem/1.2 var(--text); }
+.founder-contact { display: grid; gap: 12px; justify-items: start; }
+.founder-contact p { margin: 0; }
+.founder-home__in { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); align-items: start; max-width: 940px; }
+.founder-home h2 { margin: 6px 0 14px; }
+.founder-home .lede { margin: 0 0 14px; }
+@media (max-width: 600px) { .founder-home__in { grid-template-columns: minmax(0, 1fr); } }
+.media-info-link { margin: 0 0 22px; font-size: .92rem; }
+.media-info-link a { color: var(--bay); }
+/* Breadcrumbs on a dark hero (founder page): light text for contrast. */
+.on-ink .crumbs, .on-ink .crumbs a, .on-ink .crumbs [aria-current] { color: var(--on-ink-muted); }
+.on-ink .crumbs a:hover { color: var(--sun); }
+.on-ink .crumbs li + li::before { color: #4a6a80; }

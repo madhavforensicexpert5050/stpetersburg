@@ -1,0 +1,83 @@
+---
+/**
+ * Devender Garg's first-person page. Text comes from src/data/founder.ts.
+ * No portrait: none has been supplied or approved, and no other face may stand in for him.
+ * The role line appears only once approvals.founderRole is recorded.
+ */
+import { url } from '../lib/url.ts';
+import Crumbs from '../components/Crumbs.astro';
+import CallButton from '../components/CallButton.astro';
+import { founder as f } from '../data/founder.ts';
+import { business } from '../data/business.ts';
+import { approvals } from '../data/approvals.ts';
+import { isLive } from '../data/routes.ts';
+const roleConfirmed = Boolean(approvals.founderRole?.by && approvals.founderRole?.date && approvals.founderRole?.reference);
+---
+<section class="founder-hero on-ink">
+  <div class="wrap">
+    <Crumbs path={f.path} />
+    <div class="founder-hero__grid">
+      <div class="founder-mark" aria-hidden="true"><span>DG</span></div>
+      <div>
+        <p class="eyebrow">{f.hero.eyebrow}</p>
+        <h1>{f.hero.h1}</h1>
+        <p class="founder-hero__sub">{f.hero.sub}{roleConfirmed && <> · <span>{f.role}, StageLiora</span></>}</p>
+        <p class="lede">{f.hero.intro}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">My story</p><h2>{f.story.h}</h2></div>
+    <div class="prose">{f.story.p.map((t) => <p>{t}</p>)}</div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">My vision</p><h2>{f.vision.h}</h2><p style="margin-top:16px">{f.vision.intro}</p></div>
+    <div>
+      <ul class="tick">{f.vision.points.map((t) => <li>{t}</li>)}</ul>
+      <p class="small muted" style="margin-top:14px">{f.vision.note}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">My approach</p><h2>{f.approach.h}</h2></div>
+    <div class="grid grid--4 standards standards--light">
+      {f.approach.principles.map((x, i) => <div><span class="founder-n">{String(i + 1).padStart(2, '0')}</span><h3>{x.h}</h3><p>{x.p}</p></div>)}
+    </div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">StageLiora</p><h2>{f.building.h}</h2></div>
+    <div class="prose">
+      {f.building.p.map((t) => <p>{t}</p>)}
+      <p class="founder-links">{f.building.links.filter(([p]) => isLive(p)).map(([p, l]) => <a class="textlink" href={url(p)}>{l}</a>)}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section on-ink">
+  <div class="wrap narrow">
+    <p class="eyebrow">A note from me</p>
+    <blockquote class="founder-note"><p>{f.message.p}</p><footer>Devender Garg</footer></blockquote>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Contact</p><h2>{f.connect.h}</h2><p style="margin-top:16px">{f.connect.p}</p></div>
+    <div class="founder-contact">
+      <CallButton />
+      <p><a href={business.emailHref}>{business.email}</a></p>
+      {!isLive('/request-quote/') && <p class="small muted">Project bookings are not open yet. Questions are welcome.</p>}
+    </div>
+  </div>
+</section>

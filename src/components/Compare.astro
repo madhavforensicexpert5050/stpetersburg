@@ -1,6 +1,6 @@
 ---
 import MediaImage from './MediaImage.astro';
-import { getPair, isIllustration, illustrationNote, aiCompareNote } from '../data/media.ts';
+import { getPair, isIllustration } from '../data/media.ts';
 interface Props { pair: string; eager?: boolean; animate?: boolean; hideCaption?: boolean }
 const { pair, eager = false, animate = false } = Astro.props;
 const { before, after } = getPair(pair);
@@ -18,7 +18,7 @@ const synthetic = before.rights === 'ai-generated' && after.rights === 'ai-gener
     <input type="range" min="0" max="100" value="50" step="1" aria-label={synthetic ? `Compare the original room and the AI-created visualization: ${before.label} and ${after.label}` : `Compare before and after: ${before.label} and ${after.label}`} aria-valuetext="50 percent" />
   </div>
   <figcaption>
-    <p>{synthetic ? aiCompareNote : illustrative ? illustrationNote : after.caption}</p>
+    {!illustrative && after.caption && <p>{after.caption}</p>}
     <button type="button" class="mini-btn compare-noscript-hide" data-compare-toggle aria-pressed="false">Side by side</button>
   </figcaption>
 </figure>

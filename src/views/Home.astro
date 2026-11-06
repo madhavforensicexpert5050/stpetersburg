@@ -3,6 +3,7 @@ import { url } from '../lib/url.ts';
 import MediaImage from '../components/MediaImage.astro';
 import Compare from '../components/Compare.astro';
 import CallButton from '../components/CallButton.astro';
+import { founder } from '../data/founder.ts';
 import ShowcaseTabs, { type ShowcaseItem } from '../components/ShowcaseTabs.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
@@ -85,8 +86,8 @@ const stepIcons = [
 <section class="section">
   <div class="wrap">
     <div class="section-head section-head--split">
-      <div><p class="eyebrow">Room by room</p><h2>A room is easier to judge with something in it</h2></div>
-      <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Pick a room, then drag the divider. Each example is an AI-created concept of a fictional room.</p>
+      <div><p class="eyebrow">Before &amp; after</p><h2>A room is easier to judge with something in it</h2></div>
+      <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Pick a room, then drag the divider.</p>
     </div>
     <ShowcaseTabs id="rooms" label="Rooms" items={roomItems} />
     {isLive('/portfolio/') && <p style="margin-top:22px"><a class="textlink" href={url('/portfolio/')}>See every room in the portfolio</a></p>}
@@ -178,8 +179,8 @@ const stepIcons = [
 {showStyles && <section class="section section--tight section--wall">
   <div class="wrap">
     <div class="section-head section-head--split">
-      <div><p class="eyebrow">Design styles</p><h2>Match the style to the house in the photo</h2></div>
-      <p>Choose a direction that suits the architecture and the likely buyer. Each image is an AI-created concept of the style.</p>
+      <div><p class="eyebrow">Design inspiration</p><h2>Match the style to the house in the photo</h2></div>
+      <p>Choose a direction that suits the architecture and the likely buyer.</p>
     </div>
   </div>
   <div class="strip" tabindex="0" role="region" aria-label="Design style previews">
@@ -194,16 +195,16 @@ const stepIcons = [
 {showRooms && <section class="section">
   <div class="wrap">
     <div class="section-head section-head--split">
-      <div><p class="eyebrow">Rooms and styles</p><h2>Rooms in each design direction</h2></div>
-      <p>The same room types in different design directions, as AI-created concepts. Use them to compare how a style changes the feel of a space.</p>
+      <div><p class="eyebrow">Explore room transformations</p><h2>Rooms in each design direction</h2></div>
+      <p>The same room types in different design directions. Compare how a style changes the feel of a space.</p>
     </div>
     <div class="gal">
       {roomCards.map(({ name, it }) => (
         <figure class="gal__item">
-          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, name)} data-info={it.caption} aria-label={zoomLabel(it, name)}>
+          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, name)} data-info={isIllustration(it) ? '' : it.caption} aria-label={zoomLabel(it, name)}>
             <MediaImage media={it} />
           </button>
-          <figcaption><h3>{name}</h3><p class="gal__meta">{isIllustration(it) ? `AI concept · ${it.styleName} direction` : `${it.styleName} direction`}</p></figcaption>
+          <figcaption><h3>{name}</h3><p class="gal__meta">{`${it.styleName} direction`}</p></figcaption>
         </figure>
       ))}
     </div>
@@ -224,10 +225,22 @@ const stepIcons = [
       <div><h3>The room stays the room</h3><p>A listing edit adds or replaces movable furniture and decor. Walls, windows, floors, fixtures and views stay as photographed.</p></div>
       <div><h3>Every edit type is named</h3><p>Listing photo edits and concept visualizations are kept apart, and each service page says which one it is.</p></div>
       <div><h3>Disclosure is part of the job</h3><p>Each service carries its Stellar MLS note, and the original photo stays beside every edited one.</p></div>
-      <div><h3>No borrowed proof</h3><p>No invented reviews, ratings or client work. The examples on this site are AI-created concepts, and each one is labeled.</p></div>
+      <div><h3>No borrowed proof</h3><p>No invented reviews, ratings or client work. How our example images are made is explained openly on the About page.</p></div>
     </div>
   </div>
 </section>
+
+{isLive(founder.path) && <section class="section founder-home">
+  <div class="wrap founder-home__in">
+    <div class="founder-mark founder-mark--sm" aria-hidden="true"><span>DG</span></div>
+    <div>
+      <p class="eyebrow">{founder.home.eyebrow}</p>
+      <h2>{founder.home.h}</h2>
+      <p class="lede">{founder.home.p}</p>
+      <a class="textlink" href={url(founder.path)}>{founder.home.cta}</a>
+    </div>
+  </div>
+</section>}
 
 <section class="section section--wall">
   <div class="wrap two-col">

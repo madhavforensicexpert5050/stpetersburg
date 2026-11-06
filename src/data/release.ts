@@ -39,6 +39,7 @@ export function unmet(dep: string): string | null {
     case 'legal': return valid(approvals.legalReview[arg]) ? null : `Legal review missing for "${arg}"`;
     case 'coverage': return valid(approvals.coverage[arg]) ? null : `Coverage and page authorization missing for "${arg}"`;
     case 'realImages': return pageImagesApproved(arg) ? null : `Licensed images missing for ${arg}`;
+    case 'founderStatements': return valid(approvals.founderStatements) ? null : 'Devender Garg has not approved the first-person statements';
     case 'genuineReviews': return valid(approvals.genuineReviews) ? null : 'No genuine, permitted reviews exist';
     case 'twoLocations': return routes.filter((r) => r.template === 'location' && valid(approvals.publication[r.path])).length >= 2 ? null : 'Fewer than two location pages approved';
     case 'capability': return `Capability "${arg}" does not exist`;

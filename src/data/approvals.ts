@@ -44,6 +44,10 @@ export interface OwnerApprovals {
   formDeliveryVerified: ApprovalRecord | null;
   /** Set only when genuine, permitted customer reviews exist */
   genuineReviews: ApprovalRecord | null;
+  /** Devender Garg's approval of the first-person statements in src/data/founder.ts. Required before they are published. */
+  founderStatements: ApprovalRecord | null;
+  /** Confirmation that Devender Garg is StageLiora's Founder & Owner. Required before that title is shown. */
+  founderRole: ApprovalRecord | null;
 }
 
 /**
@@ -72,6 +76,8 @@ const OWNER_APPROVALS: OwnerApprovals = {
   coverage: {},
   formDeliveryVerified: null,
   genuineReviews: null,
+  founderStatements: { by: 'Devender Garg (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V10.1: first-person statements in src/data/founder.ts approved as written' },
+  founderRole: { by: 'Devender Garg (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V10.1: Founder & Owner of StageLiora confirmed' },
 };
 
 /** QA_FIXTURE swaps in clearly fake approvals to test the gates. The production build script refuses it. */

@@ -36,7 +36,6 @@ export const guides: Guide[] = [
       { t: 'p', x: 'Most listings do not need every room done. Start with the rooms buyers look for first, usually the main living area and the primary bedroom, along with any room whose purpose is not obvious. Our guide to preparing photos covers what makes a photo suitable.' },
       { t: 'h2', x: 'Disclosure' },
       { t: 'p', x: 'Buyers who visit will find an empty room, so be upfront about the edit. Rules differ by MLS and by state. In Stellar MLS, disclosure happens in the listing fields. Our Florida disclosure guide sets out the steps.' },
-      { t: 'callout', h: 'About these images', x: 'The comparison above is an AI-created concept of a fictional room, not client work.' },
       { t: 'links', h: 'Next steps', items: [{ href: '/guides/how-to-prepare-photos-for-virtual-staging/', label: 'How to prepare photos' }, { href: '/guides/virtual-staging-disclosure-florida/', label: 'Virtual staging disclosure in Florida' }, { href: '/guides/virtual-staging-vs-traditional-staging/', label: 'Virtual or traditional staging?' }] },
     ],
   },

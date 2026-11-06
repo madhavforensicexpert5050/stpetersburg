@@ -70,12 +70,16 @@ for (const f of htmlFiles) {
   for (const [re, label] of forbidden) if (re.test(html)) fail.push(`${name} contains ${label}`);
   if (!/<meta name="robots" content="noindex/.test(html)) fail.push(`${name} lacks a noindex robots meta tag`);
   // No sitewide banner on the public site. Instead, disclosure must sit next to what it describes:
-  // any page showing a comparison or gallery image must label it as AI-created in visible text,
+  // per-image captions such as "AI-created example" are not shown; example images keep honest alt text instead,
   // and every contact point must say that project bookings are not open.
   if (/class="ribbon"/.test(html)) fail.push(`${name} still shows a sitewide development banner`);
   const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ');
-  if (/data-compare|class="gal__btn"/.test(html) && !/AI-created|AI concept/.test(visible)) fail.push(`${name} shows example images without a visible AI-created label`);
+  // about/ holds the one media-information disclosure, so it is the only page allowed to say this.
+  if (name !== 'about/index.html' && /AI-created example|AI concept ·|· AI concept/.test(visible)) fail.push(`${name} still shows a per-image AI disclosure label`);
+  for (const a of html.matchAll(/<img[^>]*src="[^"]*\/media\/generated\/[^"]*"[^>]*>/g)) if (!/alt="AI-(created|generated)|\salt(="")?[\s>]/.test(a[0])) { fail.push(`${name} has a generated image without honest alt text`); break; }
   if (/class="cta-band"/.test(html) && !/Project bookings are not open yet/.test(visible)) fail.push(`${name} has a contact call to action without the bookings limitation`);
+  // Transparency without labels: the one media-information disclosure must be reachable from every page.
+  if (/\/media\/generated\//.test(html) && !/href="\/stpetersburg\/about\/#images"/.test(html)) fail.push(`${name} shows generated images but no link to the image information`);
   for (const m of html.matchAll(attrRe)) {
     const v = m[1];
     if (!v.startsWith('/') || v.startsWith('//')) continue;
@@ -102,6 +106,10 @@ for (const c of cssFiles) {
     if (!local) fail.push(`_astro/${c} references a missing file: ${u}`);
   }
 }
+
+// The one media-information disclosure: About states plainly what the example images are.
+const aboutHtml = fs.existsSync(path.join(OUT, 'about', 'index.html')) ? fs.readFileSync(path.join(OUT, 'about', 'index.html'), 'utf8') : '';
+if (!/id="images"/.test(aboutHtml) || !/AI-created examples of fictional properties, not photographs of completed client projects/.test(aboutHtml)) fail.push('about/index.html lacks the image-origin disclosure section');
 
 // Homepage: the real site, not a README render.
 const home = fs.existsSync(path.join(OUT, 'index.html')) ? fs.readFileSync(path.join(OUT, 'index.html'), 'utf8') : '';

@@ -2,14 +2,15 @@
 import PageHero from '../components/PageHero.astro';
 import Compare from '../components/Compare.astro';
 import Cta from '../components/Cta.astro';
-import Notice from '../components/Notice.astro';
 import { portfolioPairs, anyIllustrations } from '../data/media.ts';
+import { url } from '../lib/url.ts';
+import { isLive } from '../data/routes.ts';
 import { rooms, styles } from '../data/taxonomy.ts';
 ---
-<PageHero path="/portfolio/" eyebrow="Portfolio" h1="Before and after, room by room" lede="Drag the divider to compare each room. Furniture and decor change. Walls, windows, floors and fixtures stay as they are." />
+<PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1="Before and after, room by room" lede="Drag the divider to compare each room. Furniture and decor change. Walls, windows, floors and fixtures stay as they are." />
 <section class="section">
   <div class="wrap">
-    {anyIllustrations() && <Notice h="About these examples" kind="info">Every comparison here is an AI-created concept of a fictional room, made to show the approach and its limits. Client work will appear only with permission, labeled as client work.</Notice>}
+    {anyIllustrations() && isLive('/about/') && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
     <div class="grid grid--2">
       {portfolioPairs.map((p) => (
         <article>

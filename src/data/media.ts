@@ -134,14 +134,11 @@ export const media: MediaItem[] = [...pairs, ...portfolio, ...library];
  */
 export const isIllustration = (m: Pick<MediaItem, 'rights'>) => m.rights !== 'owner-licensed';
 export const isAiConcept = (m: Pick<MediaItem, 'rights'>) => m.rights === 'ai-generated';
-export const illustrationNote = 'Illustrative visualization · Not an actual client project';
 export const anyIllustrations = () => media.some(isIllustration);
-/** Lightbox title, for example "Modern Kitchen (illustration)" */
-export const zoomTitle = (m: Pick<MediaItem, 'rights'>, name: string) => (isAiConcept(m) ? `${name} · AI concept` : isIllustration(m) ? `${name} (illustration)` : name);
+/** Lightbox title: the room or style name only, with no per-image disclosure line. */
+export const zoomTitle = (_m: Pick<MediaItem, 'rights'>, name: string) => name;
 /** Accessible name of the button that opens the lightbox */
-export const zoomLabel = (m: Pick<MediaItem, 'rights'>, name: string) => (isAiConcept(m) ? `Enlarge AI concept: ${name}` : isIllustration(m) ? `Enlarge illustration: ${name}` : `Enlarge image: ${name}`);
-/** One short disclosure line under every AI-created comparison. */
-export const aiCompareNote = 'AI-created example';
+export const zoomLabel = (m: Pick<MediaItem, 'rights'>, name: string) => (isIllustration(m) && !isAiConcept(m) ? `Enlarge illustration: ${name}` : `Enlarge image: ${name}`);
 
 const byId = new Map(media.map((m) => [m.id, m]));
 export function getMedia(id: string): MediaItem {

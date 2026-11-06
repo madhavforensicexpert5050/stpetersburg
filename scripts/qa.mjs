@@ -38,8 +38,10 @@ const expected = `/ /about/ /contact/ /how-it-works/ /pricing/ /faq/ /reviews/
 /locations/ /locations/st-petersburg-fl/ /locations/st-pete-beach/ /locations/gulfport/ /locations/treasure-island/ /locations/south-pasadena/ /locations/madeira-beach/ /locations/pinellas-park/ /locations/seminole/ /locations/largo/ /locations/clearwater/ /locations/dunedin/ /locations/safety-harbor/
 /privacy-policy/ /terms-of-service/ /refund-and-revision-policy/ /cookie-policy/
 /request-quote/ /order/ /account/ /orders/ /upload/`.split(/\s+/);
+// Added by the owner in V10.1, outside the 60-route V3.0 approval.
+const addedLater = ['/about/devender-garg/'];
 const reg = routes.map((r) => r.path);
-check('Registry matches the owner final structure (60 routes)', expected.length === 60 && expected.every((p) => reg.includes(p)) && reg.every((p) => expected.includes(p)), `expected ${expected.length}, registry ${reg.length}; missing: ${expected.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !expected.includes(p))}`);
+check('Registry matches the owner final structure (60 routes plus the V10.1 founder page)', expected.length === 60 && [...expected, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => expected.includes(p) || addedLater.includes(p)), `expected ${expected.length}, registry ${reg.length}; missing: ${expected.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !expected.includes(p))}`);
 check('Every route built', routes.every((r) => fs.existsSync(pagePath(r))), routes.filter((r) => !fs.existsSync(pagePath(r))).map((r) => r.path).join(' '));
 for (const f of ['404.html', 'robots.txt', 'sitemap.xml', 'llms.txt', '_headers']) check(`Technical file exists: ${f}`, fs.existsSync(path.join('dist', f)));
 
@@ -160,7 +162,9 @@ check('No cookies or storage set by site scripts', !textFiles.filter((f) => f.en
 const FIVE = ['READY_FOR_OWNER_REVIEW', 'APPROVED_FOR_PUBLICATION', 'PUBLIC_BUT_NOINDEX', 'PRIVATE_OR_DISABLED', 'BLOCKED_PENDING_EVIDENCE'];
 check('Every route has one of the five publication statuses', routes.every((r) => FIVE.includes(publicationOf(r))));
 check('No route is APPROVED_FOR_PUBLICATION without a documented approval', routes.filter((r) => publicationOf(r) === 'APPROVED_FOR_PUBLICATION').length === Object.keys(approvals.publication).length);
-check('Owner content and design approval is recorded for all 60 routes', routes.length === 60 && routes.every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
+const founderRoute = routes.find((r) => r.template === 'founder');
+check('Founder page content counts as approved only with its own approval record', founderRoute && contentApprovalOf(founderRoute) === (approvals.founderStatements ? 'APPROVED' : 'NOT_APPROVED') && designApprovalOf(founderRoute) === contentApprovalOf(founderRoute));
+check('Owner content and design approval is recorded for all 60 routes', routes.filter((r) => r.template !== 'founder').length === 60 && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));
 check('Content approval did not create any other approval', Object.keys(approvals.publication).length === 0 && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.keys(approvals.coverage).length === 0 && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
 check('Service slugs were not changed by the hostname migration', routes.some((r) => r.path === '/locations/st-petersburg-fl/'));

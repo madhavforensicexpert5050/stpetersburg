@@ -90,14 +90,14 @@ export const audiences = {
 /** Original copy for the four design-style pages. */
 export const stylePages: Record<string, { h1: string; intro: string; bestFor: string[]; pieces: string[]; watch: string; title: string; description: string }> = {
   modern: {
-    title: 'Modern Virtual Staging Style | StageLiora', description: 'What modern staging looks like in a listing photo, which homes suit it, and what to watch for. Original style notes with AI-created room examples.',
+    title: 'Modern Virtual Staging Style | StageLiora', description: 'What modern staging looks like in a listing photo, which homes suit it, and what to watch for. Original style notes with room examples.',
     h1: 'Modern: fewer pieces, stronger lines', intro: 'Modern staging relies on low furniture, plain surfaces and a limited palette. It leaves wall and floor visible, which can help a compact room feel uncluttered.',
     bestFor: ['Newer condos and downtown towers', 'Mid-century homes with clean rooflines', 'Rooms with strong windows or a good view that is really there'],
     pieces: ['Low sofa with a slim frame', 'Black metal or dark wood accents', 'One strong piece of art', 'A single accent color'],
     watch: 'Too little furniture can make a room look unfinished, and undersized pieces can misstate its size. Keep the scale true.',
   },
   scandinavian: {
-    title: 'Scandinavian Virtual Staging Style | StageLiora', description: 'How Scandinavian staging reads in listing photos: pale wood, soft textiles and daylight. Which rooms suit it, with AI-created room examples.',
+    title: 'Scandinavian Virtual Staging Style | StageLiora', description: 'How Scandinavian staging reads in listing photos: pale wood, soft textiles and daylight. Which rooms suit it, with room examples.',
     h1: 'Scandinavian: pale wood and borrowed daylight', intro: 'This style uses light woods, soft fabrics and simple forms. It works with the daylight a room already has, which makes it a natural choice for smaller or brighter rooms.',
     bestFor: ['Bungalows with original windows', 'Small bedrooms and home offices', 'Rooms that already get good natural light'],
     pieces: ['Rounded, light-legged seating', 'Pale oak tables and shelving', 'Wool rugs in quiet tones', 'A plant or two'],

@@ -3,15 +3,16 @@ import { url } from '../lib/url.ts';
 import MediaImage from '../components/MediaImage.astro';
 import PageHero from '../components/PageHero.astro';
 import Lightbox from '../components/Lightbox.astro';
-import Notice from '../components/Notice.astro';
 import Cta from '../components/Cta.astro';
-import { library, zoomTitle, zoomLabel } from '../data/media.ts';
+import { library, zoomTitle, zoomLabel, anyIllustrations } from '../data/media.ts';
+import { isLive } from '../data/routes.ts';
 import { styles, rooms } from '../data/taxonomy.ts';
 ---
 <PageHero path="/design-library/" eyebrow="Design library" h1="Browse design directions by style and room" lede="Use the filters to narrow eight styles across thirteen room types. Open any image for its details." />
 <section class="section section--tight">
   <div class="wrap" data-library>
-    <Notice h="About these images" kind="info">Each image is an AI-created concept that shows how a style reads in a particular room. Use the filters to compare directions side by side before deciding what suits a listing.</Notice>
+    <p class="lede" style="margin:0 0 10px">Use the filters to compare how each style reads in a particular room before deciding what suits a listing.</p>
+    {anyIllustrations() && isLive('/about/') && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
     <div class="filters">
       <fieldset class="filter-group">
         <legend>Style</legend>

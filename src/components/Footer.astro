@@ -5,9 +5,9 @@ import { services } from '../data/services.ts';
 import { guides } from '../data/guides.ts';
 import { legalDocs } from '../data/legal.ts';
 import { isLive } from '../data/routes.ts';
-import { media } from '../data/media.ts';
+import { anyIllustrations } from '../data/media.ts';
 const company = [
-  ['/about/', 'About'], ['/how-it-works/', 'How It Works'], ['/pricing/', 'Pricing'], ['/faq/', 'FAQ'], ['/reviews/', 'Reviews'], ['/contact/', 'Contact'], ['/locations/', 'Locations researched'],
+  ['/about/', 'About'], ['/how-it-works/', 'How It Works'], ['/pricing/', 'Pricing'], ['/faq/', 'FAQ'], ['/reviews/', 'Reviews'], ['/contact/', 'Contact'], ['/locations/', 'Local market notes'],
   ['/for-real-estate-agents/', 'For agents'], ['/for-real-estate-photographers/', 'For photographers'], ['/for-brokerages/', 'For brokerages'],
 ].filter(([p]) => isLive(p));
 const visual = [['/portfolio/', 'Portfolio'], ['/design-library/', 'Design Library'], ['/design-styles/', 'Design Styles'], ['/online-interior-design/', 'Online Interior Design'], ['/interior-designers/', 'Interior Designers'], ['/interior-design-projects/', 'Interior Design Projects']].filter(([p]) => isLive(p));
@@ -43,7 +43,7 @@ const visual = [['/portfolio/', 'Portfolio'], ['/design-library/', 'Design Libra
       </div>
     </div>
     <div class="foot-base">
-      <p>&copy; 2026 {business.brand}.{media.some((m) => m.rights === 'project-placeholder') && ' Illustrations marked as placeholders are not completed work.'}</p>
+      <p>&copy; 2026 {business.brand}.{anyIllustrations() && ' Room visuals on this site are illustrative concepts, not completed client projects.'}</p>
       <p>{legalDocs.filter((d) => isLive(d.path)).map((d, i) => <>{i > 0 && ' · '}<a href={url(d.path)} style="color:inherit">{d.h1}</a></>)}</p>
     </div>
   </div>

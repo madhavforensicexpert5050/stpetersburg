@@ -215,5 +215,5 @@ export const getService = (slug: string) => {
   return s;
 };
 export const isServiceApproved = (slug: string) => Boolean(approvals.services[slug]);
-export const availabilityLabel = (slug: string) => (isServiceApproved(slug) ? 'Available' : 'Not yet offered: pending owner approval');
+export const availabilityLabel = (slug: string) => (isServiceApproved(slug) ? 'Available' : 'Bookings not yet open');
 export const trackLabel: Record<Track, string> = { 'listing-editing': 'Listing photo edit', 'concept-visualization': 'Concept visualization' };

@@ -144,7 +144,7 @@ const srcs = media.map((m) => path.join('public', m.src));
 check(`All ${media.length} manifest images exist on disk`, srcs.every((s) => fs.existsSync(s)));
 check('Media ids are unique', new Set(media.map((m) => m.id)).size === media.length);
 check('Every before has an after in its pair', media.filter((m) => m.pair).every((m) => media.some((x) => x.pair === m.pair && x.role !== m.role)));
-check('Placeholders are stamped PLACEHOLDER and unapproved', media.every((m) => fs.readFileSync(path.join('public', m.src), 'utf8').includes('PLACEHOLDER') && !m.ownerApproved && m.rights === 'project-placeholder'));
+check('Illustrations are stamped ILLUSTRATION and unapproved', media.every((m) => fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') && !m.ownerApproved && m.rights === 'project-placeholder'));
 check('Images are served only through the manifest', all.every(([, h]) => [...h.matchAll(/<img[^>]+src="(\/media[^"]+)"/g)].every((m) => media.some((x) => x.src === m[1]))));
 
 // Secrets and third parties
@@ -212,10 +212,10 @@ if (V.exists) {
   check(`Valid fixture: sitemap has exactly the ${idx.length} index-approved URLs`, locs.length === idx.length && idx.every((p) => locs.includes(`${business.siteUrl}${p}`)), locs.join(' '));
   check('Valid fixture: lastmod only where known', /<lastmod>2026-11-05<\/lastmod>/.test(gsm) && (gsm.match(/<lastmod>/g) || []).length === 2);
   check('Valid fixture: published but not index-approved pages carry noindex', /noindex/.test(fs.readFileSync(path.join(G, 'faq/index.html'), 'utf8')) && /noindex/.test(fs.readFileSync(path.join(G, 'request-quote/index.html'), 'utf8')));
-  check('Valid fixture: approved pages are indexable and draft wording is gone', /content="index,follow/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')) && !gh.some(([, h]) => /class="ribbon"|Not yet offered|Draft: not reviewed/.test(h)));
+  check('Valid fixture: approved pages are indexable and draft wording is gone', /content="index,follow/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')) && !gh.some(([, h]) => /class="ribbon"|Not yet offered|Bookings not yet open|Draft: not reviewed/.test(h)));
   check('Valid fixture: robots.txt allows crawling and names the sitemap', /Allow: \//.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')) && /Sitemap: https:\/\/st\.petersburg\.stageliora\.com\/sitemap\.xml/.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')));
   check('Valid fixture: no global noindex header overriding approved pages', !/X-Robots-Tag/.test(fs.readFileSync(path.join(G, '_headers'), 'utf8')));
-  check('Valid fixture: homepage drops placeholder portfolio and style sections', !/Space held for real work|Match the style to the house/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')));
+  check('Valid fixture: homepage drops placeholder portfolio and style sections', !/Rooms in each design direction|Match the style to the house/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')));
   check('Valid fixture: no empty footer column', !gh.some(([, h]) => /<h2>[^<]*<\/h2>\s*<ul>\s*<\/ul>/.test(h)));
   check('Valid fixture: St. Petersburg guide omits snippet-only facts', !/from a search summary/.test(fs.readFileSync(path.join(G, 'locations/st-petersburg-fl/index.html'), 'utf8')));
 }

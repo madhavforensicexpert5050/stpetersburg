@@ -157,7 +157,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-inquiry]').forEach((form) 
     if (fd.get('website')) return; // honeypot
     const endpoint = form.dataset.endpoint || '';
     if (!endpoint) {
-      show('info', 'Your request has not been sent', 'Online delivery is not connected yet, so nothing has left your browser. You can open your details as an email instead and send it yourself.', fd);
+      show('info', 'Your message has not been sent yet', 'Nothing has left your browser. Open it in your email app to review it and send it yourself.', fd);
       return;
     }
     const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;

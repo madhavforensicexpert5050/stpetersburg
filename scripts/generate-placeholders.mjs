@@ -1,5 +1,5 @@
 // Draws every placeholder in src/data/media.ts as an original SVG illustration.
-// Each file is stamped PLACEHOLDER so it cannot be mistaken for completed StageLiora work.
+// Each file is stamped ILLUSTRATION so it cannot be mistaken for completed StageLiora work.
 import fs from 'node:fs';
 import path from 'node:path';
 import { media } from '../src/data/media.ts';
@@ -289,8 +289,8 @@ function exterior(s) {
 
 function stamp(label) {
   const text = esc(label.toUpperCase());
-  const w = Math.min(1440, 270 + text.length * 15.2);
-  return `<g font-family="Verdana, Arial, sans-serif"><rect x="28" y="${H - 86}" width="${w}" height="58" rx="4" fill="#0E2233" opacity=".9"/><text x="48" y="${H - 49}" font-size="22" font-weight="700" fill="#FFC53D" letter-spacing="2">PLACEHOLDER</text><text x="262" y="${H - 49}" font-size="21" fill="#FFFFFF">${text}</text></g>`;
+  const w = Math.min(1440, 250 + text.length * 12.6);
+  return `<g font-family="Verdana, Arial, sans-serif"><rect x="28" y="${H - 76}" width="${w}" height="48" rx="4" fill="#0E2233" opacity=".82"/><text x="46" y="${H - 45}" font-size="18" font-weight="700" fill="#FFC53D" letter-spacing="2">ILLUSTRATION</text><text x="236" y="${H - 45}" font-size="17" fill="#FFFFFF">${text}</text></g>`;
 }
 
 const defs = `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8EC8E8"/><stop offset="1" stop-color="#E6F3F7"/></linearGradient><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2A52"/><stop offset=".55" stop-color="#6A4C7E"/><stop offset=".8" stop-color="#E5825B"/><stop offset="1" stop-color="#F7BE7C"/></linearGradient></defs>`;
@@ -300,8 +300,8 @@ for (const m of media) {
   if (!m.src.startsWith('/media/placeholders/')) continue; // a real photo has replaced this slot
   const body = m.scene.kind === 'exterior' ? exterior(m.scene) : interior(m.scene);
   const dim = m.scene.dim ? `<rect width="${W}" height="${H}" fill="#2A2438" opacity=".46"/>` : '';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(m.alt)}"><title>${esc('Placeholder: ' + m.label)}</title>${defs}${body}${dim}${stamp(m.label)}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(m.alt)}"><title>${esc('Illustration: ' + m.label)}</title>${defs}${body}${dim}${stamp(m.label)}</svg>`;
   fs.writeFileSync(path.join(OUT, `${m.id}.svg`), svg.replace(/\s+\/>/g, '/>'));
   count++;
 }
-console.log(`Generated ${count} placeholder illustrations in public/media/placeholders`);
+console.log(`Generated ${count} illustrations in public/media/placeholders`);

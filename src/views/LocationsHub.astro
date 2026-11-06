@@ -5,11 +5,11 @@ import Notice from '../components/Notice.astro';
 import { locations, decisionLabel } from '../data/locations.ts';
 import { isLive, isInternalReview } from '../data/routes.ts';
 ---
-<PageHero path="/locations/" eyebrow="Locations" h1="Places researched for this site" lede="All twelve are incorporated municipalities in Pinellas County, Florida. StageLiora works remotely and has no office in any of them." />
+<PageHero path="/locations/" eyebrow="Locations" h1="St. Petersburg area market notes" lede="Housing-mix notes for St. Petersburg and nearby Pinellas County cities, to help plan listing photos. StageLiora works remotely and has no office in any of them." />
 <section class="section">
   <div class="wrap">
-    <Notice h="Research candidates, not service-area claims">Listing a place here does not mean it is an approved service area or a page ready to publish.{isInternalReview && <> Decisions below are recommendations for the owner.</>}</Notice>
-    <div class="table-wrap" tabindex="0" role="region" aria-label="Researched locations">
+    <Notice h="Market notes, not service-area claims">A place listed here has market data only. Its inclusion is not a claim of a local office or a confirmed service area.{isInternalReview && <> Decisions below are recommendations for the owner.</>}</Notice>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Pinellas County places">
       <table>
         <caption>Census data: ACS 2020–2024 5-year estimates, table B25024. Building types, not ownership form.</caption>
         <thead><tr><th scope="col">Place</th><th scope="col">Relationship to St. Petersburg</th><th scope="col">Detached</th><th scope="col">10+ units</th><th scope="col">Mobile</th>{isInternalReview && <th scope="col">Decision</th>}</tr></thead>

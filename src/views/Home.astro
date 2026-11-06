@@ -7,7 +7,7 @@ import Cta from '../components/Cta.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { process, generalFaqs } from '../data/content.ts';
 import { styles, rooms } from '../data/taxonomy.ts';
-import { library, getMedia } from '../data/media.ts';
+import { library, getMedia, isIllustration, zoomTitle, zoomLabel } from '../data/media.ts';
 import { isLive } from '../data/routes.ts';
 import { services } from '../data/services.ts';
 const styleCards = styles.filter((s) => s.hasPage).map((s) => ({ s, img: getMedia(`lib-${s.id}-living-room`) }));
@@ -96,7 +96,7 @@ const showRooms = isLive('/portfolio/') || lib;
   <div class="wrap">
     <div class="section-head section-head--split">
       <div><p class="eyebrow">Design styles</p><h2>Match the style to the house in the photo</h2></div>
-      <p>Choose a direction that suits the architecture and the likely buyer. Every image below is a placeholder drawing.</p>
+      <p>Choose a direction that suits the architecture and the likely buyer. Each image below illustrates a style. None is a completed client project.</p>
     </div>
   </div>
   <div class="strip" tabindex="0" role="region" aria-label="Design style previews">
@@ -111,21 +111,21 @@ const showRooms = isLive('/portfolio/') || lib;
 {showRooms && <section class="section">
   <div class="wrap">
     <div class="section-head section-head--split">
-      <div><p class="eyebrow">Portfolio and rooms</p><h2>Space held for real work</h2></div>
-      <p>We have no customer examples to show yet, and we will not invent any. These slots show how rooms will be presented once licensed photos are approved.</p>
+      <div><p class="eyebrow">Rooms and styles</p><h2>Rooms in each design direction</h2></div>
+      <p>These are illustrative concepts, not client projects. Real project photos will be shown only with the rights to publish them, and labeled as such.</p>
     </div>
     <div class="gal">
       {roomCards.map(({ name, it }) => (
         <figure class="gal__item">
-          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={`${name} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${name}`}>
+          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, name)} data-info={it.caption} aria-label={zoomLabel(it, name)}>
             <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
           </button>
-          <figcaption><h3>{name}</h3><p class="gal__meta">Placeholder. {it.styleName} direction.</p></figcaption>
+          <figcaption><h3>{name}</h3><p class="gal__meta">{isIllustration(it) ? `Illustration · ${it.styleName} direction` : `${it.styleName} direction`}</p></figcaption>
         </figure>
       ))}
     </div>
     <div class="btn-row" style="margin-top:26px">
-      {isLive('/portfolio/') && <a class="btn" href={url('/portfolio/')}>View Portfolio Layout</a>}
+      {isLive('/portfolio/') && <a class="btn" href={url('/portfolio/')}>View Before and After Examples</a>}
       {lib && <a class="btn" href={url('/design-library/')}>Browse the Design Library</a>}
     </div>
   </div>
@@ -135,8 +135,8 @@ const showRooms = isLive('/portfolio/') || lib;
   <div class="wrap two-col">
     <div>
       <p class="eyebrow">Pricing</p>
-      <h2>Quotes first, until prices are set</h2>
-      <p class="lede" style="margin-top:16px">StageLiora's prices have not been finalized, and we would rather say so than post a number that might change. Ask for a quote and you will see the cost before any work begins.</p>
+      <h2>Priced before any work begins</h2>
+      <p class="lede" style="margin-top:16px">StageLiora has not published rates yet, and we would rather say so than post a number that might change. Every project will be priced before any work begins.</p>
       {isLive('/pricing/') && <a class="textlink" href={url('/pricing/')}>How pricing works</a>}
     </div>
     <div class="mls">

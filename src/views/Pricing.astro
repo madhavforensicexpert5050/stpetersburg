@@ -10,14 +10,14 @@ const quoteLive = isLive('/request-quote/');
 const rows = pricing.rows.filter((r) => isLive(services.find((s) => s.slug === r.slug)!.path));
 const lede = pricing.anyApproved
   ? 'See the published per-image rates below. For anything unusual, a quote confirms the cost before work begins.'
-  : 'We quote each request, so you see an exact figure for your listing before any work begins. Here is what affects it.';
+  : 'StageLiora has not published a rate card yet. Here is what shapes the cost of an edited listing photo, so you know what to ask about.';
 ---
-<PageHero path="/pricing/" eyebrow="Pricing" h1={pricing.anyApproved ? 'Pricing' : 'Get a quote for your listing'} lede={lede}>
+<PageHero path="/pricing/" eyebrow="Pricing" h1={pricing.anyApproved ? 'Pricing' : 'How virtual staging pricing works'} lede={lede}>
   {quoteLive && <div class="btn-row" style="margin-top:22px"><a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a></div>}
 </PageHero>
 <section class="section">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">What affects a quote</p><h2>Six things that shape the cost</h2></div>
+    <div class="section-head"><p class="eyebrow">What affects the cost</p><h2>Six things that shape the cost</h2></div>
     <div class="grid grid--3">
       {pricing.factors.map((f) => <div class="card card--flat"><h3>{f.h}</h3><p>{f.b}</p></div>)}
     </div>
@@ -25,13 +25,13 @@ const lede = pricing.anyApproved
 </section>
 <section class="section section--wall">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">By service</p><h2>What can be quoted</h2></div>
+    <div class="section-head"><p class="eyebrow">By service</p><h2>Rates by service</h2></div>
     <div class="table-wrap" tabindex="0" role="region" aria-label="Pricing by service">
       <table>
-        <caption>Rates appear here only once they have been set</caption>
+        <caption>Per-image rates will be listed here when they are published</caption>
         <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Price per image</th></tr></thead>
         <tbody>
-          {rows.map((r) => <tr><td>{r.name}</td><td>{trackLabel[r.track]}</td><td>{r.price === null ? 'Quote on request' : `$${r.price.toFixed(2)}`}</td></tr>)}
+          {rows.map((r) => <tr><td>{r.name}</td><td>{trackLabel[r.track]}</td><td>{r.price === null ? (quoteLive ? 'Quote on request' : 'Not yet published') : `$${r.price.toFixed(2)}`}</td></tr>)}
         </tbody>
       </table>
     </div>

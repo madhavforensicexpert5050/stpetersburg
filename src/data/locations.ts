@@ -57,7 +57,7 @@ export const locations: LocationRecord[] = [
     ],
     decision: 'DRAFT_NEEDS_LOCAL_REVIEW',
     decisionWhy: 'Distinct housing mix and official storm facts. Needs local review, service-coverage approval and owner authorization.',
-    title: 'St. Pete Beach Listing Photos: Draft Notes | StageLiora', description: 'Draft notes on listing photos in St. Pete Beach, FL: a condo-heavy housing mix, storm-recovery context and MLS limits on edited views.',
+    title: 'St. Pete Beach Listing Photos | StageLiora', description: 'Listing photos in St. Pete Beach, FL: a condo-heavy housing mix, storm-recovery context and MLS limits on edited views.',
   },
   {
     slug: 'gulfport', path: '/locations/gulfport/', name: 'Gulfport', officialName: 'City of Gulfport', officialNameVerified: true, status: 'Incorporated municipality', website: 'https://mygulfport.us/', relationship: 'Borders St. Petersburg',
@@ -75,7 +75,7 @@ export const locations: LocationRecord[] = [
     ],
     decision: 'DRAFT_NEEDS_LOCAL_REVIEW',
     decisionWhy: 'Facts are from opened city pages. Needs more original local information and owner authorization.',
-    title: 'Gulfport, FL Listing Photos: Draft Notes | StageLiora', description: 'Draft notes on listing photos in Gulfport, FL, covering the waterfront district, the housing mix, storm-recovery context and honest room scale.',
+    title: 'Gulfport, FL Listing Photos | StageLiora', description: 'Listing photos in Gulfport, FL, covering the waterfront district, the housing mix, storm-recovery context and honest room scale.',
   },
   {
     slug: 'treasure-island', path: '/locations/treasure-island/', name: 'Treasure Island', officialName: 'City of Treasure Island', officialNameVerified: true, status: 'Incorporated municipality', website: 'https://www.mytreasureisland.org/', relationship: 'Barrier island community; position to St. Petersburg not verified',
@@ -102,7 +102,7 @@ export const locations: LocationRecord[] = [
     facts: [{ text: 'The city describes most residents as retirees living in condominiums or assisted living, with about 300 single-family homes.', source: 'City of South Pasadena, about page', url: 'https://www.mysouthpasadena.com/community/about_south_pasadena.php', evidence: 'snippet' }],
     decision: 'DRAFT_NEEDS_LOCAL_REVIEW',
     decisionWhy: 'The housing mix is distinct. City-page facts must be confirmed in a browser, because the site blocked automated reading.',
-    title: 'South Pasadena, FL Listing Photos: Draft Notes | StageLiora', description: 'Draft notes on listing photos in South Pasadena, FL, where most homes are in larger buildings. What that means for staging condo interiors.',
+    title: 'South Pasadena, FL Listing Photos | StageLiora', description: 'Listing photos in South Pasadena, FL, where most homes are in larger buildings. What that means for staging condo interiors.',
   },
   {
     slug: 'madeira-beach', path: '/locations/madeira-beach/', name: 'Madeira Beach', officialName: 'City of Madeira Beach', officialNameVerified: false, status: 'Incorporated municipality', website: 'https://www.madeirabeachfl.gov/', relationship: 'Barrier island west of St. Petersburg',
@@ -129,7 +129,7 @@ export const locations: LocationRecord[] = [
     facts: [{ text: 'The city says it has flooded due to its proximity to the Gulf and bay.', source: 'City of Pinellas Park, flood protection', url: 'https://www.pinellaspark.gov/313/Flood-Protection', evidence: 'opened' }, { text: 'Incorporated October 14, 1914.', source: 'City of Pinellas Park CRA expansion report', url: 'https://www.pinellaspark.gov/DocumentCenter/View/6723/Pinellas-Park-CRA-Expansion-2018-FON-Report', evidence: 'snippet' }],
     decision: 'DRAFT_NEEDS_LOCAL_REVIEW',
     decisionWhy: 'Distinct housing mix and an opened city source. Needs service-coverage approval and owner authorization.',
-    title: 'Pinellas Park, FL Listing Photos: Draft Notes | StageLiora', description: 'Draft notes on listing photos in Pinellas Park, FL: detached homes and mobile homes, realistic furniture scale, and flood-history context.',
+    title: 'Pinellas Park, FL Listing Photos | StageLiora', description: 'Listing photos in Pinellas Park, FL: detached homes and mobile homes, realistic furniture scale, and flood-history context.',
   },
   {
     slug: 'seminole', path: '/locations/seminole/', name: 'Seminole', officialName: 'City of Seminole', officialNameVerified: true, status: 'Incorporated municipality', website: 'https://www.myseminole.com/', relationship: 'North of St. Petersburg',
@@ -156,7 +156,7 @@ export const locations: LocationRecord[] = [
     facts: [{ text: 'Mobile homes are about 27% of housing, around 12,400 units, with a median year built of 1977.', source: 'City of Largo housing market and needs report', url: 'https://cms7files.revize.com/largoflorida/document_center/Housing%20Assistance%20Resources/Housing%20Market,%20Needs%20Final%2012-10-23.pdf', evidence: 'opened' }],
     decision: 'DRAFT_NEEDS_LOCAL_REVIEW',
     decisionWhy: 'Strong original angle from an opened city report. Owner must decide which property covers Largo.',
-    title: 'Largo, FL Listing Photos: Draft Notes | StageLiora', description: 'Draft notes on listing photos in Largo, FL, where mobile homes make up over a quarter of housing and days on market differ widely by ZIP.',
+    title: 'Largo, FL Listing Photos | StageLiora', description: 'Listing photos in Largo, FL, where mobile homes make up over a quarter of housing and days on market differ widely by ZIP.',
   },
   {
     slug: 'clearwater', path: '/locations/clearwater/', name: 'Clearwater', officialName: 'City of Clearwater', officialNameVerified: false, status: 'Incorporated municipality', website: 'https://www.myclearwater.com/', relationship: 'North of St. Petersburg, with its beach on a separate barrier island',

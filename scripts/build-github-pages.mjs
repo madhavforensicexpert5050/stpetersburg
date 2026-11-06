@@ -58,6 +58,9 @@ const forbidden = [
   [/\[[A-Z][^\]]*pending[^\]]*\]/i, 'unfilled bracket item'], [/confirm before publication/, 'unverified research fact'],
   [/localhost|127\.0\.0\.1/, 'localhost URL'], [/https?:\/\/st\.petersburg\.stageliora\.com/, 'link to the unconfigured custom domain'],
   [/\/stpetersburg\/stpetersburg/, 'doubled base path'],
+  // Development-stage wording that the customer-facing copy replaced. Capital P avoids input placeholder="" and /media/placeholders/.
+  [/Placeholder/, '"Placeholder" wording'], [/Website preview|not open for orders/i, 'old preview banner'],
+  [/pending owner approval|Draft Notes|Internal Research Record|internal record/i, 'internal status wording'],
 ];
 const attrRe = /\b(?:href|src|action|data-zoom|poster)="([^"]*)"/g;
 

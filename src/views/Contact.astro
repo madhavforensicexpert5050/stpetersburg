@@ -18,7 +18,7 @@ import { isLive } from '../data/routes.ts';
       <p><strong style="color:#fff">Email</strong><br /><a href={business.emailHref}>{business.email}</a></p>
       <p><strong style="color:#fff">Phone</strong><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
       <p class="small">This is an international number. Your carrier's calling rates apply from the U.S.</p>
-      <p class="small">StageLiora works remotely and has no public office or walk-in location in Florida. Support hours have not been set.</p>
+      <p class="small">StageLiora works remotely and has no public office or walk-in location in Florida.</p>
       {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
     </aside>
   </div>

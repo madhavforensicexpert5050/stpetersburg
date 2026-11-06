@@ -124,6 +124,9 @@ li { margin-bottom: .4em; }
 .compare__tag { position: absolute; top: 12px; z-index: 2; padding: 5px 10px; background: var(--ink); color: #fff; font: 600 .76rem/1.1 var(--text); letter-spacing: .04em; border-radius: 2px; pointer-events: none; }
 .compare__tag--b { left: 12px; }
 .compare__tag--a { right: 12px; background: var(--sun); color: var(--ink); }
+.compare-wrap { container-type: inline-size; }
+/* On a narrow slider the long tag text would collide. The caption under every slider keeps the full disclosure. */
+@container (max-width: 400px) { .compare__tag-x { display: none; } }
 .compare-wrap figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; margin-top: 10px; font-size: .9rem; color: var(--muted); }
 .compare-wrap figcaption p { margin: 0; flex: 1 1 240px; }
 .compare-wrap { margin: 0; }

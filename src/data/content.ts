@@ -20,7 +20,7 @@ export const pricing = {
     { h: 'What we need from you', b: 'The service you want, the number of photos, the property location and your MLS. Photos are not needed for a first quote.' },
   ],
   faqs: [
-    { q: 'Why is there no price list?', a: 'StageLiora\'s prices have not been finalized. Rather than publish figures that might change, this page asks you to request a quote. Published prices will appear here once approved.' },
+    { q: 'Why is there no price list?', a: 'StageLiora has not published fixed rates yet. Rather than show figures that may change, this page explains what drives the cost. Rates will be listed here once they are set.' },
     { q: 'What decides the quote?', a: 'The service, the number of images, and what the photos need. Rooms with a lot to remove take more work than empty rooms.' },
     { q: 'Do you offer discounts or a free sample?', a: 'None are on offer. If that changes, the terms will be stated here.' },
     { q: 'How do I pay?', a: 'Your quote will explain how to pay. There is no online checkout. Please do not send card details by email or through the quote form.' },
@@ -32,7 +32,7 @@ export const generalFaqs = [
     { q: 'What is virtual staging?', a: 'Adding furniture and decor to a photo of a room using image editing. The room itself is not changed. Our guide explains it in more detail.' },
     { q: 'Who is StageLiora for?', a: 'Real estate agents, photographers, brokerages and other people who market property.' },
     { q: 'Do you have an office in St. Petersburg?', a: 'No. StageLiora works remotely and has no public office or storefront in Florida. St. Petersburg is the market this site is written for.' },
-    { q: 'Can I see your finished work?', a: 'Not yet. The images on this site are placeholder drawings. Real examples will be added only when the photos are properly licensed, and they will be labeled.' },
+    { q: 'Can I see your finished work?', a: 'Not yet. The room images on this site are illustrations. Real client examples will be added only with licensed photos, and they will be clearly labeled.' },
   ] },
   { group: 'MLS and disclosure', items: [
     { q: 'Will an edited photo be compliant with my MLS?', a: 'We cannot promise that. Rules differ by MLS and change over time, and the agent and broker remain responsible for the listing. We explain the rules we have read and point you to the source.' },
@@ -41,7 +41,7 @@ export const generalFaqs = [
     { q: 'Which edits are not allowed in Stellar listing photos?', a: 'Among others: exterior staging beyond unattached furniture or decor, changing permanent fixtures, adding views or lighting that could not exist, hiding defects, distorting room size, changing paint colors and adding landscape plantings.' },
   ] },
   { group: 'Working with us', items: [
-    { q: 'How long does an order take?', a: 'A turnaround time has not been set. Your quote will tell you what to expect for your specific request.' },
+    { q: 'How long does an order take?', a: 'Turnaround times have not been published yet. They will depend on the service, the number of photos and the edits requested.' },
     { q: 'What file types should I send?', a: 'Keep your original files and send them unfiltered. Upload is not active yet, so please do not send photos until your quote confirms how to share them.' },
     { q: 'Whose photos can I send?', a: 'Only photos you own or are licensed to have edited. A photographer may hold the copyright in listing photos, so check your agreement first.' },
     { q: 'What about revisions and refunds?', a: 'These terms have not been finalized. They will be published in the Refund and Revision Policy, and confirmed in writing before any work starts.' },
@@ -87,14 +87,14 @@ export const audiences = {
 /** Original copy for the four design-style pages. */
 export const stylePages: Record<string, { h1: string; intro: string; bestFor: string[]; pieces: string[]; watch: string; title: string; description: string }> = {
   modern: {
-    title: 'Modern Virtual Staging Style | StageLiora', description: 'What modern staging looks like in a listing photo, which homes suit it, and what to watch for. Original style notes with placeholder room examples.',
+    title: 'Modern Virtual Staging Style | StageLiora', description: 'What modern staging looks like in a listing photo, which homes suit it, and what to watch for. Original style notes with illustrated room examples.',
     h1: 'Modern: fewer pieces, stronger lines', intro: 'Modern staging relies on low furniture, plain surfaces and a limited palette. It leaves wall and floor visible, which can help a compact room feel uncluttered.',
     bestFor: ['Newer condos and downtown towers', 'Mid-century homes with clean rooflines', 'Rooms with strong windows or a good view that is really there'],
     pieces: ['Low sofa with a slim frame', 'Black metal or dark wood accents', 'One strong piece of art', 'A single accent color'],
     watch: 'Too little furniture can make a room look unfinished, and undersized pieces can misstate its size. Keep the scale true.',
   },
   scandinavian: {
-    title: 'Scandinavian Virtual Staging Style | StageLiora', description: 'How Scandinavian staging reads in listing photos: pale wood, soft textiles and daylight. Which rooms suit it, with placeholder room examples.',
+    title: 'Scandinavian Virtual Staging Style | StageLiora', description: 'How Scandinavian staging reads in listing photos: pale wood, soft textiles and daylight. Which rooms suit it, with illustrated room examples.',
     h1: 'Scandinavian: pale wood and borrowed daylight', intro: 'This style uses light woods, soft fabrics and simple forms. It works with the daylight a room already has, which makes it a natural choice for smaller or brighter rooms.',
     bestFor: ['Bungalows with original windows', 'Small bedrooms and home offices', 'Rooms that already get good natural light'],
     pieces: ['Rounded, light-legged seating', 'Pale oak tables and shelving', 'Wool rugs in quiet tones', 'A plant or two'],

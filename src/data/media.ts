@@ -141,7 +141,7 @@ export const zoomTitle = (m: Pick<MediaItem, 'rights'>, name: string) => (isAiCo
 /** Accessible name of the button that opens the lightbox */
 export const zoomLabel = (m: Pick<MediaItem, 'rights'>, name: string) => (isAiConcept(m) ? `Enlarge AI concept: ${name}` : isIllustration(m) ? `Enlarge illustration: ${name}` : `Enlarge image: ${name}`);
 /** One short disclosure line under every AI-created comparison. */
-export const aiCompareNote = 'AI-created example · not a client project';
+export const aiCompareNote = 'AI-created example';
 
 const byId = new Map(media.map((m) => [m.id, m]));
 export function getMedia(id: string): MediaItem {

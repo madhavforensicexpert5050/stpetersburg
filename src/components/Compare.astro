@@ -12,10 +12,10 @@ const synthetic = before.rights === 'ai-generated' && after.rights === 'ai-gener
     <MediaImage media={before} eager={eager} sizes={eager ? '(max-width: 767px) 100vw, 1200px' : undefined} />
     <MediaImage media={after} class="compare__after" eager={eager} sizes={eager ? '(max-width: 767px) 100vw, 1200px' : undefined} />
     <span class="compare__tag compare__tag--b">Before{illustrative && !synthetic && <span class="compare__tag-x"> · Illustrative room</span>}</span>
-    <span class="compare__tag compare__tag--a">After{illustrative && <span class="compare__tag-x">{synthetic ? ' · AI concept' : ' · Design concept'}</span>}</span>
+    <span class="compare__tag compare__tag--a">After{illustrative && !synthetic && <span class="compare__tag-x"> · Design concept</span>}</span>
     <span class="compare__line" aria-hidden="true"></span>
     <span class="compare__knob" aria-hidden="true">↔</span>
-    <input type="range" min="0" max="100" value="50" step="1" aria-label={`Compare before and after: ${before.label} and ${after.label}`} aria-valuetext="50 percent" />
+    <input type="range" min="0" max="100" value="50" step="1" aria-label={synthetic ? `Compare the original room and the AI-created visualization: ${before.label} and ${after.label}` : `Compare before and after: ${before.label} and ${after.label}`} aria-valuetext="50 percent" />
   </div>
   <figcaption>
     <p>{synthetic ? aiCompareNote : illustrative ? illustrationNote : after.caption}</p>

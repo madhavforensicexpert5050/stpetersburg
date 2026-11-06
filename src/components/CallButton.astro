@@ -1,0 +1,10 @@
+---
+/** Primary call-to-action: one tel: link with the number visible. Used in the hero and the CTA band. */
+import { business } from '../data/business.ts';
+interface Props { class?: string }
+const { class: className } = Astro.props;
+---
+<a class:list={['btn', 'btn--primary', 'btn--call', className]} href={business.phoneHref}>
+  <svg class="btn--call__icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z" fill="currentColor"/></svg>
+  <span class="btn--call__text"><span class="btn--call__label">Call StageLiora</span><span class="btn--call__num">{business.phoneDisplay}</span></span>
+</a>

@@ -131,9 +131,9 @@ export const interiorDesign = {
 };
 
 export const process = [
-  { n: '01', h: 'Tell us about the listing', b: 'Choose a service, describe the rooms and say where the images will be used. The MLS matters, because the rules differ.' },
-  { n: '02', h: 'Get a quote', b: 'We reply with what can be done, what cannot, the price and the timing for your request. Nothing starts until you agree.' },
-  { n: '03', h: 'Share your photos', b: 'Send only photos you have the right to edit. Secure upload is not active yet, so your quote will explain how to share them.' },
-  { n: '04', h: 'Review the result', b: 'You check each edited image against its original before using it, and ask for any changes under the agreed terms.' },
-  { n: '05', h: 'Disclose and publish', b: 'You keep the original and complete whatever disclosure your MLS requires. In Stellar MLS that happens in the listing fields, not on the image.' },
+  { n: '01', h: 'Share your property details', b: 'Tell us the room types, how the photos were taken and where the images will be used. The MLS matters, because the rules differ.' },
+  { n: '02', h: 'Discuss your project', b: 'We talk through which edits suit each room, what should stay unchanged and which service fits. Nothing starts until scope and cost are agreed.' },
+  { n: '03', h: 'Share your photos', b: 'Send only full-resolution photos you have the right to edit. There is no upload on this site, so the transfer method is agreed with you.' },
+  { n: '04', h: 'Review the visuals', b: 'Check each edited image against its original. Walls, windows, floors and fixtures should match before any image is used.' },
+  { n: '05', h: 'Prepare for listing use', b: 'Keep the original and complete the disclosure your MLS requires. In Stellar MLS that happens in the listing fields, not on the image.' },
 ];

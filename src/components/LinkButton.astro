@@ -1,0 +1,21 @@
+---
+/**
+ * A section-level call to action styled as a button. Extends the shared .btn styles.
+ * href is a site path ("/how-it-works/") and goes through url() for the GitHub Pages base path;
+ * absolute URLs, mailto: and tel: pass through unchanged.
+ * Use for "next step" links below a section. Keep ordinary in-text links as links.
+ */
+import { url } from '../lib/url.ts';
+interface Props { href: string; label: string; variant?: 'primary' | 'outline'; icon?: 'arrow' | 'camera' | 'contact' | 'guide' }
+const { href, label, variant = 'outline', icon = 'arrow' } = Astro.props;
+const paths = {
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  camera: '<rect x="3" y="6.5" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.4"/><path d="M8.5 6.5 10 4h4l1.5 2.5"/>',
+  contact: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  guide: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20"/>',
+};
+---
+<a class:list={['btn', 'btn--cta', variant === 'primary' ? 'btn--primary' : 'btn--outline']} href={url(href)}>
+  <span>{label}</span>
+  <svg class="btn__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" set:html={paths[icon]} />
+</a>

@@ -461,7 +461,6 @@ input:disabled, select:disabled { background: var(--wall); }
 .process__icon { display: inline-flex; color: var(--on-ink-muted); }
 .process__step h3 { margin: 0; font-size: 1.1rem; color: #fff; }
 .process__step p { margin: 0; font-size: .94rem; line-height: 1.55; color: var(--on-ink-muted); }
-.process__links { margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 10px 28px; }
 @media (max-width: 1180px) {
   .process__list { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .process__list::before { display: none; }
@@ -566,3 +565,22 @@ input:disabled, select:disabled { background: var(--wall); }
 .compare-plans tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .compare-plans tbody td { color: var(--body); }
 .plan--assist .plan__amount small { color: var(--on-ink-muted); }
+
+/* ================= Section CTA buttons (LinkButton) ================= */
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px 14px; margin-top: 26px; }
+.cta-row--center { justify-content: center; margin-top: 34px; }
+.btn--cta { gap: 10px; min-height: 48px; padding: 12px 22px; border-radius: 6px; transition: background-color .18s ease, color .18s ease, border-color .18s ease, transform .18s ease; }
+.btn--cta .btn__icon { flex: none; transition: transform .18s ease; }
+.btn--cta:hover .btn__icon { transform: translateX(2px); }
+.btn--cta:hover { transform: translateY(-1px); }
+.btn--outline { background: transparent; border-color: var(--ink); color: var(--ink); }
+.btn--outline:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
+.on-ink .btn--outline { border-color: rgba(255, 255, 255, .55); color: #fff; }
+.on-ink .btn--outline:hover { background: #fff; border-color: #fff; color: var(--ink); }
+.btn--cta:focus-visible { outline: 3px solid var(--sun-deep); outline-offset: 3px; }
+.on-ink .btn--cta:focus-visible { outline-color: var(--sun); }
+@media (max-width: 600px) {
+  .cta-row { flex-direction: column; align-items: stretch; }
+  .cta-row .btn--cta { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .btn--cta, .btn--cta .btn__icon { transition: none; } .btn--cta:hover, .btn--cta:hover .btn__icon { transform: none; } }

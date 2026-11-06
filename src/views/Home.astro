@@ -3,6 +3,7 @@ import { url } from '../lib/url.ts';
 import MediaImage from '../components/MediaImage.astro';
 import Compare from '../components/Compare.astro';
 import CallButton from '../components/CallButton.astro';
+import LinkButton from '../components/LinkButton.astro';
 import { founder } from '../data/founder.ts';
 import { anyPlanPriced, rateText } from '../data/pricing-plans.ts';
 import ShowcaseTabs, { type ShowcaseItem } from '../components/ShowcaseTabs.astro';
@@ -91,7 +92,7 @@ const stepIcons = [
       <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Pick a room, then drag the divider.</p>
     </div>
     <ShowcaseTabs id="rooms" label="Rooms" items={roomItems} />
-    {isLive('/portfolio/') && <p style="margin-top:22px"><a class="textlink" href={url('/portfolio/')}>See every room in the portfolio</a></p>}
+    {isLive('/portfolio/') && <div class="cta-row"><LinkButton href="/portfolio/" label="See Every Room in the Portfolio" /></div>}
   </div>
 </section>
 
@@ -106,7 +107,7 @@ const stepIcons = [
         : <p class="lede">Listing photo edits are meant to show a real property clearly, with limits that protect you and the buyer.</p>}
     </div>
     <ShowcaseTabs id="services" label="Services" items={serviceItems} />
-    {isLive('/services/') && <p style="margin-top:22px"><a class="textlink" href={url('/services/')}>Compare all services and their MLS notes</a></p>}
+    {isLive('/services/') && <div class="cta-row"><LinkButton href="/services/" label="Compare All Services and MLS Notes" /></div>}
   </div>
 </section>
 
@@ -125,7 +126,11 @@ const stepIcons = [
         </li>
       ))}
     </ol>
-    <p class="process__links">{isLive('/how-it-works/') && <a href={url('/how-it-works/')}>The full process</a>}{isLive('/guides/how-to-prepare-photos-for-virtual-staging/') && <a href={url('/guides/how-to-prepare-photos-for-virtual-staging/')}>How to prepare your photos</a>}{isLive('/contact/') && <a href={url('/contact/')}>Contact StageLiora</a>}</p>
+    <div class="cta-row cta-row--center">
+      {isLive('/how-it-works/') && <LinkButton href="/how-it-works/" label="Explore the Full Process" variant="primary" icon="arrow" />}
+      {isLive('/guides/how-to-prepare-photos-for-virtual-staging/') && <LinkButton href="/guides/how-to-prepare-photos-for-virtual-staging/" label="Photo Preparation Guide" icon="camera" />}
+      {isLive('/contact/') && <LinkButton href="/contact/" label="Contact StageLiora" icon="contact" />}
+    </div>
   </div>
 </section>
 
@@ -141,7 +146,7 @@ const stepIcons = [
         <li>Get a read on MLS limits before any work starts</li>
         <li>Keep the original beside every edited image</li>
       </ul>
-      {isLive('/for-real-estate-agents/') && <a class="textlink" href={url('/for-real-estate-agents/')}>More for real estate agents</a>}
+      {isLive('/for-real-estate-agents/') && <div class="cta-row"><LinkButton href="/for-real-estate-agents/" label="More for Real Estate Agents" /></div>}
     </div>
     <Compare pair="svc-furniture-removal" />
   </div>
@@ -173,7 +178,10 @@ const stepIcons = [
         </ul>
       </div>
     </div>
-    <p style="margin-top:22px">{isLive('/guides/what-is-virtual-staging/') && <a class="textlink" href={url('/guides/what-is-virtual-staging/')}>What virtual staging is</a>}{isLive('/guides/virtual-staging-vs-traditional-staging/') && <> · <a class="textlink" href={url('/guides/virtual-staging-vs-traditional-staging/')}>Virtual or traditional staging?</a></>}</p>
+    <div class="cta-row">
+      {isLive('/guides/what-is-virtual-staging/') && <LinkButton href="/guides/what-is-virtual-staging/" label="What Virtual Staging Is" icon="guide" />}
+      {isLive('/guides/virtual-staging-vs-traditional-staging/') && <LinkButton href="/guides/virtual-staging-vs-traditional-staging/" label="Virtual or Traditional Staging?" icon="guide" />}
+    </div>
   </div>
 </section>
 
@@ -238,7 +246,7 @@ const stepIcons = [
       <p class="eyebrow">{founder.home.eyebrow}</p>
       <h2>{founder.home.h}</h2>
       <p class="lede">{founder.home.p}</p>
-      <a class="textlink" href={url(founder.path)}>{founder.home.cta}</a>
+      <div class="cta-row"><LinkButton href={founder.path} label="Read My Story" /></div>
     </div>
   </div>
 </section>}
@@ -249,7 +257,7 @@ const stepIcons = [
       <p class="eyebrow">Pricing</p>
       <h2>Priced before any work begins</h2>
       <p class="lede" style="margin-top:16px">{anyPlanPriced() && rateText('pay-as-you-go') ? `Pay As You Go is ${rateText('pay-as-you-go')}, with lower per-photo rates for bundled sets. Cost depends on the service, the number of images and what each room needs, and any project is priced before work begins.` : 'Cost depends on the service, the number of images and what each room needs. Rates are not published on the site, so ask about your listing directly. Any project is priced before work begins.'}</p>
-      {isLive('/pricing/') && <a class="textlink" href={url('/pricing/')}>How pricing works</a>}
+      {isLive('/pricing/') && <div class="cta-row"><LinkButton href="/pricing/" label="See Pricing" /></div>}
     </div>
     <div class="mls">
       <h3>Image accuracy and disclosure</h3>
@@ -278,7 +286,7 @@ const stepIcons = [
 
 <section class="section">
   <div class="wrap two-col">
-    <div><p class="eyebrow">Questions</p><h2>What people ask first</h2>{isLive('/faq/') && <p style="margin-top:16px"><a class="textlink" href={url('/faq/')}>See all FAQs</a></p>}</div>
+    <div><p class="eyebrow">Questions</p><h2>What people ask first</h2>{isLive('/faq/') && <div class="cta-row"><LinkButton href="/faq/" label="See All FAQs" /></div>}</div>
     <Faq items={faqs} open />
   </div>
 </section>

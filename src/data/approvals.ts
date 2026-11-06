@@ -50,6 +50,12 @@ export interface OwnerApprovals {
   prices: Record<string, number>;
   /** Plan id (see src/data/pricing-plans.ts) -> approved figures. Empty means no price is shown. */
   planPricing: Record<string, PlanPrice>;
+  /**
+   * Pricing-card claims that need their own owner decision, beyond the approved prices.
+   * bundleSavings: "Save 11%" / "Save 22%" badges, measured against the Pay As You Go rate. Needs approved bundle eligibility terms.
+   * noBundleRequired: "No Bundle Required" on Pay As You Go. While null, the card shows "Flexible Per-Photo Pricing".
+   */
+  pricingClaims: { bundleSavings: ApprovalRecord | null; noBundleRequired: ApprovalRecord | null };
   /** Legal doc slug -> attorney or owner legal sign-off */
   legalReview: Record<string, ApprovalRecord>;
   /** Location slug -> service coverage and page authorization */
@@ -94,6 +100,8 @@ const OWNER_APPROVALS: OwnerApprovals = {
     'plus-bundle': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $14 per photo approved as a net price. Bundle size, prepayment, expiry and refunds not yet set', currency: 'USD', pricePerPhotoCents: 1400 },
     'dedicated-assistance': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $3,000 per year fee approved for display only. Credits, a $12 rate and an assigned person NOT approved', currency: 'USD', annualFeeCents: 300000 },
   },
+  // V13: not approved. Bundle eligibility (size, prepayment, expiry, refunds) is not set, so no savings badge is published.
+  pricingClaims: { bundleSavings: null, noBundleRequired: null },
   legalReview: {},
   coverage: {},
   formDeliveryVerified: null,

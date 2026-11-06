@@ -12,7 +12,7 @@
  * The $20 base rate is an internal calculation reference, not a previous or regular selling price,
  * so it is never shown as a crossed-out price or a "Save X%" claim.
  */
-import { approvals, type PlanPrice } from './approvals.ts';
+import { approvals, type PlanPrice, type ApprovalRecord } from './approvals.ts';
 
 export type PlanId = 'pay-as-you-go' | 'essential-bundle' | 'plus-bundle' | 'dedicated-assistance';
 export type Cents = number;
@@ -122,7 +122,7 @@ export const plans: Plan[] = [
 ];
 
 // ---------------------------------------------------------------- approved figures only
-const validRecord = (x?: PlanPrice | null) => Boolean(x && x.by && x.date && x.reference);
+const validRecord = (x?: PlanPrice | ApprovalRecord | null) => Boolean(x && x.by && x.date && x.reference);
 
 /** Approved figures for a plan, or null. Only these may ever be shown as prices. */
 export const approvedPrice = (id: PlanId): PlanPrice | null => {
@@ -156,4 +156,41 @@ export const approvedTerm = (id: PlanId, key: 'prepay' | 'minimum' | 'credits'):
   if (key === 'minimum' && a.minimumPhotos != null) return `${a.minimumPhotos} photos`;
   if (key === 'credits' && a.includedCreditsCents != null) return usd(a.includedCreditsCents);
   return null;
+};
+
+// ---------------------------------------------------------------- card labels (V13)
+/**
+ * Whole-number saving of a bundle rate against the Pay As You Go rate, rounded DOWN so it is never
+ * overstated: (1800 - 1600) / 1800 = 11.11% -> 11; (1800 - 1400) / 1800 = 22.22% -> 22.
+ */
+export const savingsPercent = (rateCents: Cents, referenceCents: Cents): number | null => {
+  if (!Number.isInteger(rateCents) || !Number.isInteger(referenceCents) || referenceCents <= 0 || rateCents <= 0 || rateCents >= referenceCents) return null;
+  return Math.floor(((referenceCents - rateCents) * 100) / referenceCents);
+};
+
+export interface PlanBadge { text: string; tone: 'neutral' | 'save'; /** Extra words for screen readers, or null. */ srText: string | null }
+
+/** True only when the owner has approved bundle savings claims AND the Pay As You Go reference price. */
+export const bundleSavingsApproved = () => validRecord(approvals.pricingClaims?.bundleSavings) && approvedPrice('pay-as-you-go')?.pricePerPhotoCents != null;
+
+/** The label above each card heading. Savings badges appear only behind approvals.pricingClaims.bundleSavings. */
+export const planBadge = (id: PlanId): PlanBadge | null => {
+  const rate = approvedPrice(id);
+  if (!rate) return null;
+  if (id === 'dedicated-assistance') return rate.annualFeeCents != null ? { text: 'Annual Plan', tone: 'neutral', srText: null } : null;
+  if (id === 'pay-as-you-go') return { text: validRecord(approvals.pricingClaims?.noBundleRequired) ? 'No Bundle Required' : 'Flexible Per-Photo Pricing', tone: 'neutral', srText: null };
+  const ref = approvedPrice('pay-as-you-go')?.pricePerPhotoCents;
+  if (bundleSavingsApproved() && rate.pricePerPhotoCents != null && ref != null) {
+    const pct = savingsPercent(rate.pricePerPhotoCents, ref);
+    if (pct) return { text: `Save ${pct}%`, tone: 'save', srText: `compared with the ${usd(ref)} Pay As You Go rate` };
+  }
+  const perPhoto = plans.map((p) => approvedPrice(p.planId)?.pricePerPhotoCents).filter((c): c is number => c != null);
+  const lowest = rate.pricePerPhotoCents != null && perPhoto.length > 0 && rate.pricePerPhotoCents === Math.min(...perPhoto);
+  return { text: lowest ? 'Lowest Per-Photo Rate' : 'Bundle Rate', tone: 'neutral', srText: null };
+};
+
+/** One comparison note under the grid, shown only while savings badges are published. */
+export const savingsDisclosure = (): string | null => {
+  const ref = approvedPrice('pay-as-you-go')?.pricePerPhotoCents;
+  return bundleSavingsApproved() && ref != null ? `Bundle savings are compared with StageLiora's ${usd(ref)} Pay As You Go rate. Bundle eligibility and terms apply.` : null;
 };

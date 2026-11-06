@@ -2,7 +2,8 @@
 /**
  * Pricing (V12): hero, four cards, comparison, cost factors, project expectations, FAQ, contact CTA.
  * Figures come only from approvals.planPricing via src/data/pricing-plans.ts. Proposed V12 rates are
- * never rendered. No crossed-out prices, savings badges, bundle totals or checkout links.
+ * never rendered. No crossed-out prices, bundle totals or checkout links. Card labels come from
+ * planBadge(); "Save X%" badges stay off until approvals.pricingClaims.bundleSavings is recorded.
  */
 import { url } from '../lib/url.ts';
 import Crumbs from '../components/Crumbs.astro';
@@ -10,7 +11,7 @@ import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
 import CallButton from '../components/CallButton.astro';
 import { pricing } from '../data/content.ts';
-import { plans, anyPlanPriced, headline, rateText, approvedTerm } from '../data/pricing-plans.ts';
+import { plans, anyPlanPriced, headline, rateText, approvedTerm, planBadge, savingsDisclosure } from '../data/pricing-plans.ts';
 import { business } from '../data/business.ts';
 import { isLive } from '../data/routes.ts';
 const contactHref = isLive('/contact/') ? url('/contact/') : business.emailHref;
@@ -45,8 +46,10 @@ const faqs = [
       {plans.map((p) => {
         const h = headline(p.planId);
         const prepay = approvedTerm(p.planId, 'prepay');
+        const badge = planBadge(p.planId);
         return (
           <li class:list={['plan', { 'plan--assist': p.variant === 'assist' }]}>
+            {badge && <p class:list={['plan__badge', `plan__badge--${badge.tone}`]}>{badge.text}{badge.srText && <span class="visually-hidden"> {badge.srText}</span>}</p>}
             <h3 class="plan__name">{p.planName}</h3>
             <p class="plan__sub">{p.subtitle}</p>
             <div class="plan__price">
@@ -63,7 +66,8 @@ const faqs = [
         );
       })}
     </ul>
-    <p class="plan-footnote">{priced ? 'Prices are in US dollars, per finished image unless stated. The exact cost for your photos is confirmed before any work begins. Nothing can be purchased online.' : 'Rates are not listed on the site yet. Ask about pricing for your listing by phone or through the Contact page. Nothing can be purchased online.'}</p>
+    {savingsDisclosure() && <p class="plan-footnote plan-footnote--savings">{savingsDisclosure()}</p>}
+    <p class="plan-footnote">{priced ? 'Prices are in US dollars, per finished image unless stated. Bundle rates apply to photo sets under bundle terms agreed in writing, not to single images. The exact cost for your photos is confirmed before any work begins. Nothing can be purchased online.' : 'Rates are not listed on the site yet. Ask about pricing for your listing by phone or through the Contact page. Nothing can be purchased online.'}</p>
   </div>
 </section>
 

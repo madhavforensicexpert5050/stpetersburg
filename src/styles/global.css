@@ -526,6 +526,10 @@ input:disabled, select:disabled { background: var(--wall); }
 .pricing-plans { padding-top: clamp(32px, 4vw, 56px); }
 .plan-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
 .plan { display: flex; flex-direction: column; padding: 26px 22px 24px; background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--sun); border-radius: 6px; box-shadow: 0 8px 22px rgba(14, 34, 51, .06); }
+.plan__badge { align-self: flex-start; max-width: 100%; margin: 0 0 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #e6d7b0; background: #fbf7ee; color: var(--ink); font: 700 .78rem/1.35 var(--text); letter-spacing: .02em; }
+.plan__badge--save { border-color: #b9d8c8; background: #eef7f2; color: var(--ok); }
+.plan--assist .plan__badge { border-color: #3a5a70; background: var(--ink-2); color: var(--sun); }
+.plan-footnote--savings { margin-bottom: -8px; color: var(--ink); }
 .plan__name { margin: 0; font-size: 1.35rem; }
 .plan__sub { margin: 6px 0 18px; color: var(--muted); font-size: .97rem; line-height: 1.45; min-height: 2.9em; }
 .plan__price { background: #fbf7ee; border: 1px solid #efe4c9; border-radius: 4px; padding: 14px 16px; margin-bottom: 18px; }

@@ -519,3 +519,41 @@ input:disabled, select:disabled { background: var(--wall); }
 .on-ink .crumbs, .on-ink .crumbs a, .on-ink .crumbs [aria-current] { color: var(--on-ink-muted); }
 .on-ink .crumbs a:hover { color: var(--sun); }
 .on-ink .crumbs li + li::before { color: #4a6a80; }
+
+/* ================= V11: pricing page ================= */
+.pricing-hero { background: var(--wall); text-align: center; padding: clamp(24px, 3vw, 40px) 0 clamp(28px, 3.6vw, 48px); border-bottom: 1px solid var(--mist); }
+.pricing-hero .crumbs ol { justify-content: center; }
+.pricing-hero h1 { margin: 6px 0 12px; font-size: clamp(2.1rem, 4vw, 3.4rem); }
+.pricing-hero .lede { max-width: 60ch; margin: 0 auto; }
+.pricing-plans { padding-top: clamp(32px, 4vw, 56px); }
+.plan-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.plan { display: flex; flex-direction: column; padding: 26px 22px 24px; background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--sun); border-radius: 6px; box-shadow: 0 8px 22px rgba(14, 34, 51, .06); }
+.plan__name { margin: 0; font-size: 1.35rem; }
+.plan__sub { margin: 6px 0 18px; color: var(--muted); font-size: .97rem; line-height: 1.45; min-height: 2.9em; }
+.plan__price { background: #fbf7ee; border: 1px solid #efe4c9; border-radius: 4px; padding: 14px 16px; margin-bottom: 18px; }
+.plan__amount { margin: 0; font: 700 1.9rem/1.1 var(--display); color: var(--ink); }
+.plan__amount small { font: 500 .95rem var(--text); color: var(--muted); }
+.plan__amount--model { font-size: 1.3rem; }
+.plan__note { margin: 6px 0 0; font-size: .9rem; color: var(--muted); }
+.plan__features { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 9px; flex: 1; }
+.plan__features li { position: relative; padding-left: 24px; font-size: .96rem; line-height: 1.45; }
+.plan__features li::before { content: ''; position: absolute; left: 3px; top: .35em; width: 6px; height: 11px; border: solid var(--ok); border-width: 0 2.4px 2.4px 0; transform: rotate(45deg); }
+.plan__cta { display: grid; gap: 10px; }
+.plan__btn { width: 100%; background: var(--ink); border-color: var(--ink); color: #fff; }
+.plan__btn:hover { background: var(--sun); border-color: var(--sun); color: var(--ink); }
+.plan__cta .btn--call { width: 100%; justify-content: center; }
+.plan__secondary { justify-self: center; padding: 6px 4px; font-weight: 600; color: var(--sun); }
+.plan--assist { background: var(--ink); border-color: var(--ink); border-top-color: var(--sun); color: var(--on-ink-muted); }
+.plan--assist .plan__name { color: #fff; }
+.plan--assist .plan__sub, .plan--assist .plan__note { color: var(--on-ink-muted); }
+.plan--assist .plan__price { background: var(--ink-2); border-color: #2b4a60; }
+.plan--assist .plan__amount { color: var(--sun); }
+.plan--assist .plan__features li { color: var(--on-ink); }
+.plan--assist .plan__features li::before { border-color: var(--sun); }
+.plan--assist :focus-visible { outline-color: var(--sun); }
+.plan-footnote { margin: 20px auto 0; max-width: 70ch; text-align: center; font-size: .92rem; color: var(--muted); }
+.expect { grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); }
+.expect .card { gap: 10px; }
+.expect .card .textlink { margin-top: auto; }
+@media (max-width: 1100px) { .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .plan-grid { grid-template-columns: minmax(0, 1fr); } .plan__sub { min-height: 0; } }

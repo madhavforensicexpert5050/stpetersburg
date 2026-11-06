@@ -9,7 +9,7 @@ const indexed = ['/', '/about/', '/guides/', '/guides/what-is-virtual-staging/',
 const valid = () => ({
   websiteContent: R, pageDesign: R, publicDeployment: R, searchIndexing: R,
   publication: rec(core), indexing: rec(indexed),
-  services: { 'virtual-staging': service }, prices: {},
+  services: { 'virtual-staging': service }, prices: {}, planPricing: {},
   legalReview: rec(['privacy-policy', 'terms-of-service']), coverage: rec(['st-petersburg-fl']),
   formDeliveryVerified: null, genuineReviews: null, founderStatements: null, founderRole: null,
 });

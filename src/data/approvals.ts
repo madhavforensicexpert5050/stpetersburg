@@ -12,6 +12,14 @@ import { qaFixture } from './approvals.qa-fixture.ts';
 
 export interface ApprovalRecord { by: string; date: string; reference: string }
 
+/** Owner-approved figures for one pricing card on /pricing/. Every number must come from a written owner decision. */
+export interface PlanPrice extends ApprovalRecord {
+  currency: 'USD';
+  pricePerPhoto?: number;
+  prepaidAmount?: number;
+  includedPhotos?: number;
+}
+
 /** Every field must be answered before a service can be sold. A competitor offering it proves nothing. */
 export interface ServiceApproval extends ApprovalRecord {
   performedBy: string;
@@ -36,6 +44,8 @@ export interface OwnerApprovals {
   services: Record<string, ServiceApproval>;
   /** Service slug -> USD per image, approved under DEC-009 */
   prices: Record<string, number>;
+  /** Plan id (see src/data/pricing-plans.ts) -> approved figures. Empty means no price is shown. */
+  planPricing: Record<string, PlanPrice>;
   /** Legal doc slug -> attorney or owner legal sign-off */
   legalReview: Record<string, ApprovalRecord>;
   /** Location slug -> service coverage and page authorization */
@@ -72,6 +82,7 @@ const OWNER_APPROVALS: OwnerApprovals = {
   indexing: {},
   services: {},
   prices: {},
+  planPricing: {},
   legalReview: {},
   coverage: {},
   formDeliveryVerified: null,

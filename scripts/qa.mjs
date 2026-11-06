@@ -165,6 +165,14 @@ check('No route is APPROVED_FOR_PUBLICATION without a documented approval', rout
 const founderRoute = routes.find((r) => r.template === 'founder');
 check('Founder page content counts as approved only with its own approval record', founderRoute && contentApprovalOf(founderRoute) === (approvals.founderStatements ? 'APPROVED' : 'NOT_APPROVED') && designApprovalOf(founderRoute) === contentApprovalOf(founderRoute));
 check('Owner content and design approval is recorded for all 60 routes', routes.filter((r) => r.template !== 'founder').length === 60 && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
+{
+  const { plans, approvedPrice } = await import('../src/data/pricing-plans.ts');
+  const pricingHtml = fs.readFileSync(path.join('dist', 'pricing', 'index.html'), 'utf8');
+  const shown = [...pricingHtml.matchAll(/\$\d[\d,]*(?:\.\d+)?/g)].map((m) => m[0]);
+  check('Pricing: exactly four plan cards in the configured order', plans.map((p) => p.planName).join('|') === 'Pay As You Go|Essential Bundle|Plus Bundle|Dedicated Assistance' && (pricingHtml.match(/class="plan(?: plan--assist)?"/g) || []).length === 4, (pricingHtml.match(/class="plan[^"]*"/g) || []).join(' '));
+  check('Pricing: no dollar figure is shown unless an owner record approves it', plans.some((p) => approvedPrice(p.planId)) || shown.length === 0, shown.join(' '));
+  check('Pricing: no reference-site prices, savings badges or Individuals/Teams tabs', !/\$35\b|\$28\b|\$24\.50|\$399|\$799|Save \d+%|Most Popular|For Individuals|For Teams/.test(pricingHtml));
+}
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));
 check('Content approval did not create any other approval', Object.keys(approvals.publication).length === 0 && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.keys(approvals.coverage).length === 0 && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
 check('Service slugs were not changed by the hostname migration', routes.some((r) => r.path === '/locations/st-petersburg-fl/'));

@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
 import Lightbox from '../components/Lightbox.astro';
@@ -25,14 +26,14 @@ const items = library.filter((l) => l.style === slug);
     <div class="gal">
       {items.map((it) => (
         <figure class="gal__item">
-          <button type="button" class="gal__btn" data-zoom={it.src} data-alt={it.alt} data-title={`${it.styleName} ${it.roomName} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${it.roomName}`}>
-            <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
+          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={`${it.styleName} ${it.roomName} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${it.roomName}`}>
+            <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
           </button>
           <figcaption><h3>{it.roomName}</h3></figcaption>
         </figure>
       ))}
     </div>
-    {isLive('/design-library/') && <p style="margin-top:22px"><a class="textlink" href={`/design-library/?style=${slug}`}>Open {s.name.toLowerCase()} in the Design Library</a></p>}
+    {isLive('/design-library/') && <p style="margin-top:22px"><a class="textlink" href={url(`/design-library/?style=${slug}`)}>Open {s.name.toLowerCase()} in the Design Library</a></p>}
     <Lightbox />
   </div>
 </section>

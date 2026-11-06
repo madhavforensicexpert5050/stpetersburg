@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { business } from '../data/business.ts';
 interface Props { h?: string; p?: string }
@@ -11,8 +12,8 @@ const { h = 'Have a listing in mind?', p = 'Tell us about the rooms and where th
       <p>{p}</p>
     </div>
     <div class="btn-row">
-      {isLive('/request-quote/') ? <a class="btn btn--primary" href="/request-quote/">Request a Quote</a> : <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
-      {isLive('/how-it-works/') && <a class="btn" href="/how-it-works/">How It Works</a>}
+      {isLive('/request-quote/') ? <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a> : <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
+      {isLive('/how-it-works/') && <a class="btn" href={url('/how-it-works/')}>How It Works</a>}
     </div>
   </div>
 </section>

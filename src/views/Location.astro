@@ -1,15 +1,16 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Notice from '../components/Notice.astro';
 import Cta from '../components/Cta.astro';
 import { getLocation, locations, stPeteZips, decisionLabel } from '../data/locations.ts';
-import { isLive, isPreview } from '../data/routes.ts';
+import { isLive, isInternalReview } from '../data/routes.ts';
 const { slug } = Astro.props as { slug: string };
 const l = getLocation(slug);
 const usd = (n: number) => `$${n.toLocaleString('en-US')}`;
 const isAnchor = slug === 'st-petersburg-fl';
 // Facts known only from a search summary stay out of public builds.
-const facts = isPreview ? l.facts : l.facts.filter((f) => f.evidence !== 'snippet');
+const facts = isInternalReview ? l.facts : l.facts.filter((f) => f.evidence !== 'snippet');
 const other = Math.max(0, 100 - l.detached - l.tenPlus - l.mobile);
 const mix = [
   { label: 'Single detached', v: l.detached, c: '#2a78d6' },
@@ -23,7 +24,7 @@ const islands = isAnchor ? locations.filter((x) => ['st-pete-beach', 'treasure-i
 <section class="section section--tight">
   <div class="wrap">
     <Notice h="No local office">StageLiora works remotely and has no office, staff or storefront in {l.name}. This page is about listing photos in this market.</Notice>
-    {isPreview && (
+    {isInternalReview && (
       <Notice h={`Publication decision: ${decisionLabel[l.decision]}`} kind="info">{l.decisionWhy}</Notice>
     )}
     <h2 style="font-size:1.7rem;margin-bottom:14px">Housing mix</h2>
@@ -106,7 +107,7 @@ const islands = isAnchor ? locations.filter((x) => ['st-pete-beach', 'treasure-i
       {facts.map((f) => <li>{f.text} <a href={f.url} rel="noopener nofollow">{f.source}</a>{f.evidence === 'snippet' && <span class="muted"> (from a search summary; confirm before publication)</span>}</li>)}
     </ul>
     <p class="small muted">Sources checked November 5, 2026. Official site: <a href={l.website} rel="noopener nofollow">{l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>. St. Pete Beach figure: <a href="https://www.stpetebeach.org/829/Substantial-Damage-Determination-Appeal-" rel="noopener nofollow">City of St. Pete Beach</a>.</p>
-    {isLive('/guides/virtual-staging-disclosure-florida/') && <p><a class="textlink" href="/guides/virtual-staging-disclosure-florida/">Florida disclosure guide</a></p>}
+    {isLive('/guides/virtual-staging-disclosure-florida/') && <p><a class="textlink" href={url('/guides/virtual-staging-disclosure-florida/')}>Florida disclosure guide</a></p>}
   </div>
 </section>
 <Cta h={`A listing in ${l.name}?`} p="Tell us about the property and where the images will be used. Remote work is the same wherever the home is." />

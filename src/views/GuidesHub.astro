@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
 import { guides } from '../data/guides.ts';
@@ -8,7 +9,7 @@ import { isLive } from '../data/routes.ts';
 <section class="section">
   <div class="wrap grid grid--3">
     {guides.filter((g) => isLive(g.path)).map((g) => (
-      <a class="card card--link" href={g.path}>
+      <a class="card card--link" href={url(g.path)}>
         <h2 style="font-size:1.35rem">{g.h1}</h2>
         <p>{g.summary}</p>
         <span class="gal__meta">{g.reading} read</span>

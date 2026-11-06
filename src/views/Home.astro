@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import Compare from '../components/Compare.astro';
 import ServiceTiles from '../components/ServiceTiles.astro';
 import Faq from '../components/Faq.astro';
@@ -28,8 +29,8 @@ const showRooms = isLive('/portfolio/') || lib;
       <h1>Virtual Staging for Real Estate Listings in <em>St. Petersburg, FL</em></h1>
       <p>Drag the line. The furniture changes. The walls, windows, floors and fixtures do not. That is the rule we build everything around.</p>
       <div class="btn-row">
-        {isLive('/request-quote/') && <a class="btn btn--primary" href="/request-quote/">Request a Quote</a>}
-        {isLive('/services/virtual-staging/') && <a class="btn" href="/services/virtual-staging/">Explore Virtual Staging</a>}
+        {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
+        {isLive('/services/virtual-staging/') && <a class="btn" href={url('/services/virtual-staging/')}>Explore Virtual Staging</a>}
       </div>
     </div>
     <div class="hero__art"><Compare pair="hero-living" eager animate /></div>
@@ -60,7 +61,7 @@ const showRooms = isLive('/portfolio/') || lib;
         : <p class="lede">Listing photo edits are meant to show a real property clearly, with limits that protect you and the buyer.</p>}
     </div>
     <ServiceTiles />
-    {isLive('/services/') && <p style="margin-top:22px"><a class="textlink" href="/services/">Compare all services and their MLS notes</a></p>}
+    {isLive('/services/') && <p style="margin-top:22px"><a class="textlink" href={url('/services/')}>Compare all services and their MLS notes</a></p>}
   </div>
 </section>
 
@@ -85,7 +86,7 @@ const showRooms = isLive('/portfolio/') || lib;
         <li>Get a read on MLS limits before any work starts</li>
         <li>Keep the original beside every edited image</li>
       </ul>
-      {isLive('/for-real-estate-agents/') && <a class="textlink" href="/for-real-estate-agents/">More for real estate agents</a>}
+      {isLive('/for-real-estate-agents/') && <a class="textlink" href={url('/for-real-estate-agents/')}>More for real estate agents</a>}
     </div>
     <Compare pair="svc-furniture-removal" />
   </div>
@@ -101,8 +102,8 @@ const showRooms = isLive('/portfolio/') || lib;
   <div class="strip" tabindex="0" role="region" aria-label="Design style previews">
     {styleCards.map(({ s, img }) => (
       isLive(`/design-styles/${s.id}/`)
-        ? <a href={`/design-styles/${s.id}/`}><img src={img.src} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
-        : <a href={lib ? `/design-library/?style=${s.id}` : '#main'}><img src={img.src} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
+        ? <a href={url(`/design-styles/${s.id}/`)}><img src={url(img.src)} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
+        : <a href={url(lib ? `/design-library/?style=${s.id}` : '#main')}><img src={url(img.src)} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
     ))}
   </div>
 </section>}
@@ -116,16 +117,16 @@ const showRooms = isLive('/portfolio/') || lib;
     <div class="gal">
       {roomCards.map(({ name, it }) => (
         <figure class="gal__item">
-          <button type="button" class="gal__btn" data-zoom={it.src} data-alt={it.alt} data-title={`${name} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${name}`}>
-            <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
+          <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={`${name} (placeholder)`} data-info={it.caption} aria-label={`Enlarge placeholder image: ${name}`}>
+            <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
           </button>
           <figcaption><h3>{name}</h3><p class="gal__meta">Placeholder. {it.styleName} direction.</p></figcaption>
         </figure>
       ))}
     </div>
     <div class="btn-row" style="margin-top:26px">
-      {isLive('/portfolio/') && <a class="btn" href="/portfolio/">View Portfolio Layout</a>}
-      {lib && <a class="btn" href="/design-library/">Browse the Design Library</a>}
+      {isLive('/portfolio/') && <a class="btn" href={url('/portfolio/')}>View Portfolio Layout</a>}
+      {lib && <a class="btn" href={url('/design-library/')}>Browse the Design Library</a>}
     </div>
   </div>
 </section>}
@@ -136,13 +137,13 @@ const showRooms = isLive('/portfolio/') || lib;
       <p class="eyebrow">Pricing</p>
       <h2>Quotes first, until prices are set</h2>
       <p class="lede" style="margin-top:16px">StageLiora's prices have not been finalized, and we would rather say so than post a number that might change. Ask for a quote and you will see the cost before any work begins.</p>
-      {isLive('/pricing/') && <a class="textlink" href="/pricing/">How pricing works</a>}
+      {isLive('/pricing/') && <a class="textlink" href={url('/pricing/')}>How pricing works</a>}
     </div>
     <div class="mls">
       <h3>Image accuracy and disclosure</h3>
       <p>Stellar MLS Article 04.04 requires "Virtually staged" in the photo description, the virtually staged field checked, and public remarks that begin "One or more photo(s) was virtually staged."</p>
       <p>It also strictly prohibits words on property photos, so the labels on this website are explanations and not MLS labels. We cannot promise compliance. The rules change, and the listing is yours.</p>
-      {isLive('/guides/virtual-staging-disclosure-florida/') && <a class="textlink" href="/guides/virtual-staging-disclosure-florida/">Read the Florida disclosure guide</a>}
+      {isLive('/guides/virtual-staging-disclosure-florida/') && <a class="textlink" href={url('/guides/virtual-staging-disclosure-florida/')}>Read the Florida disclosure guide</a>}
     </div>
   </div>
 </section>
@@ -159,13 +160,13 @@ const showRooms = isLive('/portfolio/') || lib;
       <div class="stat"><b>$219.5K–$1.2M</b><span>the range of median list prices by ZIP</span></div>
       <div class="stat"><b>26%</b><span>of city housing units are in buildings with 10 or more units (ACS 2020–2024)</span></div>
     </div>
-    <p class="small" style="margin-top:20px">Postal ZIPs are not city limits. StageLiora works remotely and has no office in St. Petersburg.{isLive('/locations/st-petersburg-fl/') && <> <a href="/locations/st-petersburg-fl/">See the St. Petersburg guide</a>.</>}</p>
+    <p class="small" style="margin-top:20px">Postal ZIPs are not city limits. StageLiora works remotely and has no office in St. Petersburg.{isLive('/locations/st-petersburg-fl/') && <> <a href={url('/locations/st-petersburg-fl/')}>See the St. Petersburg guide</a>.</>}</p>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap two-col">
-    <div><p class="eyebrow">Questions</p><h2>What people ask first</h2>{isLive('/faq/') && <p style="margin-top:16px"><a class="textlink" href="/faq/">See all FAQs</a></p>}</div>
+    <div><p class="eyebrow">Questions</p><h2>What people ask first</h2>{isLive('/faq/') && <p style="margin-top:16px"><a class="textlink" href={url('/faq/')}>See all FAQs</a></p>}</div>
     <Faq items={faqs} open />
   </div>
 </section>

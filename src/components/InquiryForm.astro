@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import { business } from '../data/business.ts';
 import { services } from '../data/services.ts';
 import { isLive } from '../data/routes.ts';
@@ -77,8 +78,12 @@ const privacy = isLive('/privacy-policy/');
   </div>
   <div class="hp" aria-hidden="true"><label for="f-website">Leave this empty</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
   <div class="field">
-    <label class="check"><input type="checkbox" name="consent" value="yes" aria-describedby="e-consent" /> <span>I understand how my details will be used, as explained in the {privacy ? <a href="/privacy-policy/">privacy policy</a> : 'privacy policy'}.</span></label>
-    <p class="err" id="e-consent" data-err="consent" hidden></p>
+    {privacy || endpoint ? (
+      <label class="check"><input type="checkbox" name="consent" value="yes" aria-describedby="e-consent" /> <span>I understand how my details will be used, as explained in the {privacy ? <a href={url('/privacy-policy/')}>privacy policy</a> : 'privacy policy'}.</span></label>
+    ) : (
+      <label class="check"><input type="checkbox" name="consent" value="yes" aria-describedby="e-consent" /> <span>I understand this form sends nothing. It opens a prefilled email in my own email app, and I decide whether to send it.</span></label>
+    )}
+    <p class="err" id="e-consent" data-err="consent" data-msg={privacy || endpoint ? 'Please confirm you have read the privacy policy.' : 'Please confirm you understand how this form works.'} hidden></p>
   </div>
   <p class="hint">We use your details only to reply about this request. They are not sold or added to a marketing list.</p>
   <div class="btn-row"><button class="btn btn--primary" type="submit">{full ? 'Request a Quote' : 'Send Message'}</button></div>

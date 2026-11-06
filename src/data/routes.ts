@@ -101,7 +101,27 @@ export const isCandidateBuild = candidateRoutes.length > 0;
 /** Hard exclusion: these can never reach a production build while their application backend is absent. */
 export const isPublishable = (x: RouteDef) => x.plan.proposed !== 'PRIVATE_OR_DISABLED' && contentAndDeploy && validRecord(approvals.publication[x.path]);
 
-export const buildRoutes = routes.filter((x) => isPreview || (isCandidateBuild ? candidateRoutes.includes(x.path) : isPublishable(x)));
+/**
+ * DEPLOY_TARGET=github-pages builds a PUBLIC PREVIEW: anyone can open it, but it is noindex and is not a
+ * production release. It is still a preview build (no publication approval is implied), so it keeps the
+ * honest status labels. It differs from the internal review build in two ways:
+ *   1. Routes that are unsafe on an open URL are left out (publicPreviewExclusion explains each one).
+ *   2. Owner-facing working notes are hidden (see isInternalReview).
+ */
+export const isPublicPreview = isPreview && process.env.DEPLOY_TARGET === 'github-pages';
+/** The internal review build, meant only for the owner. Shows working notes that a public visitor should not see. */
+export const isInternalReview = isPreview && !isPublicPreview;
+
+/** Why a route stays out of the public preview, or null when it is eligible. */
+export function publicPreviewExclusion(x: RouteDef): string | null {
+  if (x.plan.proposed === 'PRIVATE_OR_DISABLED') return `Disabled route: ${x.plan.why}`;
+  if (x.template === 'legal') return 'Unreviewed legal draft with unfilled items. Publishing draft terms could be read as the business\'s actual terms.';
+  if (x.template === 'quote') return 'Quote requests depend on an owner-approved service, and none is approved yet.';
+  return null;
+}
+
+export const buildRoutes = routes.filter((x) =>
+  isPublicPreview ? !publicPreviewExclusion(x) : isPreview || (isCandidateBuild ? candidateRoutes.includes(x.path) : isPublishable(x)));
 const built = new Set(buildRoutes.map((x) => x.path));
 
 /** True when a path exists in this build. Use it to filter navigation, cards and links. */

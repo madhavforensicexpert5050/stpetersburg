@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import { services } from '../data/services.ts';
 import { isLive } from '../data/routes.ts';
 const { path } = Astro.props;
@@ -19,7 +20,7 @@ const who = [
 ---
 <header class="site-header">
   <div class="wrap head-in">
-    <a class="logo" href={isLive('/') ? '/' : '#main'} aria-label="StageLiora home">Stage<i aria-hidden="true"></i>Liora</a>
+    <a class="logo" href={url(isLive('/') ? '/' : '#main')} aria-label="StageLiora home">Stage<i aria-hidden="true"></i>Liora</a>
     <nav class="nav" id="site-nav" aria-label="Main">
       {(listing.length + concept.length > 0 || isLive('/services/')) && (
         <details data-nav-menu>
@@ -27,12 +28,12 @@ const who = [
           <div class="mega">
             <div>
               <h3>Listing photo edits</h3>
-              {listing.map((s) => <a href={s.path}>{s.name}</a>)}
+              {listing.map((s) => <a href={url(s.path)}>{s.name}</a>)}
             </div>
             <div>
               <h3>Concept visualizations</h3>
-              {concept.map((s) => <a href={s.path}>{s.name}</a>)}
-              {isLive('/services/') && <a href="/services/"><strong>All services</strong></a>}
+              {concept.map((s) => <a href={url(s.path)}>{s.name}</a>)}
+              {isLive('/services/') && <a href={url('/services/')}><strong>All services</strong></a>}
             </div>
           </div>
         </details>
@@ -41,14 +42,14 @@ const who = [
         <details data-nav-menu>
           <summary>Who It's For</summary>
           <div class="mega" style="width:min(300px,80vw);grid-template-columns:1fr">
-            {who.map((x) => <a href={x.href}>{x.label}</a>)}
+            {who.map((x) => <a href={url(x.href)}>{x.label}</a>)}
           </div>
         </details>
       )}
-      {primary.map((x) => <a href={x.href} aria-current={path === x.href ? 'page' : undefined}>{x.label}</a>)}
+      {primary.map((x) => <a href={url(x.href)} aria-current={path === x.href ? 'page' : undefined}>{x.label}</a>)}
     </nav>
     <div class="head-cta">
-      {isLive('/request-quote/') && <a class="btn btn--primary" href="/request-quote/">Request a Quote</a>}
+      {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-btn>Menu</button>
     </div>
   </div>

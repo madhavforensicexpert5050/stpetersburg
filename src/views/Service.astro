@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
@@ -14,8 +15,8 @@ const useClass = s.stellar.use === 'not-for-listing-photos' || s.stellar.use ===
 <PageHero path={s.path} eyebrow={trackLabel[s.track]} h1={s.h1} lede={s.intro} pair={s.pairKey}>
   <p style="margin:18px 0 0;display:flex;flex-wrap:wrap;gap:8px"><span class:list={['pill', isServiceApproved(slug) ? 'pill--ok' : 'pill--warn']}>{availabilityLabel(slug)}</span></p>
   <div class="btn-row" style="margin-top:22px">
-    {isLive('/request-quote/') && <a class="btn btn--primary" href="/request-quote/">Request a Quote</a>}
-    {isLive('/how-it-works/') && <a class="btn" href="/how-it-works/">How It Works</a>}
+    {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
+    {isLive('/how-it-works/') && <a class="btn" href={url('/how-it-works/')}>How It Works</a>}
   </div>
 </PageHero>
 

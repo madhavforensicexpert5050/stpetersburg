@@ -1,6 +1,7 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import { isLive } from '../data/routes.ts';
 ---
 <PageHero path="/interior-design-projects/" eyebrow="Interior design projects" h1="No projects to show" lede="Projects will appear here only when they are real and cleared for publication." />
-<section class="section"><div class="wrap"><div class="empty"><h2>This gallery is empty</h2><p>StageLiora has not completed interior design projects it can show. This page holds the space until that changes.</p>{isLive('/online-interior-design/') && <a class="btn" href="/online-interior-design/">About Online Interior Design</a>}</div></div></section>
+<section class="section"><div class="wrap"><div class="empty"><h2>This gallery is empty</h2><p>StageLiora has not completed interior design projects it can show. This page holds the space until that changes.</p>{isLive('/online-interior-design/') && <a class="btn" href={url('/online-interior-design/')}>About Online Interior Design</a>}</div></div></section>

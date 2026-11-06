@@ -6,6 +6,23 @@ import { fileURLToPath } from 'node:url';
 const mode = process.env.SITE_MODE === 'production' ? 'production' : 'preview';
 const indexing = process.env.INDEXING === 'on';
 
+/**
+ * Where the build will be served. Each target has its own origin and base path.
+ *   custom-domain (default): https://st.petersburg.stageliora.com/  — the future production host
+ *   github-pages:            https://madhavforensicexpert5050.github.io/stpetersburg/  — public noindex preview
+ * Templates never hardcode either: they go through src/lib/url.ts, which reads BASE_URL and SITE.
+ */
+const TARGETS = {
+  'custom-domain': { site: 'https://st.petersburg.stageliora.com', base: '/' },
+  'github-pages': { site: 'https://madhavforensicexpert5050.github.io', base: '/stpetersburg' },
+};
+const target = process.env.DEPLOY_TARGET || 'custom-domain';
+if (!TARGETS[target]) throw new Error(`Unknown DEPLOY_TARGET "${target}". Use one of: ${Object.keys(TARGETS).join(', ')}.`);
+// GitHub Pages is public and cannot require a password, so it only ever carries the noindex public preview.
+if (target === 'github-pages' && mode === 'production') {
+  throw new Error('DEPLOY_TARGET=github-pages builds the noindex public preview only. Production releases target the custom domain.');
+}
+
 // A raw production build used to exit 0 with only a 404 page, which a host would happily deploy.
 // Production now has to go through scripts/build-production.mjs, which validates the release first.
 if (mode === 'production' && process.env.RELEASE_CHECK_PASSED !== '1') {
@@ -20,6 +37,8 @@ function buildGuards() {
     hooks: {
       'astro:build:done': ({ dir }) => {
         const out = fileURLToPath(dir);
+        // GitHub Pages ignores _headers. There, robots meta tags carry noindex and scripts/build-github-pages.mjs checks them.
+        if (target === 'github-pages') return;
         // With indexing on, each page's own robots meta decides. A global header here would override approved pages.
         const lines = ['/*', `  Content-Security-Policy: ${CSP}`, '  X-Content-Type-Options: nosniff', '  Referrer-Policy: strict-origin-when-cross-origin', '  Permissions-Policy: camera=(), microphone=(), geolocation=()'];
         if (mode === 'production') lines.push('  Strict-Transport-Security: max-age=31536000');
@@ -52,7 +71,8 @@ function buildGuards() {
 }
 
 export default defineConfig({
-  site: 'https://st.petersburg.stageliora.com',
+  site: TARGETS[target].site,
+  base: TARGETS[target].base,
   trailingSlash: 'always',
   build: { format: 'directory' },
   output: 'static',

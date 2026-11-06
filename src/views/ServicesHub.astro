@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import ServiceTiles from '../components/ServiceTiles.astro';
 import Cta from '../components/Cta.astro';
@@ -34,7 +35,7 @@ const h1 = isPreview ? 'Nine image services, sorted by what they are for' : 'Ima
         <caption>Summary of Stellar MLS Article 04.04 and photo rules, read November 5, 2026. Not legal advice.</caption>
         <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Stellar listing use</th>{isPreview && <th scope="col">Status</th>}</tr></thead>
         <tbody>
-          {shown.map((s) => <tr><td>{isLive(s.path) ? <a href={s.path}>{s.name}</a> : s.name}</td><td>{trackLabel[s.track]}</td><td>{s.stellar.label}</td>{isPreview && <td>{availabilityLabel(s.slug)}</td>}</tr>)}
+          {shown.map((s) => <tr><td>{isLive(s.path) ? <a href={url(s.path)}>{s.name}</a> : s.name}</td><td>{trackLabel[s.track]}</td><td>{s.stellar.label}</td>{isPreview && <td>{availabilityLabel(s.slug)}</td>}</tr>)}
         </tbody>
       </table>
     </div>

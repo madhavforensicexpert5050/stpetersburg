@@ -11,6 +11,7 @@
     "build:review": "npm run build",
     "build:production": "node scripts/build-production.mjs",
     "build:candidate": "node scripts/build-production.mjs --candidate",
+    "build:github-pages": "node scripts/build-github-pages.mjs",
     "qa:form": "node scripts/qa-form.mjs",
     "preview": "astro preview",
     "qa": "node scripts/qa.mjs",

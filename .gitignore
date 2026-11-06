@@ -8,6 +8,7 @@ dist-qa/
 qa-output/
 dist-production/
 dist-candidate/
+dist-github-pages/
 
 # Private business records: kept locally, never public
 single-source-of-truth.md

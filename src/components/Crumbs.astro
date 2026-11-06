@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import { findRoute, isLive } from '../data/routes.ts';
 const { path } = Astro.props as { path: string };
 const parts = path.split('/').filter(Boolean);
@@ -7,9 +8,9 @@ const trail = parts.map((_, i) => '/' + parts.slice(0, i + 1).join('/') + '/');
 {path !== '/' && (
   <nav class="crumbs" aria-label="Breadcrumb">
     <ol>
-      {isLive('/') && <li><a href="/">Home</a></li>}
+      {isLive('/') && <li><a href={url('/')}>Home</a></li>}
       {trail.map((p, i) => (
-        <li>{i === trail.length - 1 || !isLive(p) ? <span aria-current={i === trail.length - 1 ? 'page' : undefined}>{findRoute(p)?.crumb}</span> : <a href={p}>{findRoute(p)?.crumb}</a>}</li>
+        <li>{i === trail.length - 1 || !isLive(p) ? <span aria-current={i === trail.length - 1 ? 'page' : undefined}>{findRoute(p)?.crumb}</span> : <a href={url(p)}>{findRoute(p)?.crumb}</a>}</li>
       ))}
     </ol>
   </nav>

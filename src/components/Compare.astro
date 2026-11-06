@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import { getPair } from '../data/media.ts';
 interface Props { pair: string; eager?: boolean; animate?: boolean; hideCaption?: boolean }
 const { pair, eager = false, animate = false } = Astro.props;
@@ -9,8 +10,8 @@ const tagA = placeholder ? 'Placeholder: after' : 'After';
 ---
 <figure class:list={['compare-wrap', { 'anim-reveal': animate }]} data-compare>
   <div class="compare">
-    <img src={before.src} alt={before.alt} width={before.width} height={before.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
-    <img class="compare__after" src={after.src} alt={after.alt} width={after.width} height={after.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    <img src={url(before.src)} alt={before.alt} width={before.width} height={before.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    <img class="compare__after" src={url(after.src)} alt={after.alt} width={after.width} height={after.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
     <span class="compare__tag compare__tag--b">{tagB}</span>
     <span class="compare__tag compare__tag--a">{tagA}</span>
     <span class="compare__line" aria-hidden="true"></span>

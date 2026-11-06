@@ -117,7 +117,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-inquiry]').forEach((form) 
       if (none) problems.push('services');
     }
     const noConsent = !fd.get('consent');
-    fieldErr('consent', noConsent ? 'Please confirm you have read the privacy policy.' : '');
+    fieldErr('consent', noConsent ? (form.querySelector<HTMLElement>('[data-err="consent"]')?.dataset.msg || 'Please confirm you have read the privacy policy.') : '');
     if (noConsent) problems.push('consent');
     return problems;
   };

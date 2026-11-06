@@ -1,4 +1,5 @@
 ---
+import { absUrl, siteRoot } from '../lib/url.ts';
 import Base from '../layouts/Base.astro';
 import { buildRoutes, findRoute, isPreview, type RouteDef } from '../data/routes.ts';
 import { getGuide } from '../data/guides.ts';
@@ -33,17 +34,18 @@ import Orders from '../views/Orders.astro';
 import Upload from '../views/Upload.astro';
 
 export function getStaticPaths() {
-  return buildRoutes.map((r) => ({ params: { slug: r.path === '/' ? undefined : r.path.replace(/^\/|\/$/g, '') } }));
+  return buildRoutes.map((r) => ({ params: { slug: r.path === '/' ? undefined : r.path.replace(/^\/|\/$/g, '') }, props: { routePath: r.path } }));
 }
-const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+// The registry path, without any base prefix. Astro.url.pathname would include the base on GitHub Pages.
+const path = (Astro.props as { routePath: string }).routePath;
 const route = findRoute(path) as RouteDef;
 const views = { home: Home, about: About, contact: Contact, how: How, pricing: Pricing, faq: FaqPage, reviews: Reviews, servicesHub: ServicesHub, service: Service, portfolio: Portfolio, library: Library, stylesHub: StylesHub, style: Style, audience: Audience, interiorDesign: InteriorDesign, designers: Designers, designProjects: DesignProjects, guidesHub: GuidesHub, guide: GuidePage, locationsHub: LocationsHub, location: Location, legal: Legal, quote: Quote, order: Order, account: Account, orders: Orders, upload: Upload } as const;
 const View = views[route.template] as any;
 
-const canonical = new URL(path, business.siteUrl).href;
-const org = { '@id': `${business.siteUrl}/#org` };
+const canonical = absUrl(path);
+const org = { '@id': `${siteRoot}/#org` };
 const schema: object[] = [];
-if (route.template === 'home') schema.push({ '@type': 'WebSite', name: business.brand, url: business.siteUrl, publisher: org });
+if (route.template === 'home') schema.push({ '@type': 'WebSite', name: business.brand, url: siteRoot, publisher: org });
 if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name }); }
 if (route.template === 'guide') {
   const g = getGuide(route.ref!);

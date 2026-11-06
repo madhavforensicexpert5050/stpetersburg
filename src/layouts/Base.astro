@@ -1,15 +1,16 @@
 ---
+import { url, absUrl, siteRoot } from '../lib/url.ts';
 import '@fontsource-variable/bricolage-grotesque';
 import '@fontsource-variable/instrument-sans';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { business } from '../data/business.ts';
-import { routes, isIndexable, isPreview, isLive, findRoute, type RouteDef } from '../data/routes.ts';
+import { routes, isIndexable, isPreview, isPublicPreview, isLive, findRoute, type RouteDef } from '../data/routes.ts';
 
 interface Props { route?: RouteDef; title: string; description: string; path: string; schema?: object[]; noCta?: boolean }
 const { route, title, description, path, schema = [], noCta = false } = Astro.props;
-const canonical = new URL(path, business.siteUrl).href;
+const canonical = absUrl(path);
 const robots = isIndexable(path) ? 'index,follow,max-image-preview:large' : 'noindex,nofollow';
 
 // Breadcrumbs come from the URL hierarchy, using the registry's crumb names.
@@ -17,8 +18,8 @@ const parts = path.split('/').filter(Boolean);
 const trail = parts.map((_, i) => '/' + parts.slice(0, i + 1).join('/') + '/').map((p) => ({ path: p, name: findRoute(p)?.crumb ?? p }));
 const crumbs = path === '/' || !route ? [] : [{ path: '/', name: 'Home' }, ...trail];
 const graph = [
-  { '@type': 'Organization', '@id': `${business.siteUrl}/#org`, name: business.brand, url: business.siteUrl, email: business.email, telephone: '+918890929329' },
-  ...(crumbs.length ? [{ '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.path, business.siteUrl).href })) }] : []),
+  { '@type': 'Organization', '@id': `${siteRoot}/#org`, name: business.brand, url: siteRoot, email: business.email, telephone: '+918890929329' },
+  ...(crumbs.length ? [{ '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: absUrl(c.path) })) }] : []),
   ...schema,
 ];
 const ld = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
@@ -43,22 +44,24 @@ const draft = route ? route.dev !== 'IMPLEMENTED' : false;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="theme-color" content="#0e2233" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <script type="application/ld+json" is:inline set:html={ld}></script>
     <noscript><style>.compare-noscript-hide{display:none!important}.compare{aspect-ratio:auto!important;display:grid;grid-template-columns:1fr 1fr;gap:3px}.compare img{position:static!important;clip-path:none!important;aspect-ratio:3/2;height:auto!important}.compare__line,.compare__knob,.compare input{display:none!important}</style></noscript>
   </head>
   <body data-path={path}>
     <a class="skip" href="#main">Skip to content</a>
-    {isPreview && (
+    {isPreview && (isPublicPreview ? (
+      <aside class="ribbon" aria-label="Preview notice"><strong>Website preview.</strong> StageLiora is not open for orders yet. Every image is a placeholder drawing, not customer work.{draft && <> This page is still a draft.</>}</aside>
+    ) : (
       <aside class="ribbon" aria-label="Preview notice"><strong>Local preview.</strong> Not public and not indexed. All images are placeholders.{draft && <> This page is not cleared for release.</>}</aside>
-    )}
+    ))}
     <Header path={path} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
     {!noCta && isLive('/request-quote/') && path !== '/request-quote/' && (
-      <aside class="sticky-cta" aria-label="Quick action"><a class="btn btn--primary" href="/request-quote/">Request a Quote</a></aside>
+      <aside class="sticky-cta" aria-label="Quick action"><a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a></aside>
     )}
     <script src="../scripts/site.ts"></script>
   </body>

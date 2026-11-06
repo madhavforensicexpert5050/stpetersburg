@@ -1,4 +1,4 @@
-import { business } from '../data/business.ts';
+import { siteRoot } from '../lib/url.ts';
 import { sitemapRoutes } from '../data/routes.ts';
 
 /**
@@ -7,7 +7,7 @@ import { sitemapRoutes } from '../data/routes.ts';
  * scripts/build-production.mjs checks every entry against the actual output.
  */
 export function GET() {
-  const urls = sitemapRoutes().map((r) => `  <url>\n    <loc>${business.siteUrl}${r.path}</loc>${r.plan.lastmod ? `\n    <lastmod>${r.plan.lastmod}</lastmod>` : ''}\n  </url>`).join('\n');
+  const urls = sitemapRoutes().map((r) => `  <url>\n    <loc>${siteRoot}${r.path}</loc>${r.plan.lastmod ? `\n    <lastmod>${r.plan.lastmod}</lastmod>` : ''}\n  </url>`).join('\n');
   const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
   return new Response(body, { headers: { 'Content-Type': 'application/xml; charset=utf-8' } });
 }

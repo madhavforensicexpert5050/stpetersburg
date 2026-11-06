@@ -1,4 +1,5 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Lightbox from '../components/Lightbox.astro';
 import Notice from '../components/Notice.astro';
@@ -36,8 +37,8 @@ import { styles, rooms } from '../data/taxonomy.ts';
         const st = styles.find((s) => s.id === it.style)!;
         return (
           <figure class="gal__item" data-item data-style={it.style} data-room={it.room}>
-            <button type="button" class="gal__btn" data-zoom={it.src} data-alt={it.alt} data-title={`${it.styleName} ${it.roomName} (placeholder)`} data-info={`${st.note} Materials: ${st.materials}.`} aria-label={`Enlarge placeholder image: ${it.styleName} ${it.roomName}`}>
-              <img src={it.src} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" />
+            <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={`${it.styleName} ${it.roomName} (placeholder)`} data-info={`${st.note} Materials: ${st.materials}.`} aria-label={`Enlarge placeholder image: ${it.styleName} ${it.roomName}`}>
+              <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" />
             </button>
             <figcaption><h3>{it.styleName} {it.roomName}</h3><p class="gal__meta">{st.materials}</p></figcaption>
           </figure>

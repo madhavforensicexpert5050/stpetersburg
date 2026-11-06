@@ -1,10 +1,11 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
 import { pricing } from '../data/content.ts';
 import { services, trackLabel } from '../data/services.ts';
-import { isLive, isPreview } from '../data/routes.ts';
+import { isLive, isPreview, isInternalReview } from '../data/routes.ts';
 const quoteLive = isLive('/request-quote/');
 const rows = pricing.rows.filter((r) => isLive(services.find((s) => s.slug === r.slug)!.path));
 const lede = pricing.anyApproved
@@ -12,7 +13,7 @@ const lede = pricing.anyApproved
   : 'We quote each request, so you see an exact figure for your listing before any work begins. Here is what affects it.';
 ---
 <PageHero path="/pricing/" eyebrow="Pricing" h1={pricing.anyApproved ? 'Pricing' : 'Get a quote for your listing'} lede={lede}>
-  {quoteLive && <div class="btn-row" style="margin-top:22px"><a class="btn btn--primary" href="/request-quote/">Request a Quote</a></div>}
+  {quoteLive && <div class="btn-row" style="margin-top:22px"><a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a></div>}
 </PageHero>
 <section class="section">
   <div class="wrap">
@@ -37,7 +38,7 @@ const lede = pricing.anyApproved
     {isPreview && <p class="small muted">A row here does not mean the service is available. Each service page shows its status.</p>}
   </div>
 </section>
-{isPreview && (
+{isInternalReview && (
   <section class="section">
     <div class="wrap">
       <div class="section-head"><p class="eyebrow">Internal: pricing structures under consideration</p><h2>How pricing could be arranged</h2><p class="lede">Preview only. None of these is decided, and no discount or package exists.</p></div>
@@ -49,7 +50,7 @@ const lede = pricing.anyApproved
 )}
 <section class="section">
   <div class="wrap two-col">
-    <div><p class="eyebrow">Questions</p><h2>About pricing</h2>{isLive('/guides/virtual-staging-cost/') && <p style="margin-top:14px"><a class="textlink" href="/guides/virtual-staging-cost/">What virtual staging costs across the market</a></p>}</div>
+    <div><p class="eyebrow">Questions</p><h2>About pricing</h2>{isLive('/guides/virtual-staging-cost/') && <p style="margin-top:14px"><a class="textlink" href={url('/guides/virtual-staging-cost/')}>What virtual staging costs across the market</a></p>}</div>
     <Faq items={pricing.faqs} />
   </div>
 </section>

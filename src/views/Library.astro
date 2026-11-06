@@ -1,5 +1,6 @@
 ---
 import { url } from '../lib/url.ts';
+import MediaImage from '../components/MediaImage.astro';
 import PageHero from '../components/PageHero.astro';
 import Lightbox from '../components/Lightbox.astro';
 import Notice from '../components/Notice.astro';
@@ -10,7 +11,7 @@ import { styles, rooms } from '../data/taxonomy.ts';
 <PageHero path="/design-library/" eyebrow="Design library" h1="Browse design directions by style and room" lede="Use the filters to narrow eight styles across thirteen room types. Open any image for its details." />
 <section class="section section--tight">
   <div class="wrap" data-library>
-    <Notice h="Illustrative concepts">Each image illustrates a style and room direction. None is a completed client project or furniture StageLiora supplies, and these styles are not yet available to order.</Notice>
+    <Notice h="AI-generated design concepts">Each image is an original synthetic demonstration of a style and room direction. None is a completed client project or furniture StageLiora supplies, and these styles are not yet available to order.</Notice>
     <div class="filters">
       <fieldset class="filter-group">
         <legend>Style</legend>
@@ -38,7 +39,7 @@ import { styles, rooms } from '../data/taxonomy.ts';
         return (
           <figure class="gal__item" data-item data-style={it.style} data-room={it.room}>
             <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={`${st.note} Materials: ${st.materials}.`} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
-              <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" decoding="async" />
+              <MediaImage media={it} />
             </button>
             <figcaption><h3>{it.styleName} {it.roomName}</h3><p class="gal__meta">{st.materials}</p></figcaption>
           </figure>

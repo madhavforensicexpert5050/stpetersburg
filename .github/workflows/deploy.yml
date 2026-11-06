@@ -46,6 +46,9 @@ jobs:
       - name: Static QA and release-gate matrix
         run: npm run qa
 
+      - name: Verify generated images and responsive variants
+        run: npm run qa:images
+
       - name: Build and validate the GitHub Pages preview
         run: npm run build:github-pages
 

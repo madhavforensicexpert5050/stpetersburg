@@ -1,5 +1,6 @@
 ---
 import { url } from '../lib/url.ts';
+import MediaImage from '../components/MediaImage.astro';
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
 import { styles } from '../data/taxonomy.ts';
@@ -17,7 +18,7 @@ import { isLive } from '../data/routes.ts';
         const href = s.hasPage && isLive(page) ? page : lib;
         return (
           <article class="gal__item">
-            {href ? <a href={url(href)} aria-label={`${s.name} style`}><img src={url(img.src)} alt={img.alt} width={img.width} height={img.height} loading="lazy" /></a> : <img src={url(img.src)} alt={img.alt} width={img.width} height={img.height} loading="lazy" />}
+            {href ? <a href={url(href)} aria-label={`${s.name} style`}><MediaImage media={img} /></a> : <MediaImage media={img} />}
             <h2 style="font-size:1.4rem;margin-top:12px">{s.name}</h2>
             <p class="gal__meta">{s.note}</p>
             <p class="gal__meta">{s.materials}</p>

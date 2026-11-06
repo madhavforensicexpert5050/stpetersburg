@@ -60,7 +60,8 @@ for (const { r, html } of pages) {
   }
   if (!/application\/ld\+json/.test(html)) problems.jsonld.push(`${r.path} (none)`);
   for (const m of html.matchAll(/<img\b[^>]*>/g)) {
-    if (!/\balt="/.test(m[0])) problems.alt.push(r.path);
+    // Astro serializes a dynamic empty alt as a bare alt attribute; both are valid empty alternatives.
+    if (!/\salt(?:\s|=|>)/.test(m[0])) problems.alt.push(r.path);
     if (!/\bwidth="/.test(m[0]) && !/data:image/.test(m[0])) problems.dims.push(r.path);
   }
 }
@@ -144,7 +145,7 @@ const srcs = media.map((m) => path.join('public', m.src));
 check(`All ${media.length} manifest images exist on disk`, srcs.every((s) => fs.existsSync(s)));
 check('Media ids are unique', new Set(media.map((m) => m.id)).size === media.length);
 check('Every before has an after in its pair', media.filter((m) => m.pair).every((m) => media.some((x) => x.pair === m.pair && x.role !== m.role)));
-check('Illustrations are stamped ILLUSTRATION and unapproved', media.every((m) => fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') && !m.ownerApproved && m.rights === 'project-placeholder'));
+check('Synthetic examples are disclosed and remain separate from licensed client work', media.every((m) => m.rights === 'owner-licensed' || (!m.ownerApproved && (m.rights === 'project-placeholder' ? fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') : m.rights === 'ai-generated' && m.publication === 'synthetic-preview-only' && /AI-generated/.test(m.caption)))));
 check('Images are served only through the manifest', all.every(([, h]) => [...h.matchAll(/<img[^>]+src="(\/media[^"]+)"/g)].every((m) => media.some((x) => x.src === m[1]))));
 
 // Secrets and third parties

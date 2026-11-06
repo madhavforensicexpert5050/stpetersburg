@@ -1,23 +1,24 @@
 ---
-import { url } from '../lib/url.ts';
+import MediaImage from './MediaImage.astro';
 import { getPair, isIllustration, illustrationNote } from '../data/media.ts';
 interface Props { pair: string; eager?: boolean; animate?: boolean; hideCaption?: boolean }
 const { pair, eager = false, animate = false } = Astro.props;
 const { before, after } = getPair(pair);
 const illustrative = isIllustration(before) || isIllustration(after);
+const synthetic = before.rights === 'ai-generated' && after.rights === 'ai-generated';
 ---
 <figure class:list={['compare-wrap', { 'anim-reveal': animate }]} data-compare>
   <div class="compare">
-    <img src={url(before.src)} alt={before.alt} width={before.width} height={before.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
-    <img class="compare__after" src={url(after.src)} alt={after.alt} width={after.width} height={after.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
-    <span class="compare__tag compare__tag--b">Before{illustrative && <span class="compare__tag-x"> · Illustrative room</span>}</span>
-    <span class="compare__tag compare__tag--a">After{illustrative && <span class="compare__tag-x"> · Design concept</span>}</span>
+    <MediaImage media={before} eager={eager} sizes={eager ? '(max-width: 767px) 100vw, 1200px' : undefined} />
+    <MediaImage media={after} class="compare__after" eager={eager} sizes={eager ? '(max-width: 767px) 100vw, 1200px' : undefined} />
+    <span class="compare__tag compare__tag--b">Before{illustrative && <span class="compare__tag-x">{synthetic ? ' · AI-generated' : ' · Illustrative room'}</span>}</span>
+    <span class="compare__tag compare__tag--a">After{illustrative && <span class="compare__tag-x">{synthetic ? ' · AI-generated' : ' · Design concept'}</span>}</span>
     <span class="compare__line" aria-hidden="true"></span>
     <span class="compare__knob" aria-hidden="true">↔</span>
     <input type="range" min="0" max="100" value="50" step="1" aria-label={`Compare before and after: ${before.label} and ${after.label}`} aria-valuetext="50 percent" />
   </div>
   <figcaption>
-    <p>{illustrative ? illustrationNote : after.caption}</p>
+    <p>{synthetic ? 'AI-generated demonstration · Fictional property, not a client project' : illustrative ? illustrationNote : after.caption}</p>
     <button type="button" class="mini-btn compare-noscript-hide" data-compare-toggle aria-pressed="false">Side by side</button>
   </figcaption>
 </figure>

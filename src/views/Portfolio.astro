@@ -9,7 +9,7 @@ import { rooms, styles } from '../data/taxonomy.ts';
 <PageHero path="/portfolio/" eyebrow="Portfolio" h1="Before and after, room by room" lede="Drag the divider to compare each room. Furniture and decor change. Walls, windows, floors and fixtures stay as they are." />
 <section class="section">
   <div class="wrap">
-    {anyIllustrations() && <Notice h="Illustrative examples">The comparisons on this page are illustrations, not photos of real properties or completed StageLiora projects. Licensed client work will be added and labeled when it is available.</Notice>}
+    {anyIllustrations() && <Notice h="AI-generated demonstrations">These comparisons show fictional properties created for demonstration. They are not photographs of real listings or completed StageLiora client projects. Licensed client work will be added and labeled when it is available.</Notice>}
     <div class="grid grid--2">
       {portfolioPairs.map((p) => (
         <article>

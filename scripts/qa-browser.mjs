@@ -125,7 +125,7 @@ await sl.locator('[data-compare-toggle]').click();
 const sideOk = await sl.evaluate((el) => el.classList.contains('is-side') && getComputedStyle(el.querySelector('.compare')).display === 'grid');
 check('Slider: side-by-side fallback works', sideOk && (await sl.locator('[data-compare-toggle]').getAttribute('aria-pressed')) === 'true');
 await sl.locator('[data-compare-toggle]').click();
-check('Slider: illustration tags are visible', (await sl.locator('.compare__tag--b').innerText()).includes('Illustrative'));
+check('Slider: tags identify the image as AI-generated or illustrative', /AI-generated|Illustrative/.test(await sl.locator('.compare__tag--b').innerText()));
 const touchCtx = await browser.newContext({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true });
 const tp = await touchCtx.newPage();
 await tp.goto(origin + '/services/virtual-staging/');

@@ -199,3 +199,39 @@ if (drop) {
   ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('is-over'); }));
   drop.addEventListener('drop', (e) => add((e as DragEvent).dataTransfer?.files ?? null));
 }
+
+// Showcase tabs ------------------------------------------------------------
+// Accessible tabs pattern. Without JavaScript, a noscript rule shows every panel instead.
+document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
+  const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+  const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')!)!);
+  const select = (i: number, focus: boolean) => {
+    tabs.forEach((t, j) => {
+      const on = i === j;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      panels[j].hidden = !on;
+    });
+    if (focus) { tabs[i].focus(); tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(i, false));
+    t.addEventListener('keydown', (e) => {
+      const last = tabs.length - 1;
+      const next = e.key === 'ArrowRight' ? (i === last ? 0 : i + 1) : e.key === 'ArrowLeft' ? (i === 0 ? last : i - 1) : e.key === 'Home' ? 0 : e.key === 'End' ? last : -1;
+      if (next < 0) return;
+      e.preventDefault();
+      select(next, true);
+    });
+  });
+});
+
+// Sticky call to action ----------------------------------------------------
+// Hidden on the first screen, so it never covers the content a visitor sees on arrival.
+// It appears once the visitor scrolls. html { scroll-padding-bottom } keeps focused elements clear of it.
+const sticky = document.querySelector<HTMLElement>('.sticky-cta');
+if (sticky) {
+  const update = () => { if (window.scrollY > window.innerHeight * 0.6) sticky.removeAttribute('data-hidden'); else sticky.setAttribute('data-hidden', ''); };
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+}

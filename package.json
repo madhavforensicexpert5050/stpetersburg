@@ -17,6 +17,7 @@
     "qa": "node scripts/qa.mjs",
     "qa:browser": "node scripts/qa-browser.mjs",
     "qa:cross": "node scripts/qa-cross.mjs",
+    "qa:images": "node scripts/qa-images.mjs",
     "qa:census": "node scripts/verify-census.mjs"
   },
   "dependencies": {

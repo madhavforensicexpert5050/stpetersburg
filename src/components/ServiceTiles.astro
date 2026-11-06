@@ -1,5 +1,6 @@
 ---
 import { url } from '../lib/url.ts';
+import MediaImage from './MediaImage.astro';
 import { services, trackLabel } from '../data/services.ts';
 import { getPair } from '../data/media.ts';
 import { isLive } from '../data/routes.ts';
@@ -11,8 +12,8 @@ const list = services.filter((s) => isLive(s.path) && (!only || only.includes(s.
     const { before, after } = getPair(s.pairKey);
     return (
       <a class="tile" href={url(s.path)}>
-        <img src={url(before.src)} alt="" width={before.width} height={before.height} loading="lazy" decoding="async" />
-        <img class="after" src={url(after.src)} alt="" width={after.width} height={after.height} loading="lazy" decoding="async" />
+        <MediaImage media={before} alt="" />
+        <MediaImage media={after} class="after" alt="" />
         <div class="tile__body">
           <span class="tile__kind">{trackLabel[s.track]}</span>
           <h3>{s.name}</h3>

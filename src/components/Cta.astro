@@ -14,6 +14,7 @@ const { h = 'Have a listing in mind?', p = 'Tell us about the rooms and where th
     <div class="btn-row">
       {isLive('/request-quote/') ? <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a> : <a class="btn btn--primary" href={business.emailHref}>Email StageLiora</a>}
       {isLive('/how-it-works/') && <a class="btn" href={url('/how-it-works/')}>How It Works</a>}
+      <p class="cta-band__contact"><a href={business.emailHref}>{business.email}</a> · <a href={business.phoneHref}>{business.phoneDisplay}</a></p>
     </div>
   </div>
 </section>

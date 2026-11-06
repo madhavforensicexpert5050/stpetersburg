@@ -2,7 +2,7 @@
 
 Source for the StageLiora website, a virtual staging and real estate photo editing business, written for the St. Petersburg, Florida market. Target address: `https://st.petersburg.stageliora.com/`.
 
-**Status:** a noindex public preview is on GitHub Pages at https://madhavforensicexpert5050.github.io/stpetersburg/. The production site is not deployed. Production releases are held behind approval gates (see below). Staged images in this repository are labeled placeholder illustrations, not completed customer work.
+**Status:** a noindex public preview is on GitHub Pages at https://madhavforensicexpert5050.github.io/stpetersburg/. The production site is not deployed. Production releases are held behind approval gates (see below). The 84 photorealistic images are original AI-generated demonstrations of fictional properties, not completed customer work.
 
 ## Technology
 
@@ -32,6 +32,7 @@ A blocked production build is expected until the release approvals are recorded.
 
 ```
 npm run qa
+npm run qa:images
 npm run build
 npm run qa:browser
 npm run qa:form
@@ -58,7 +59,11 @@ npm run qa:census
 
 ## Images
 
-Every image resolves through `src/data/media.ts`. To replace a placeholder, add the licensed file, then update that entry's `src`, dimensions, rights and approval fields. Pages update on their own. Only use images with verified rights.
+Every image resolves through `src/data/media.ts`, with reviewed synthetic replacements in `src/data/generated-media.ts`. There are 18 comparisons edited from their corresponding base images and 48 design-library images. All 84 assets have 480, 900 and 1500-pixel WebP variants under `public/media/generated/`; the shared `MediaImage` component provides responsive loading. Stable IDs preserve sliders, service tiles, filters and lightboxes.
+
+`public/media/generated/provenance.json` records prompts, source-image lineage, visual review notes and SHA-256 hashes. `npm run qa:images` checks files, dimensions, responsive variants, disclosures, hashes and pair lineage. It runs in deployment CI. Synthetic previews retain `ownerApproved: false` and `publication: 'synthetic-preview-only'`; they do not satisfy the licensed-client-image release gates. Future client photographs require verified rights and a deliberate replacement of the corresponding synthetic override.
+
+Production briefs, optimization, review-sheet and coverage-audit helpers live in `scripts/`. Private generation receipts, review decisions and detailed audit reports remain in ignored `docs/`; they are not needed to build a fresh clone. Original generated masters remain preserved separately from the optimized public assets.
 
 ## Environment
 
@@ -70,7 +75,7 @@ Until `PUBLIC_FORM_ENDPOINT` points at a tested endpoint, forms never claim to h
 
 ### GitHub Pages preview
 
-`.github/workflows/deploy.yml` runs on every push to `main` (or manually). It type-checks, runs `npm run qa`, builds with `npm run build:github-pages` and deploys `dist-github-pages/`. In the repository settings, Pages must use **Source: GitHub Actions**.
+`.github/workflows/deploy.yml` runs on every push to `main` (or manually). It type-checks, runs `npm run qa` and `npm run qa:images`, builds with `npm run build:github-pages` and deploys `dist-github-pages/`. In the repository settings, Pages must use **Source: GitHub Actions**.
 
 `DEPLOY_TARGET=github-pages` sets the site to `https://madhavforensicexpert5050.github.io` and the base to `/stpetersburg`. Without it, builds target the custom domain at the root. Templates never hardcode paths: internal links and images go through `url()` in `src/lib/url.ts`, and canonical URLs go through `absUrl()`.
 

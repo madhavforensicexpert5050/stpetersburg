@@ -31,6 +31,9 @@ export const generalFaqs = [
   { group: 'The basics', items: [
     { q: 'What is virtual staging?', a: 'Adding furniture and decor to a photo of a room using image editing. The room itself is not changed. Our guide explains it in more detail.' },
     { q: 'Who is StageLiora for?', a: 'Real estate agents, photographers, brokerages and other people who market property.' },
+    { q: 'Do the walls, windows and floors stay the same?', a: 'In a listing photo edit, yes. Virtual staging adds or replaces movable furniture and decor. Walls, windows, flooring, fixtures and the view stay as photographed. Changing those is a concept visualization, which should not be used as a current listing photo.' },
+    { q: 'Can I see the same room in more than one style?', a: 'The Design Library shows each room type across several of the eight design directions, so you can compare them side by side. For a listing, one direction per home usually keeps the photos consistent.' },
+    { q: 'How is the price of a project set?', a: 'By the service, the number of images, what each room needs and the quality of the source photo. Rates have not been published yet. The pricing page explains how each factor affects the cost.' },
     { q: 'Do you have an office in St. Petersburg?', a: 'No. StageLiora works remotely and has no public office or storefront in Florida. St. Petersburg is the market this site is written for.' },
     { q: 'Can I see your finished work?', a: 'Not yet. The room images on this site are illustrations. Real client examples will be added only with licensed photos, and they will be clearly labeled.' },
   ] },

@@ -1,5 +1,6 @@
 ---
 import { url } from '../lib/url.ts';
+import MediaImage from '../components/MediaImage.astro';
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
 import Lightbox from '../components/Lightbox.astro';
@@ -27,7 +28,7 @@ const items = library.filter((l) => l.style === slug);
       {items.map((it) => (
         <figure class="gal__item">
           <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={it.caption} aria-label={zoomLabel(it, it.roomName)}>
-            <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
+            <MediaImage media={it} />
           </button>
           <figcaption><h3>{it.roomName}</h3></figcaption>
         </figure>

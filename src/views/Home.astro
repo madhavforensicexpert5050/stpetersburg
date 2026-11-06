@@ -1,7 +1,9 @@
 ---
 import { url } from '../lib/url.ts';
+import MediaImage from '../components/MediaImage.astro';
 import Compare from '../components/Compare.astro';
-import ServiceTiles from '../components/ServiceTiles.astro';
+import ShowcaseTabs, { type ShowcaseItem } from '../components/ShowcaseTabs.astro';
+import { business } from '../data/business.ts';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
 import Lightbox from '../components/Lightbox.astro';
@@ -15,7 +17,33 @@ const roomCards = ['primary-bedroom', 'dining-room', 'home-office', 'sunroom', '
   const it = library.find((l) => l.room === id)!;
   return { name: rooms.find((r) => r.id === id)!.name, it };
 });
-const faqs = [generalFaqs[0].items[0], generalFaqs[1].items[0], generalFaqs[1].items[2], generalFaqs[0].items[2]];
+const allFaqs = generalFaqs.flatMap((g) => g.items);
+const faq = (q: string) => allFaqs.find((x) => x.q === q)!;
+const faqs = [
+  faq('What is virtual staging?'),
+  faq('Do the walls, windows and floors stay the same?'),
+  faq('Can I see the same room in more than one style?'),
+  faq('Will an edited photo be compliant with my MLS?'),
+  faq('Can the words "virtually staged" go on the image itself?'),
+  faq('How is the price of a project set?'),
+];
+
+// Room-by-room showcase: one tab per room, each a same-scene pair from the portfolio set.
+const roomItems: ShowcaseItem[] = [
+  { id: 'living', label: 'Living room', pair: 'pf-living-room', title: 'Living room', body: 'Seating, a rug and a few accessories show how much furniture the floor holds and where the walkway stays clear. It is usually the first room buyers look at.' },
+  { id: 'primary', label: 'Primary bedroom', pair: 'pf-primary-bedroom', title: 'Primary bedroom', body: 'A bed with nightstands answers the question an empty bedroom raises: does a full set fit, with room to move around it?' },
+  { id: 'guest', label: 'Guest bedroom', pair: 'pf-guest-bedroom', title: 'Guest bedroom', body: 'Small, empty bedrooms are easy to misread as storage. A furnished view shows the room working as a bedroom.' },
+  { id: 'dining', label: 'Dining room', pair: 'pf-dining-room', title: 'Dining room', body: 'A table and chairs at true scale show how many people the room seats and how it connects to the kitchen.' },
+  { id: 'office', label: 'Home office', pair: 'pf-home-office', title: 'Home office', body: 'A desk, chair and storage show how a spare room can work as an office, without suggesting it is anything other than a spare room.' },
+  { id: 'kitchen', label: 'Kitchen and dining', pair: 'pf-kitchen', title: 'Open kitchen and dining', body: 'In an open plan, a dining set marks where the kitchen ends and the eating area begins. Cabinets, counters and appliances stay as photographed.' },
+];
+
+// Service demonstrations: every live service, with its Stellar MLS listing-use note up front.
+const tone = { 'permitted-with-disclosure': 'ok', conditional: 'warn', 'not-for-listing-photos': 'no', 'not-addressed': 'no' } as const;
+const serviceItems: ShowcaseItem[] = services.filter((s) => isLive(s.path)).map((s) => ({
+  id: s.slug, label: s.name, pair: s.pairKey, title: s.name, body: s.short, href: s.path, linkLabel: `About ${s.name.toLowerCase()}`,
+  pill: { text: `Stellar MLS: ${s.stellar.label}`, tone: tone[s.stellar.use] },
+}));
 const lib = isLive('/design-library/');
 const liveServices = services.filter((s) => isLive(s.path));
 const bothTracks = liveServices.some((s) => s.track === 'concept-visualization') && liveServices.some((s) => s.track === 'listing-editing');
@@ -32,21 +60,30 @@ const showRooms = isLive('/portfolio/') || lib;
         {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
         {isLive('/services/virtual-staging/') && <a class="btn" href={url('/services/virtual-staging/')}>Explore Virtual Staging</a>}
       </div>
+      <p class="hero__contact">Questions about a listing? <a href={business.emailHref}>{business.email}</a> · <a href={business.phoneHref}>{business.phoneDisplay}</a></p>
+      <p class="small" style="margin-top:12px">AI-generated demonstration · Fictional property, not client work.</p>
     </div>
     <div class="hero__art"><Compare pair="hero-living" eager animate /></div>
   </div>
 </section>
 
+<section class="strip-facts" aria-label="How StageLiora works">
+  <ul class="wrap">
+    <li><b>Same-scene pairs</b><span>Every example shows the edit beside its original view</span></li>
+    <li><b>Structure stays</b><span>Walls, windows, floors and fixtures are not staged away</span></li>
+    <li><b>MLS note per service</b><span>Each edit type says how Stellar MLS treats it</span></li>
+    <li><b>Eight design directions</b><span>From coastal to industrial, matched to the house</span></li>
+  </ul>
+</section>
+
 <section class="section">
   <div class="wrap">
     <div class="section-head section-head--split">
-      <div><p class="eyebrow">Before and after</p><h2>A room is easier to judge with something in it</h2></div>
-      <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Try it on either image.</p>
+      <div><p class="eyebrow">Room by room</p><h2>A room is easier to judge with something in it</h2></div>
+      <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Pick a room, then drag the divider.</p>
     </div>
-    <div class="grid grid--2">
-      <Compare pair="showcase-bedroom" />
-      <Compare pair="showcase-dining" />
-    </div>
+    <ShowcaseTabs id="rooms" label="Rooms" items={roomItems} />
+    {isLive('/portfolio/') && <p style="margin-top:22px"><a class="textlink" href={url('/portfolio/')}>See every room in the portfolio</a></p>}
   </div>
 </section>
 
@@ -60,7 +97,7 @@ const showRooms = isLive('/portfolio/') || lib;
         ? <p class="lede">Listing photo edits are meant to show a property as it really is. Concept visualizations show what could be, and they are for planning, not for an MLS listing photo.</p>
         : <p class="lede">Listing photo edits are meant to show a real property clearly, with limits that protect you and the buyer.</p>}
     </div>
-    <ServiceTiles />
+    <ShowcaseTabs id="services" label="Services" items={serviceItems} />
     {isLive('/services/') && <p style="margin-top:22px"><a class="textlink" href={url('/services/')}>Compare all services and their MLS notes</a></p>}
   </div>
 </section>
@@ -92,6 +129,36 @@ const showRooms = isLive('/portfolio/') || lib;
   </div>
 </section>
 
+<section class="section section--wall">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">Why virtual staging</p><h2>When it is worth it, and when it is not</h2></div>
+      <p class="lede">Virtual staging changes how a room is read. It does not change the room. Knowing the difference keeps a listing honest and saves money on images that will not help.</p>
+    </div>
+    <div class="grid grid--2">
+      <div class="card">
+        <h3>A good fit</h3>
+        <ul class="tick">
+          <li>Vacant rooms whose size or purpose is hard to read in a photo</li>
+          <li>Occupied homes where dated or personal furniture distracts from the space</li>
+          <li>Odd layouts, where furniture shows one sensible way to use the room</li>
+          <li>Listings marketed mostly online, where photos do the first showing</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Not a fix for</h3>
+        <ul class="cross">
+          <li>Condition problems, damage or repairs a buyer will see in person</li>
+          <li>Permanent features such as walls, flooring, fixtures or the view</li>
+          <li>Photos that are too dark, blurred or tightly cropped to show the room</li>
+          <li>Pre-construction listings, where Stellar MLS does not allow staging</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:22px">{isLive('/guides/what-is-virtual-staging/') && <a class="textlink" href={url('/guides/what-is-virtual-staging/')}>What virtual staging is</a>}{isLive('/guides/virtual-staging-vs-traditional-staging/') && <> · <a class="textlink" href={url('/guides/virtual-staging-vs-traditional-staging/')}>Virtual or traditional staging?</a></>}</p>
+  </div>
+</section>
+
 {showStyles && <section class="section section--tight section--wall">
   <div class="wrap">
     <div class="section-head section-head--split">
@@ -102,8 +169,8 @@ const showRooms = isLive('/portfolio/') || lib;
   <div class="strip" tabindex="0" role="region" aria-label="Design style previews">
     {styleCards.map(({ s, img }) => (
       isLive(`/design-styles/${s.id}/`)
-        ? <a href={url(`/design-styles/${s.id}/`)}><img src={url(img.src)} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
-        : <a href={url(lib ? `/design-library/?style=${s.id}` : '#main')}><img src={url(img.src)} alt={img.alt} width={img.width} height={img.height} loading="lazy" /><span>{s.name}</span></a>
+        ? <a href={url(`/design-styles/${s.id}/`)}><MediaImage media={img} /><span>{s.name}</span></a>
+        : <a href={url(lib ? `/design-library/?style=${s.id}` : '#main')}><MediaImage media={img} /><span>{s.name}</span></a>
     ))}
   </div>
 </section>}
@@ -118,7 +185,7 @@ const showRooms = isLive('/portfolio/') || lib;
       {roomCards.map(({ name, it }) => (
         <figure class="gal__item">
           <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, name)} data-info={it.caption} aria-label={zoomLabel(it, name)}>
-            <img src={url(it.src)} alt={it.alt} width={it.width} height={it.height} loading="lazy" />
+            <MediaImage media={it} />
           </button>
           <figcaption><h3>{name}</h3><p class="gal__meta">{isIllustration(it) ? `Illustration · ${it.styleName} direction` : `${it.styleName} direction`}</p></figcaption>
         </figure>
@@ -130,6 +197,21 @@ const showRooms = isLive('/portfolio/') || lib;
     </div>
   </div>
 </section>}
+
+<section class="section on-ink">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">Why StageLiora</p><h2>Standards behind every image</h2></div>
+      <p class="lede">We would rather show you how we work than ask you to trust ratings we do not have.</p>
+    </div>
+    <div class="grid grid--4 standards">
+      <div><h3>The room stays the room</h3><p>A listing edit adds or replaces movable furniture and decor. Walls, windows, floors, fixtures and views stay as photographed.</p></div>
+      <div><h3>Every edit type is named</h3><p>Listing photo edits and concept visualizations are kept apart, and each service page says which one it is.</p></div>
+      <div><h3>Disclosure is part of the job</h3><p>Each service carries its Stellar MLS note, and the original photo stays beside every edited one.</p></div>
+      <div><h3>No borrowed proof</h3><p>No invented reviews, ratings or client work. The examples on this site are AI-generated demonstrations, and they are labeled.</p></div>
+    </div>
+  </div>
+</section>
 
 <section class="section section--wall">
   <div class="wrap two-col">

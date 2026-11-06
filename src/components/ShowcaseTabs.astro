@@ -1,0 +1,32 @@
+---
+/**
+ * Tabbed before/after showcase. One slider at a time keeps a long list of examples compact.
+ * Accessible tabs pattern (arrow keys, Home, End). Without JavaScript every panel shows, stacked,
+ * and the tab list is hidden (see the noscript rule in Base.astro), so no example is ever unreachable.
+ */
+import { url } from '../lib/url.ts';
+import Compare from './Compare.astro';
+export interface ShowcaseItem { id: string; label: string; pair: string; title: string; body: string; href?: string; linkLabel?: string; pill?: { text: string; tone: 'ok' | 'warn' | 'no' } }
+interface Props { id: string; label: string; items: ShowcaseItem[] }
+const { id, label, items } = Astro.props;
+---
+<div class="showcase" data-tabs>
+  <div class="tabs__list" role="tablist" aria-label={label}>
+    {items.map((it, i) => (
+      <button type="button" role="tab" class="tabs__tab" id={`${id}-tab-${it.id}`} aria-controls={`${id}-panel-${it.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{it.label}</button>
+    ))}
+  </div>
+  {items.map((it, i) => (
+    <div class="tabs__panel" role="tabpanel" id={`${id}-panel-${it.id}`} aria-labelledby={`${id}-tab-${it.id}`} hidden={i !== 0}>
+      <div class="showcase__grid">
+        <Compare pair={it.pair} />
+        <div class="showcase__text">
+          {it.pill && <p style="margin:0"><span class:list={['pill', `pill--${it.pill.tone}`]}>{it.pill.text}</span></p>}
+          <h3>{it.title}</h3>
+          <p>{it.body}</p>
+          {it.href && <a class="textlink" href={url(it.href)}>{it.linkLabel ?? 'Learn more'}</a>}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>

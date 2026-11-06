@@ -46,14 +46,14 @@ const draft = route ? route.dev !== 'IMPLEMENTED' : false;
     <meta name="theme-color" content="#0e2233" />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <script type="application/ld+json" is:inline set:html={ld}></script>
-    <noscript><style>.compare-noscript-hide{display:none!important}.compare{aspect-ratio:auto!important;display:grid;grid-template-columns:1fr 1fr;gap:3px}.compare img{position:static!important;clip-path:none!important;aspect-ratio:3/2;height:auto!important}.compare__line,.compare__knob,.compare input{display:none!important}</style></noscript>
+    <noscript><style>.sticky-cta[data-hidden]{transform:none!important;visibility:visible!important}.tabs__list{display:none!important}.tabs__panel[hidden]{display:block!important}.tabs__panel+.tabs__panel{margin-top:40px}.compare-noscript-hide{display:none!important}.compare{aspect-ratio:auto!important;display:grid;grid-template-columns:1fr 1fr;gap:3px}.compare img{position:static!important;clip-path:none!important;aspect-ratio:3/2;height:auto!important}.compare__line,.compare__knob,.compare input{display:none!important}</style></noscript>
   </head>
   <body data-path={path}>
     <a class="skip" href="#main">Skip to content</a>
     {isPreview && (isPublicPreview ? (
       <aside class="ribbon" aria-label="Site notice">Project bookings are not open yet. Questions are welcome at <a href={business.emailHref}>{business.email}</a>.</aside>
     ) : (
-      <aside class="ribbon" aria-label="Preview notice"><strong>Local preview.</strong> Not public and not indexed. All images are placeholders.{draft && <> This page is not cleared for release.</>}</aside>
+      <aside class="ribbon" aria-label="Preview notice"><strong>Local preview.</strong> Not public and not indexed. Images are illustrative demonstrations.{draft && <> This page is not cleared for release.</>}</aside>
     ))}
     <Header path={path} />
     <main id="main" tabindex="-1">
@@ -61,7 +61,7 @@ const draft = route ? route.dev !== 'IMPLEMENTED' : false;
     </main>
     <Footer />
     {!noCta && isLive('/request-quote/') && path !== '/request-quote/' && (
-      <aside class="sticky-cta" aria-label="Quick action"><a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a></aside>
+      <aside class="sticky-cta" aria-label="Quick action" data-hidden><a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a></aside>
     )}
     <script src="../scripts/site.ts"></script>
   </body>

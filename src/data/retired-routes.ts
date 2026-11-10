@@ -18,4 +18,18 @@ export const retiredRoutes: RetiredRoute[] = [
     label: 'How to use virtual staging for a real estate listing',
     reason: 'V18 consolidation: the agent decision content moved to the agent guide, How It Works, Pricing, the FAQ and the furniture removal service, so the landing page no longer competes with the homepage.',
   },
+  {
+    from: '/for-real-estate-photographers/',
+    to: '/guides/how-to-prepare-photos-for-virtual-staging/',
+    retired: '2026-11-10',
+    label: 'How to prepare photos for virtual staging',
+    reason: 'V18.2: owner removed the Who We Serve footer group and its pages. The closest guidance (shooting, rights, twilight) is the photo preparation guide.',
+  },
+  {
+    from: '/for-brokerages/',
+    to: '/guides/virtual-staging-disclosure-florida/',
+    retired: '2026-11-10',
+    label: 'Virtual staging disclosure in Florida',
+    reason: 'V18.2: owner removed the Who We Serve footer group and its pages. The closest guidance (disclosure steps, what to put in writing) is the Florida disclosure guide.',
+  },
 ];

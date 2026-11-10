@@ -210,13 +210,15 @@ check('Header nav reads Home | Services | How It Works | Portfolio | Pricing', t
 check('Header phone button shows the verified number and dials tel:+918890929329', /<a class="head-call" href="tel:\+918890929329"[^>]*>[\s\S]*?<svg[\s\S]*?\+91 88909 29329/.test(homeHtml));
 // V18: the agents landing page was retired, so Real Estate opens the agent guide that absorbed its content.
 const AGENT_GUIDE = '/guides/virtual-staging-for-real-estate-agents/';
-check('Header has no Real Estate item (owner V18.1), and the agent guide is still linked from the footer', !topItems.includes('Real Estate') && !navHtml.includes(`href="${AGENT_GUIDE}"`) && (homeHtml.split('<footer')[1] || '').includes(`href="${AGENT_GUIDE}">Real Estate Agents<`));
+check('Header has no Real Estate item (owner V18.1), and the agent guide is still linked from the homepage body', !topItems.includes('Real Estate') && !navHtml.includes(`href="${AGENT_GUIDE}"`) && (homeHtml.split('<main')[1] || '').split('</main>')[0].includes(`href="${AGENT_GUIDE}"`));
 check('No page links to a retired route', !pages.some(({ html }) => retired.some((p) => html.includes(`href="${p}"`))), pages.filter(({ html }) => retired.some((p) => html.includes(`href="${p}"`))).map(({ r }) => r.path));
-const footWho = ((homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0].match(/<h2>Who We Serve<\/h2>\s*<ul>([\s\S]*?)<\/ul>/) || ['', ''])[1];
-check('Footer Who We Serve keeps Photographers and Brokerages, and Real Estate Agents opens the agent guide', footWho.includes(`href="${AGENT_GUIDE}">Real Estate Agents<`) && footWho.includes('href="/for-real-estate-photographers/">Photographers<') && footWho.includes('href="/for-brokerages/">Brokerages<'), footWho);
+// V18.2: the owner removed the Who We Serve group and its pages. Four link groups remain, with no empty column.
+const footBlock = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
+const footGroups = [...footBlock.matchAll(/<nav aria-label="Footer: ([^"]+)"[^>]*>\s*<h2[^>]*>[^<]+<\/h2>\s*<ul[^>]*>([\s\S]*?)<\/ul>/g)].map((m) => ({ h: m[1], n: (m[2].match(/<li[\s>]/g) || []).length }));
+check('Footer has exactly Services, Company, Explore and Resources, each with links, and no Who We Serve group', footGroups.map((g) => g.h).join('|') === 'Services|Company|Explore|Resources' && footGroups.every((g) => g.n > 0) && !/Who We Serve|for-real-estate-photographers|for-brokerages/.test(footBlock), footGroups.map((g) => `${g.h}:${g.n}`).join(' '));
 const footHtml = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const footGroup = (h) => { const m = footHtml.match(new RegExp(`<h2>${h}</h2>\\s*<ul>([\\s\\S]*?)</ul>`)); return m ? [...m[1].matchAll(/<a[^>]*>([^<]*)<\/a>/g)].map((x) => x[1]) : []; };
-const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], 'Who We Serve': ['Real Estate Agents', 'Photographers', 'Brokerages'], Explore: ['Design Styles', 'Design Library', 'Portfolio'], Resources: ['Guides', 'How It Works'] };
+const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], Explore: ['Design Styles', 'Design Library', 'Portfolio'], Resources: ['Guides', 'How It Works'] };
 const footBad = Object.entries(wantFoot).flatMap(([h, ls]) => { const got = footGroup(h); return [...ls.filter((l) => !got.includes(l)).map((l) => `${h} lacks ${l}`), ...(new Set(got).size !== got.length ? [`${h} has a duplicate`] : [])]; });
 check('Footer groups hold the required links with no duplicates within a group', !footBad.length, footBad);
 

@@ -81,32 +81,6 @@ export const generalFaqs = [
   ] },
 ];
 
-export const audiences = {
-  // agents: the landing page was retired in V18 (see src/data/retired-routes.ts).
-  photographers: {
-    eyebrow: 'For real estate photographers', h1: 'Add staging to a shoot without adding it to your day.',
-    intro: 'Agents ask their photographer about staging because you are the person holding the files. This page describes how a partner workflow could work. No partner or white-label program is in place today.',
-    pairKey: 'svc-photo-enhancement',
-    needs: [
-      { h: 'Start from a clean file', b: 'Staging starts better from a level, well-exposed room with visible floor. Small changes on site can save a lot of editing later.' },
-      { h: 'Be clear about rights', b: 'If you hold the copyright, you decide who edits your photos and how the agent may use the results. Put that in your agreement.' },
-      { h: 'Twilight needs facts', b: 'Stellar conditions twilight images on real lights and a true sun position. Record the direction the home faces and which lights work while you are there.' },
-    ],
-    checklist: ['License allows edits by a third party', 'Compass direction recorded for exteriors', 'Working exterior lights noted', 'Unedited originals archived', 'Agent knows disclosure is handled in MLS fields'],
-  },
-  brokerages: {
-    eyebrow: 'For brokerages', h1: 'One clear standard for altered photos across your office.',
-    intro: 'A broker carries responsibility for what agents advertise. A written standard on edited photos is useful whichever vendor your agents use. No team plan or brokerage account is available from StageLiora today.',
-    pairKey: 'showcase-dining',
-    needs: [
-      { h: 'Write down what is off limits', b: 'Agents move fast. A one-page list of what can and cannot be altered is easier to follow than a long policy, and Stellar\'s own lists are a good start.' },
-      { h: 'Train on the disclosure steps', b: 'The Stellar disclosure has three parts. Missing one can mean the photos are removed and an automatic fine.' },
-      { h: 'Keep the originals', b: 'If a question comes up later, the unaltered original is what shows what was changed. Decide where those files should live.' },
-    ],
-    checklist: ['Written photo-editing standard', 'Agents shown the Stellar disclosure steps', 'Rights check on photographer files', 'Retention rule for original photos', 'Named person for compliance questions'],
-  },
-};
-
 /** Original copy for the four design-style pages. */
 export const stylePages: Record<string, { h1: string; intro: string; bestFor: string[]; pieces: string[]; watch: string; title: string; description: string }> = {
   modern: {

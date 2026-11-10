@@ -62,7 +62,7 @@ function writeRetiredForwards(out) {
 <body>
 <main>
 <h1>This page has moved</h1>
-<p>The guidance that was here is now in <a href="${href}">${r.label}</a>.</p>
+<p>Related guidance is now in <a href="${href}">${r.label}</a>.</p>
 <p><a href="${prefix}/">Go to the StageLiora homepage</a></p>
 </main>
 </body>

@@ -102,12 +102,23 @@ li { margin-bottom: .4em; }
 .mega a:hover { background: var(--wall); }
 .mega h3 { font: 600 .74rem/1.2 var(--text); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 8px; }
 .head-cta { display: flex; align-items: center; gap: 10px; flex: none; }
+/* Header phone button: the one call action in the header, always visible (never hidden with .head-cta .btn). */
+.head-call { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 10px 18px; border-radius: 8px; background: var(--sun); color: var(--ink); font: 600 .98rem/1 var(--text); letter-spacing: .01em; text-decoration: none; white-space: nowrap; box-shadow: 0 1px 2px rgba(14,34,51,.12); transition: background .15s, color .15s; }
+.head-call:hover { background: var(--ink); color: var(--sun); }
+.head-call:focus-visible { outline: 3px solid var(--dusk); outline-offset: 3px; border-radius: 8px; }
+.head-call svg { flex: none; }
+.nav details[data-active] > summary { box-shadow: inset 0 -3px 0 var(--sun-deep); }
+.mega a[aria-current='page'] { background: var(--wall); }
+@media (max-width: 480px) { .head-call { padding: 10px 12px; font-size: .9rem; gap: 7px; } }
+/* Very narrow phones: icon only; the number stays in the accessible name. */
+@media (max-width: 400px) { .head-call { padding: 0; width: 46px; justify-content: center; } .head-call__num { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 .menu-btn { display: none; }
 @media (max-width: 1120px) {
   .menu-btn { display: inline-flex; min-height: 44px; min-width: 44px; padding: 8px 12px; border: 2px solid var(--ink); background: #fff; font: 600 .95rem var(--text); color: var(--ink); border-radius: var(--radius); align-items: center; }
   .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border-bottom: 1px solid var(--line); padding: 8px var(--gutter) 20px; flex-direction: column; align-items: stretch; max-height: calc(100vh - 70px); overflow-y: auto; box-shadow: 0 18px 30px rgba(14,34,51,.12); }
   .nav.is-open { display: flex; }
   .nav > a, .nav summary { padding-inline: 0; border-bottom: 1px solid var(--mist); justify-content: space-between; }
+  .nav summary { display: flex; }
   .mega { position: static; width: auto; box-shadow: none; border: 0; padding: 8px 0; grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) { .head-cta .btn { padding: 8px 12px; font-size: .88rem; min-height: 44px; } .logo { font-size: 1.2rem; } }
@@ -358,8 +369,9 @@ input:disabled, select:disabled { background: var(--wall); }
 
 /* Footer */
 .site-footer { background: #091824; color: var(--on-ink-muted); padding-top: clamp(44px, 6vw, 76px); font-size: .96rem; }
-.foot-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); gap: 32px; }
-@media (max-width: 1040px) { .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .foot-brand { grid-column: 1 / -1; } }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(5, minmax(0, 1fr)); gap: 28px; }
+@media (max-width: 1180px) { .foot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .foot-brand { grid-column: 1 / -1; } }
+@media (max-width: 720px) { .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 480px) { .foot-grid { grid-template-columns: minmax(0, 1fr); } }
 .foot-grid h2 { font: 600 .78rem/1.2 var(--text); letter-spacing: .1em; text-transform: uppercase; color: #fff; margin-bottom: 12px; }
 .foot-grid ul { list-style: none; padding: 0; margin: 0; }

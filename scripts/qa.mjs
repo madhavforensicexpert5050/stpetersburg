@@ -120,7 +120,7 @@ const { plans: qaPlans, headline: qaHeadline } = await import('../src/data/prici
 const approvedAmounts = new Set(qaPlans.map((p) => qaHeadline(p.planId)?.amount).filter(Boolean));
 for (const { r, html } of pages) { if (['guide', 'guidesHub', 'location'].includes(r.template)) continue; const m = (visible(html).replace(/\$[\d.,]+[KM]/g, '').match(/\$\d[\d,.]*/g) || []).map((x) => x.replace(/[.,]$/, '')).filter((x) => !approvedAmounts.has(x)); if (m.length) priceHits.push(`${r.path}: ${m.join(', ')}`); }
 check('No StageLiora price shown unless it matches an owner-approved figure', !priceHits.length, priceHits);
-check('No street address pattern anywhere', !all.some(([, h]) => /\b\d{2,5} [A-Z][a-z]+ (St|Street|Ave|Avenue|Blvd|Road|Rd|Suite)\b/.test(visible(h))));
+check('No street address pattern anywhere', !all.some(([, h]) => /(?<![\d+] )\b\d{2,5} [A-Z][a-z]+ (St|Street|Ave|Avenue|Blvd|Road|Rd|Suite)\b/.test(visible(h))));  // digits continuing a phone number are not a house number
 
 // Near-duplicate location check on main content
 const mainText = (h) => visible((h.match(/<main[\s\S]*<\/main>/) || [''])[0]).toLowerCase();
@@ -171,6 +171,19 @@ const faqQs = (h) => [...((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).matchAl
 const faqDup = [];
 for (const p of VISUAL) for (const q of faqQs(pages.find((x) => x.r.path === p).html)) for (const o of pages) if (o.r.path !== p && faqQs(o.html).includes(q)) faqDup.push(`${p} & ${o.r.path}: ${q}`);
 check('FAQ questions on the visual pages appear nowhere else on the site', !faqDup.length, faqDup);
+
+// Navigation (owner spec, header and footer update)
+const homeHtml = pages.find((x) => x.r.path === '/').html;
+const navHtml = (homeHtml.match(/<nav class="nav"[\s\S]*?<\/nav>/) || [''])[0];
+const topItems = [...navHtml.replace(/<div class="mega">[\s\S]*?<\/details>/g, '</details>').matchAll(/<(?:a|summary)\b[^>]*>([\s\S]*?)<\/(?:a|summary)>/g)].map((m) => visible(m[1]).trim());
+check('Header nav reads Home | Services | Real Estate | How It Works | Portfolio | Pricing', topItems.join('|') === 'Home|Services|Real Estate|How It Works|Portfolio|Pricing', topItems.join('|'));
+check('Header phone button shows the verified number and dials tel:+918890929329', /<a class="head-call" href="tel:\+918890929329"[^>]*>[\s\S]*?<svg[\s\S]*?\+91 88909 29329/.test(homeHtml));
+check('Header Real Estate links to /for-real-estate-agents/ and marks it current there', /href="\/for-real-estate-agents\/"[^>]*>Real Estate</.test(navHtml) && /<nav class="nav"[\s\S]*?href="\/for-real-estate-agents\/" aria-current="page">Real Estate/.test(pages.find((x) => x.r.path === '/for-real-estate-agents/').html));
+const footHtml = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
+const footGroup = (h) => { const m = footHtml.match(new RegExp(`<h2>${h}</h2>\\s*<ul>([\\s\\S]*?)</ul>`)); return m ? [...m[1].matchAll(/<a[^>]*>([^<]*)<\/a>/g)].map((x) => x[1]) : []; };
+const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], 'Who We Serve': ['Real Estate Agents', 'Photographers', 'Brokerages'], Explore: ['Design Styles', 'Design Library', 'Portfolio'], Resources: ['Guides', 'How It Works'] };
+const footBad = Object.entries(wantFoot).flatMap(([h, ls]) => { const got = footGroup(h); return [...ls.filter((l) => !got.includes(l)).map((l) => `${h} lacks ${l}`), ...(new Set(got).size !== got.length ? [`${h} has a duplicate`] : [])]; });
+check('Footer groups hold the required links with no duplicates within a group', !footBad.length, footBad);
 
 check('Brand images are owner-licensed, owner-approved and present on disk', brandMedia.length > 0 && brandMedia.every((m) => m.rights === 'owner-licensed' && m.ownerApproved && m.alt && fs.existsSync(path.join('public', m.src)) && (m.responsive || []).every((v) => fs.existsSync(path.join('public', v.src)))));
 

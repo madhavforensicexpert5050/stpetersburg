@@ -2,7 +2,6 @@
 import { url } from '../lib/url.ts';
 import { business } from '../data/business.ts';
 import { services } from '../data/services.ts';
-import { guides } from '../data/guides.ts';
 import { legalDocs } from '../data/legal.ts';
 import { isLive } from '../data/routes.ts';
 import { anyIllustrations } from '../data/media.ts';
@@ -12,11 +11,16 @@ const bottomLinks = [
   ...legalDocs.filter((d) => isLive(d.path)).map((d) => [d.path, d.h1]),
   ...(anyIllustrations() && isLive('/about/') ? [['/about/#images', 'About our images']] : []),
 ];
-const company = [
-  ['/about/', 'About'], ['/about/devender-garg/', 'Devender Garg'], ['/how-it-works/', 'How It Works'], ['/pricing/', 'Pricing'], ['/faq/', 'FAQ'], ['/reviews/', 'Reviews'], ['/contact/', 'Contact'], ['/locations/', 'Local market notes'],
-  ['/for-real-estate-agents/', 'For agents'], ['/for-real-estate-photographers/', 'For photographers'], ['/for-brokerages/', 'For brokerages'],
-].filter(([p]) => isLive(p));
-const visual = [['/portfolio/', 'Portfolio'], ['/design-library/', 'Design Library'], ['/design-styles/', 'Design Styles'], ['/online-interior-design/', 'Online Interior Design'], ['/interior-designers/', 'Interior Designers'], ['/interior-design-projects/', 'Interior Design Projects']].filter(([p]) => isLive(p));
+const live = (xs: string[][]) => xs.filter(([p]) => isLive(p));
+// Each page appears once per group. Pages dropped from the header (Design Library, Guides, Contact,
+// Photographers, Brokerages) stay reachable here.
+const groups = [
+  { h: 'Services', links: [...services.filter((s) => isLive(s.path)).map((s) => [s.path, s.name]), ...live([['/services/', 'All services']])] },
+  { h: 'Company', links: live([['/about/', 'About StageLiora'], ['/about/devender-garg/', 'About Devender Garg'], ['/contact/', 'Contact'], ['/pricing/', 'Pricing'], ['/reviews/', 'Reviews']]) },
+  { h: 'Who We Serve', links: live([['/for-real-estate-agents/', 'Real Estate Agents'], ['/for-real-estate-photographers/', 'Photographers'], ['/for-brokerages/', 'Brokerages']]) },
+  { h: 'Explore', links: live([['/design-styles/', 'Design Styles'], ['/design-library/', 'Design Library'], ['/portfolio/', 'Portfolio'], ['/online-interior-design/', 'Online Interior Design'], ['/interior-designers/', 'Interior Designers'], ['/interior-design-projects/', 'Interior Design Projects']]) },
+  { h: 'Resources', links: live([['/guides/', 'Guides'], ['/how-it-works/', 'How It Works'], ['/faq/', 'FAQ'], ['/locations/', 'Local market notes']]) },
+].filter((g) => g.links.length > 0);
 ---
 <footer class="site-footer">
   <div class="wrap">
@@ -26,27 +30,12 @@ const visual = [['/portfolio/', 'Portfolio'], ['/design-library/', 'Design Libra
         <p>Virtual staging and real estate photo editing, written for the St. Petersburg, Florida market. We work remotely and have no public office in Florida.</p>
         <p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
       </div>
-      <div>
-        <h2>Services</h2>
-        <ul>{services.filter((s) => isLive(s.path)).map((s) => <li><a href={url(s.path)}>{s.name}</a></li>)}</ul>
-      </div>
-      <div>
-        <h2>Company</h2>
-        <ul>{company.map(([p, l]) => <li><a href={url(p)}>{l}</a></li>)}</ul>
-      </div>
-      {visual.length > 0 && (
-        <div>
-          <h2>Visual</h2>
-          <ul>{visual.map(([p, l]) => <li><a href={url(p)}>{l}</a></li>)}</ul>
-        </div>
-      )}
-      <div>
-        <h2>Guides</h2>
-        <ul>
-          {isLive('/guides/') && <li><a href={url('/guides/')}>All guides</a></li>}
-          {guides.filter((g) => isLive(g.path)).slice(0, 5).map((g) => <li><a href={url(g.path)}>{g.h1}</a></li>)}
-        </ul>
-      </div>
+      {groups.map((g) => (
+        <nav aria-label={`Footer: ${g.h}`}>
+          <h2>{g.h}</h2>
+          <ul>{g.links.map(([p, l]) => <li><a href={url(p)}>{l}</a></li>)}</ul>
+        </nav>
+      ))}
     </div>
   </div>
   <div class="foot-bar">

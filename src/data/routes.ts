@@ -7,7 +7,7 @@
  * SITE_MODE=preview builds everything, safely noindex. SITE_MODE=production builds only documented approvals.
  */
 import { approvals } from './approvals.ts';
-import { services } from './services.ts';
+import { pagedServices } from './services.ts';
 import { guides } from './guides.ts';
 import { locations } from './locations.ts';
 import { legalDocs } from './legal.ts';
@@ -57,8 +57,8 @@ export const routes: RouteDef[] = [
   r('/faq/', 'FAQ', 'Virtual Staging FAQ | StageLiora', 'Answers about virtual staging, Stellar MLS disclosure, photo rights, timing and what StageLiora can and cannot promise for your listing.', G.main, 'faq', 'IMPLEMENTED', 'DEC-011; DEC-012; DEC-013', READY()),
   r('/reviews/', 'Reviews', 'Reviews (Draft) | StageLiora', 'Reviews from StageLiora clients, published only with their permission and exactly as written. No reviews have been posted yet.', G.main, 'reviews', 'IMPLEMENTED AS INTERNAL DRAFT', 'Genuine reviews must exist (LEG-008)', BLOCKED('No genuine reviews exist. An empty reviews page has no customer purpose.', ['genuineReviews'], 'EMPTY_STATE_ONLY')),
 
-  r('/services/', 'Services', 'Virtual Staging and Photo Editing Services | StageLiora', 'StageLiora image services, split between listing-photo edits and concept visualizations, each with its scope, limits and Stellar MLS notes.', G.svc, 'servicesHub', 'IMPLEMENTED', 'DEC-008', READY(['anyService'])),
-  ...services.map((s) => r(s.path, s.name, s.title, s.description, G.svc, 'service', 'IMPLEMENTED AS INTERNAL DRAFT', s.track === 'concept-visualization' ? 'DEC-008; DEC-020 (finish and exterior edits)' : 'DEC-008; DEC-007; DEC-023', BLOCKED(s.track === 'concept-visualization' ? 'Concept only. Not approved for sale, and not usable as a Stellar listing photo.' : 'Content is ready, but the owner has not confirmed the service can be sold and delivered.', [`service:${s.slug}`]), s.slug)),
+  r('/services/', 'Services', 'Virtual Staging for Real Estate Services | StageLiora', 'Virtual staging for empty rooms in real estate listings, plus listing photo edits and concept visualizations, each with its scope, limits and Stellar MLS notes.', G.svc, 'servicesHub', 'IMPLEMENTED', 'DEC-008', READY(['anyService'])),
+  ...pagedServices.map((s) => r(s.path, s.name, s.title, s.description, G.svc, 'service', 'IMPLEMENTED AS INTERNAL DRAFT', s.track === 'concept-visualization' ? 'DEC-008; DEC-020 (finish and exterior edits)' : 'DEC-008; DEC-007; DEC-023', BLOCKED(s.track === 'concept-visualization' ? 'Concept only. Not approved for sale, and not usable as a Stellar listing photo.' : 'Content is ready, but the owner has not confirmed the service can be sold and delivered.', [`service:${s.slug}`]), s.slug)),
 
   r('/portfolio/', 'Portfolio', 'Virtual Staging Portfolio: Before and After, Styles | StageLiora', 'Before-and-after virtual staging examples, room designs to filter by style and room, and a guide to choosing among eight staging styles for a listing.', G.vis, 'portfolio', 'PENDING ASSET APPROVAL', 'DEC-023; written image rights', BLOCKED('Synthetic demonstrations do not substitute for licensed client portfolio evidence.', ['realImages:/portfolio/'], 'EMPTY_STATE_ONLY')),
 

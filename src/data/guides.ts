@@ -128,7 +128,7 @@ export const guides: Guide[] = [
       { t: 'p', x: 'For a twilight edit, write down which way the home faces and which outside lights actually work. Stellar requires that lighting not be added where it does not exist, and that the sun position be true.' },
       { t: 'h2', x: 'Files and rights' },
       { t: 'ul', items: ['Keep the untouched originals in a folder of their own, apart from any edited versions.', 'Ask the photographer for the full-resolution original. A downsized MLS export or a screenshot limits what can be done.', 'Send the uncropped frame. Cropping after staging is safer than staging a crop that cuts off the corners of the room.', 'Say where each image will be used: the MLS, your website, flyers or social posts.', 'Confirm you may have the photo edited. If a photographer took it, check your license. Stellar\'s own tips are to take the photo yourself or get the proper license, and not to scrape photos from the internet.'] },
-      { t: 'links', h: 'Related', items: [{ href: '/guides/virtual-staging-disclosure-florida/', label: 'Virtual staging disclosure in Florida' }, { href: '/services/photo-enhancement/', label: 'Photo enhancement' }, { href: '/services/virtual-staging/', label: 'Virtual staging' }] },
+      { t: 'links', h: 'Related', items: [{ href: '/guides/virtual-staging-disclosure-florida/', label: 'Virtual staging disclosure in Florida' }, { href: '/services/photo-enhancement/', label: 'Photo enhancement' }, { href: '/services/#virtual-staging', label: 'Virtual staging' }] },
     ],
   },
   {

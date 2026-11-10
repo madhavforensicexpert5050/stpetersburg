@@ -1,7 +1,7 @@
 ---
 import { url } from '../lib/url.ts';
 import MediaImage from './MediaImage.astro';
-import { services, trackLabel } from '../data/services.ts';
+import { pagedServices as services, trackLabel } from '../data/services.ts';
 import { getPair } from '../data/media.ts';
 import { isLive } from '../data/routes.ts';
 const { only } = Astro.props as { only?: string[] };

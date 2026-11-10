@@ -68,7 +68,7 @@ const pairs: MediaItem[] = [
   ...pair('showcase-dining', '/', 'Before/after showcase', 'Empty Dining Room', 'Staged Dining Room',
     'Illustration of an empty dining room.', 'Illustration of the same dining room with a table and chairs added.',
     { kind: 'interior', room: 'dining-room', style: 'farmhouse', furnish: 'none' }, { kind: 'interior', room: 'dining-room', style: 'farmhouse', furnish: 'staged' }),
-  ...pair('svc-virtual-staging', '/services/virtual-staging/', 'Service comparison', 'Empty Living Room', 'Living Room with Furniture and Decor',
+  ...pair('svc-virtual-staging', '/services/', 'Service comparison', 'Empty Living Room', 'Living Room with Furniture and Decor',
     'Illustration of an empty living room.', 'Illustration of the same room with furniture and decor added.',
     { kind: 'interior', room: 'living-room', style: 'modern', furnish: 'none' }, { kind: 'interior', room: 'living-room', style: 'modern', furnish: 'staged' }),
   ...pair('svc-furniture-removal', '/services/furniture-removal-and-staging/', 'Service comparison', 'Occupied Room with Dated Furniture', 'Same Room Restaged',

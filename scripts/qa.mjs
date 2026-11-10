@@ -45,7 +45,7 @@ const { retiredRoutes } = await import('../src/data/retired-routes.ts');
 const retired = retiredRoutes.map((r) => r.from);
 const current = expected.filter((p) => !retired.includes(p));
 const reg = routes.map((r) => r.path);
-check(`Registry matches the owner final structure (60 routes, ${retired.length} retired by the owner in V18-V19, plus the V10.1 founder page)`, expected.length === 60 && retired.every((p) => expected.includes(p)) && [...current, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => current.includes(p) || addedLater.includes(p)), `expected ${current.length}, registry ${reg.length}; missing: ${current.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !current.includes(p) && !addedLater.includes(p))}`);
+check(`Registry matches the owner final structure (60 routes, ${retired.length} retired by the owner in V18-V20, plus the V10.1 founder page)`, expected.length === 60 && retired.every((p) => expected.includes(p)) && [...current, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => current.includes(p) || addedLater.includes(p)), `expected ${current.length}, registry ${reg.length}; missing: ${current.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !current.includes(p) && !addedLater.includes(p))}`);
 check('Each retired route forwards to a current route, and no retired path is still a page', retiredRoutes.every((r) => reg.includes(r.to) && !reg.includes(r.from) && !fs.existsSync(path.join('dist', r.from, 'index.html'))), retiredRoutes.map((r) => `${r.from} -> ${r.to}`));
 const redirectsFile = path.join('dist', '_redirects');
 const redirectsTxt = fs.existsSync(redirectsFile) ? fs.readFileSync(redirectsFile, 'utf8') : '';
@@ -260,7 +260,7 @@ check('Every route has one of the five publication statuses', routes.every((r) =
 check('No route is APPROVED_FOR_PUBLICATION without a documented approval', routes.filter((r) => publicationOf(r) === 'APPROVED_FOR_PUBLICATION').length === Object.keys(approvals.publication).length);
 const founderRoute = routes.find((r) => r.template === 'founder');
 check('Founder page content counts as approved only with its own approval record', founderRoute && contentApprovalOf(founderRoute) === (approvals.founderStatements ? 'APPROVED' : 'NOT_APPROVED') && designApprovalOf(founderRoute) === contentApprovalOf(founderRoute));
-check(`Owner content and design approval is recorded for all ${60 - retired.length} remaining V3.0 routes (60 approved, ${retired.length} retired in V18-V19)`, routes.filter((r) => r.template !== 'founder').length === 60 - retired.length && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
+check(`Owner content and design approval is recorded for all ${60 - retired.length} remaining V3.0 routes (60 approved, ${retired.length} retired in V18-V20)`, routes.filter((r) => r.template !== 'founder').length === 60 - retired.length && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
 {
   const { plans, approvedPrice } = await import('../src/data/pricing-plans.ts');
   const pricingHtml = fs.readFileSync(path.join('dist', 'pricing', 'index.html'), 'utf8');

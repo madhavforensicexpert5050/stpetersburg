@@ -28,6 +28,8 @@ export interface Service {
   stellar: { use: StellarListingUse; label: string; detail: string; source: string };
   faqs: { q: string; a: string }[];
   related: string[];
+  /** false: the service has no page of its own. Its content is rendered on the Services hub at `path`. */
+  page?: boolean;
 }
 
 const A404 = 'Stellar MLS Article 04.04';
@@ -35,10 +37,13 @@ const PR = 'Stellar MLS photo rules page';
 
 export const services: Service[] = [
   {
-    slug: 'virtual-staging', path: '/services/virtual-staging/', name: 'Virtual Staging', short: 'Add furniture and decor to a photo of an empty room.',
-    title: 'Virtual Staging for Real Estate Listing Photos | StageLiora',
+    // V20 (owner, 2026-11-10): /services/virtual-staging/ was retired. Virtual staging is still offered; its scope,
+    // limits, Stellar note and FAQs are rendered on the Services hub (#virtual-staging), whose title and H1 lead with it.
+    // `title` and `description` are not used for a route while page is false.
+    slug: 'virtual-staging', path: '/services/#virtual-staging', page: false, name: 'Virtual Staging', short: 'Add furniture and decor to a photo of an empty room.',
+    title: 'Virtual Staging for Real Estate Services | StageLiora',
     description: 'Add furniture and decor to photos of empty rooms so buyers can read scale and use. Scope, limits, Stellar MLS disclosure notes and quote requests.',
-    h1: 'Virtual Staging for Real Estate Listing Photos',
+    h1: 'Virtual Staging for Empty Rooms',
     intro: 'An empty room photographs as a box. Adding furniture and decor gives buyers a sense of scale and shows how the space could be used, while the walls, windows, floors and fixtures stay exactly as they are.',
     track: 'listing-editing', tier: 'proposed-launch', pairKey: 'svc-virtual-staging',
     audience: ['Listing agents with vacant homes', 'Sellers who have already moved out', 'Teams marketing several empty units'],
@@ -73,7 +78,7 @@ export const services: Service[] = [
       { q: 'Is the built-in shelving movable?', a: 'Usually not. If it is attached to the home, treat it as a permanent fixture that has to stay in the photo.' },
       { q: 'Can items just be removed, with no new furniture?', a: 'Stellar\'s permitted use describes removal paired with digital replacement. Ask your MLS before relying on removal alone for a listing photo.' },
     ],
-    related: ['virtual-staging', 'photo-enhancement', 'interior-color-changes'],
+    related: ['photo-enhancement', 'day-to-dusk', 'interior-color-changes'],
   },
   {
     slug: 'interior-color-changes', path: '/services/interior-color-changes/', name: 'Interior Color Changes', short: 'Concept images of new wall, trim or cabinet color.',
@@ -92,7 +97,7 @@ export const services: Service[] = [
       { q: 'Could I show this image to a buyer?', a: 'Only if it is plainly presented as a concept and not as the home\'s condition. Check with your broker before using it in any marketing.' },
       { q: 'What if the home is really being repainted?', a: 'Photograph it after the work is done. Stellar\'s rules do not list an exception for planned paint.' },
     ],
-    related: ['flooring-visualization', 'ceiling-visualization', 'virtual-staging'],
+    related: ['flooring-visualization', 'ceiling-visualization', 'exterior-color-visualization'],
   },
   {
     slug: 'flooring-visualization', path: '/services/flooring-visualization/', name: 'Flooring Visualization', short: 'Concept images of a different floor material.',
@@ -111,7 +116,7 @@ export const services: Service[] = [
       { q: 'Is there a rule that says flooring changes are banned?', a: 'Stellar\'s pages do not address replacing flooring by name. The true-picture requirement and the damaged-flooring example are why this is treated as a concept service. Ask Stellar compliance about your own case.' },
       { q: 'Can this cover up a worn floor?', a: 'Not in a listing. Removing damaged flooring from a listing photo is one of Stellar\'s own examples of what is prohibited.' },
     ],
-    related: ['interior-color-changes', 'ceiling-visualization', 'virtual-staging'],
+    related: ['interior-color-changes', 'ceiling-visualization', 'exterior-color-visualization'],
   },
   {
     slug: 'ceiling-visualization', path: '/services/ceiling-visualization/', name: 'Ceiling Visualization', short: 'Concept images of ceiling finishes or beams.',
@@ -187,7 +192,7 @@ export const services: Service[] = [
       { q: 'Does my home have to face west?', a: 'The sky should reflect where the sun really rises and sets for that home. Tell us the direction it faces, and do not use a sunset that could not happen there.' },
       { q: 'Can you add a Gulf sunset behind the home?', a: 'No. Stellar prohibits adding a Gulf or ocean view that is not physically possible from the location.' },
     ],
-    related: ['photo-enhancement', 'virtual-staging', 'exterior-color-visualization'],
+    related: ['photo-enhancement', 'furniture-removal-and-staging', 'exterior-color-visualization'],
   },
   {
     slug: 'photo-enhancement', path: '/services/photo-enhancement/', name: 'Photo Enhancement', short: 'Correct exposure, color and straight lines.',
@@ -206,7 +211,7 @@ export const services: Service[] = [
       { q: 'Will you replace a gray sky?', a: 'Not under this service. Sky changes alter how the property is represented, so they are kept out of basic enhancement.' },
       { q: 'Can you fix a very blurry photo?', a: 'Often not well. Reshooting usually gets a better result than trying to rescue a blurry file.' },
     ],
-    related: ['virtual-staging', 'day-to-dusk', 'furniture-removal-and-staging'],
+    related: ['day-to-dusk', 'furniture-removal-and-staging', 'interior-color-changes'],
   },
 ];
 
@@ -218,3 +223,7 @@ export const getService = (slug: string) => {
 export const isServiceApproved = (slug: string) => Boolean(approvals.services[slug]);
 export const availabilityLabel = (slug: string) => (isServiceApproved(slug) ? 'Available' : 'Bookings not yet open');
 export const trackLabel: Record<Track, string> = { 'listing-editing': 'Listing photo edit', 'concept-visualization': 'Concept visualization' };
+/** Services that have a page of their own (routes, header menu, footer, tiles). */
+export const pagedServices = services.filter((s) => s.page !== false);
+/** Services whose content lives on the Services hub instead of a page (V20: virtual staging). */
+export const hubServices = services.filter((s) => s.page === false);

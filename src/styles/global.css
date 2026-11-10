@@ -329,6 +329,7 @@ th { color: var(--ink); font-weight: 600; background: var(--wall); }
 .mls { display: grid; gap: 10px; padding: clamp(20px, 2.4vw, 30px); border: 2px solid var(--ink); background: #fff; }
 .mls h3, .mls .h3-size { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .h3-size { font-size: clamp(1.2rem, 1.8vw, 1.5rem); line-height: 1.14; letter-spacing: -0.012em; }
+.h2-sub { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
 .mls p { margin: 0; }
 
 /* Forms */

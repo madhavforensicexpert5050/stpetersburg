@@ -128,7 +128,7 @@ await sl.locator('[data-compare-toggle]').click();
 check('Slider: no per-image "AI-created example" caption; accessible name still describes it', !/AI-created example/.test(await sl.locator('figcaption').innerText()) && /AI-created|before and after/i.test(await sl.locator('input[type=range]').getAttribute('aria-label')));
 const touchCtx = await browser.newContext({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true });
 const tp = await touchCtx.newPage();
-await tp.goto(origin + '/services/virtual-staging/');
+await tp.goto(origin + '/services/furniture-removal-and-staging/');
 await tp.locator('.compare input').first().scrollIntoViewIfNeeded();
 await tp.evaluate(() => { const c = document.querySelector('.compare'); window.scrollTo(0, window.scrollY + c.getBoundingClientRect().top - 120); });
 const tb = await tp.locator('.compare input').first().boundingBox();
@@ -199,9 +199,9 @@ check('Mobile nav: Escape closes it', !(await page.locator('#site-nav').isVisibl
 await page.setViewportSize({ width: 1280, height: 900 });
 await page.goto(origin + '/');
 await page.locator('.nav summary').first().click();
-check('Desktop nav: dropdown opens', await page.locator('.mega a[href="/services/virtual-staging/"]').isVisible());
+check('Desktop nav: dropdown opens', await page.locator('.mega a[href="/services/furniture-removal-and-staging/"]').isVisible());
 await page.keyboard.press('Escape');
-check('Desktop nav: Escape closes the dropdown', !(await page.locator('.mega a[href="/services/virtual-staging/"]').isVisible()));
+check('Desktop nav: Escape closes the dropdown', !(await page.locator('.mega a[href="/services/furniture-removal-and-staging/"]').isVisible()));
 
 // --- Keyboard ---
 await page.goto(origin + '/about/');
@@ -223,7 +223,7 @@ await rm.close();
 // --- No JavaScript ---
 const nj = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1280, height: 900 } });
 const np = await nj.newPage();
-await np.goto(origin + '/services/virtual-staging/');
+await np.goto(origin + '/services/furniture-removal-and-staging/');
 check('No JavaScript: comparison falls back to side by side', (await np.locator('.compare').first().evaluate((el) => getComputedStyle(el).display)) === 'grid');
 await np.goto(origin + '/portfolio/');
 check('No JavaScript: library still lists all images', (await np.locator('[data-item]').count()) > 40 && (await np.locator('[data-empty]').isHidden()));

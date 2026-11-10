@@ -74,4 +74,11 @@ export const retiredRoutes: RetiredRoute[] = [
     label: 'Virtual staging portfolio: before and after, room designs and styles',
     reason: 'V19: owner folded Design Styles, the style pages and the Design Library into the Portfolio (filterable room designs, coverage table, FAQs).',
   },
+  {
+    from: '/services/virtual-staging/',
+    to: '/services/',
+    retired: '2026-11-10',
+    label: 'Virtual Staging for Real Estate Services',
+    reason: 'V20: owner deleted the Virtual Staging service page. The service is still offered; its scope, limits, Stellar MLS note and FAQs moved to the Services hub (#virtual-staging), which now leads with virtual staging.',
+  },
 ];

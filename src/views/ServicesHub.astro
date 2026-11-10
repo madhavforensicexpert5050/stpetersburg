@@ -2,43 +2,97 @@
 import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import ServiceTiles from '../components/ServiceTiles.astro';
+import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
-import { services, trackLabel, availabilityLabel } from '../data/services.ts';
+import { services, pagedServices, hubServices, trackLabel, availabilityLabel } from '../data/services.ts';
 import { isLive, isPreview, isInternalReview } from '../data/routes.ts';
-const shown = services.filter((s) => isPreview || isLive(s.path));
+// V20: virtual staging has no page of its own. Its full scope is rendered here (#virtual-staging), so the hub
+// title and H1 lead with it. The other services keep their own pages and appear as tiles.
+const vs = hubServices.find((s) => s.slug === 'virtual-staging')!;
+const shown = pagedServices.filter((s) => isPreview || isLive(s.path));
 const listing = shown.filter((s) => s.track === 'listing-editing');
 const concept = shown.filter((s) => s.track === 'concept-visualization');
-const h1 = isPreview ? 'Nine image services, sorted by what they are for' : 'Image services, sorted by what they are for';
+const tableRows = services.filter((s) => s.page === false || isPreview || isLive(s.path));
+const useClass = vs.stellar.use === 'conditional' ? 'pill--warn' : 'pill--ok';
 ---
-<PageHero path="/services/" eyebrow="Services" h1={h1} lede={concept.length ? 'Some edits are meant for listing photos. Others are for planning a change. Each service below says which it is, and what Stellar MLS says about it.' : 'Each service below explains what it changes, what it leaves alone, and what Stellar MLS says about it.'} />
+<PageHero path="/services/" eyebrow="Services" h1="Virtual Staging for Real Estate Services" lede="Virtual staging furnishes photos of empty rooms so buyers can judge their size and use. Alongside it are listing photo edits for showing a property as it is, and concept visualizations for planning a change. Each service says what Stellar MLS allows." pair={vs.pairKey}>
+  <div class="btn-row" style="margin-top:22px">
+    <a class="btn btn--primary" href="#virtual-staging">About virtual staging</a>
+    {isLive('/how-it-works/') && <a class="btn" href={url('/how-it-works/')}>How It Works</a>}
+  </div>
+</PageHero>
+
+<section class="section section--tight" id="virtual-staging">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">{trackLabel[vs.track]}</p><h2>{vs.h1}</h2><p class="lede">{vs.intro}</p></div>
+    {isInternalReview && <p style="margin:0 0 18px"><span class="pill pill--warn">{availabilityLabel(vs.slug)}</span></p>}
+    <div class="mls">
+      <h3 class="h3-size">Stellar MLS listing use <span class:list={['pill', useClass]}>{vs.stellar.label}</span></h3>
+      <p>{vs.stellar.detail}</p>
+      <p class="small muted">Source: {vs.stellar.source}, read November 5, 2026. Other MLSs differ. This is not legal advice, and it is not a promise that an image will be accepted.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="wrap grid grid--2">
+    <div class="card card--flat"><h3 style="font-size:1.6rem">What virtual staging includes</h3><ul class="tick">{vs.includes.map((x) => <li>{x}</li>)}</ul></div>
+    <div class="card card--flat"><h3 style="font-size:1.6rem">What it does not change</h3><ul class="cross">{vs.excludes.map((x) => <li>{x}</li>)}</ul></div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div>
+      <p class="eyebrow">Fit</p><h3 class="h2-sub">Who virtual staging suits</h3>
+      <ul class="tick" style="margin-top:18px">{vs.audience.map((x) => <li>{x}</li>)}</ul>
+      <h4 style="margin-top:28px">Photos that work best</h4>
+      <ul style="margin-top:10px">{vs.goodPhotos.map((x) => <li>{x}</li>)}</ul>
+    </div>
+    <div>
+      <p class="eyebrow">Workflow</p><h3 class="h2-sub">How a virtual staging order runs</h3>
+      <ol class="steps" style="margin-top:18px">
+        {vs.steps.map((x, i) => <li><span class="n" aria-hidden="true">{i + 1}</span><div><p>{x}</p></div></li>)}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Questions</p><h3 class="h2-sub">Virtual staging questions</h3></div>
+    <Faq items={vs.faqs} />
+  </div>
+</section>
+
 {listing.length > 0 && (
-  <section class="section">
+  <section class="section section--wall">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Listing photo edits</p><h2>For showing the property as it is</h2></div>
+      <div class="section-head"><p class="eyebrow">Listing photo edits</p><h2>Listing Photo Editing for Real Estate</h2><p class="lede">Edits for showing the property as it is: clearing an occupied room, a twilight exterior, or corrected light and color.</p></div>
       <ServiceTiles only={listing.map((s) => s.slug)} />
     </div>
   </section>
 )}
 {concept.length > 0 && (
-  <section class="section section--wall">
+  <section class="section">
     <div class="wrap">
-      <div class="section-head"><p class="eyebrow">Concept visualizations</p><h2>For planning what could change</h2><p class="lede">These images show ideas. They should not be presented as the property's current condition, and in Stellar MLS they are not listing photos.</p></div>
+      <div class="section-head"><p class="eyebrow">Concept visualizations</p><h2>Concept Visualization for Renovation Planning</h2><p class="lede">These images show ideas. They should not be presented as the property's current condition, and in Stellar MLS they are not listing photos.</p></div>
       <ServiceTiles only={concept.map((s) => s.slug)} />
     </div>
   </section>
 )}
-<section class="section">
+<section class="section section--wall">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">At a glance</p><h2>Services and Stellar MLS listing use</h2></div>
-    <div class="table-wrap" tabindex="0" role="region" aria-label="Services and Stellar MLS listing use">
+    <div class="section-head"><p class="eyebrow">At a glance</p><h2>Stellar MLS Listing Use by Service</h2></div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Stellar MLS listing use by service">
       <table>
         <caption>Summary of Stellar MLS Article 04.04 and photo rules, read November 5, 2026. Not legal advice.</caption>
         <thead><tr><th scope="col">Service</th><th scope="col">Type</th><th scope="col">Stellar listing use</th>{isInternalReview && <th scope="col">Status</th>}</tr></thead>
         <tbody>
-          {shown.map((s) => <tr><td>{isLive(s.path) ? <a href={url(s.path)}>{s.name}</a> : s.name}</td><td>{trackLabel[s.track]}</td><td>{s.stellar.label}</td>{isInternalReview && <td>{availabilityLabel(s.slug)}</td>}</tr>)}
+          {tableRows.map((s) => <tr><td>{s.page === false ? <a href={`#${s.slug}`}>{s.name}</a> : isLive(s.path) ? <a href={url(s.path)}>{s.name}</a> : s.name}</td><td>{trackLabel[s.track]}</td><td>{s.stellar.label}</td>{isInternalReview && <td>{availabilityLabel(s.slug)}</td>}</tr>)}
         </tbody>
       </table>
     </div>
   </div>
 </section>
-<Cta />
+<Cta h="Ask about virtual staging" />

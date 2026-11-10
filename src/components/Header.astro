@@ -9,11 +9,10 @@ const listing = services.filter((s) => s.track === 'listing-editing' && isLive(s
 const concept = services.filter((s) => s.track === 'concept-visualization' && isLive(s.path));
 const showServices = listing.length + concept.length > 0 || isLive('/services/');
 const onServices = path === '/services/' || services.some((s) => s.path === path);
-// Order: Home | Services (menu, inserted after Home) | Real Estate | How It Works | Portfolio | Pricing
+// Order: Home | Services (menu, inserted after Home) | How It Works | Portfolio | Pricing
+// Real Estate was removed by the owner (V18.1). The agent guide stays reachable from the footer and from page links.
 const home = { href: '/', label: 'Home' };
 const rest = [
-  // Real Estate opens the agent guide: the agents landing page was retired in V18 (src/data/retired-routes.ts).
-  { href: '/guides/virtual-staging-for-real-estate-agents/', label: 'Real Estate' },
   { href: '/how-it-works/', label: 'How It Works' },
   { href: '/portfolio/', label: 'Portfolio' },
   { href: '/pricing/', label: 'Pricing' },

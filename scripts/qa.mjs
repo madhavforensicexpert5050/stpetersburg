@@ -206,11 +206,11 @@ check('The FAQ page repeats no question from the agent FAQ guide', !generalQs.so
 const homeHtml = pages.find((x) => x.r.path === '/').html;
 const navHtml = (homeHtml.match(/<nav class="nav"[\s\S]*?<\/nav>/) || [''])[0];
 const topItems = [...navHtml.replace(/<div class="mega">[\s\S]*?<\/details>/g, '</details>').matchAll(/<(?:a|summary)\b[^>]*>([\s\S]*?)<\/(?:a|summary)>/g)].map((m) => visible(m[1]).trim());
-check('Header nav reads Home | Services | Real Estate | How It Works | Portfolio | Pricing', topItems.join('|') === 'Home|Services|Real Estate|How It Works|Portfolio|Pricing', topItems.join('|'));
+check('Header nav reads Home | Services | How It Works | Portfolio | Pricing', topItems.join('|') === 'Home|Services|How It Works|Portfolio|Pricing', topItems.join('|'));
 check('Header phone button shows the verified number and dials tel:+918890929329', /<a class="head-call" href="tel:\+918890929329"[^>]*>[\s\S]*?<svg[\s\S]*?\+91 88909 29329/.test(homeHtml));
 // V18: the agents landing page was retired, so Real Estate opens the agent guide that absorbed its content.
 const AGENT_GUIDE = '/guides/virtual-staging-for-real-estate-agents/';
-check('Header Real Estate links to the agent guide and marks it current there', new RegExp(`href="${AGENT_GUIDE}"[^>]*>Real Estate<`).test(navHtml) && new RegExp(`<nav class="nav"[\\s\\S]*?href="${AGENT_GUIDE}" aria-current="page">Real Estate`).test(pages.find((x) => x.r.path === AGENT_GUIDE).html));
+check('Header has no Real Estate item (owner V18.1), and the agent guide is still linked from the footer', !topItems.includes('Real Estate') && !navHtml.includes(`href="${AGENT_GUIDE}"`) && (homeHtml.split('<footer')[1] || '').includes(`href="${AGENT_GUIDE}">Real Estate Agents<`));
 check('No page links to a retired route', !pages.some(({ html }) => retired.some((p) => html.includes(`href="${p}"`))), pages.filter(({ html }) => retired.some((p) => html.includes(`href="${p}"`))).map(({ r }) => r.path));
 const footWho = ((homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0].match(/<h2>Who We Serve<\/h2>\s*<ul>([\s\S]*?)<\/ul>/) || ['', ''])[1];
 check('Footer Who We Serve keeps Photographers and Brokerages, and Real Estate Agents opens the agent guide', footWho.includes(`href="${AGENT_GUIDE}">Real Estate Agents<`) && footWho.includes('href="/for-real-estate-photographers/">Photographers<') && footWho.includes('href="/for-brokerages/">Brokerages<'), footWho);

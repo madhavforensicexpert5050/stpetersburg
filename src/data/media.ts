@@ -172,5 +172,8 @@ export interface BrandMediaItem { id: string; src: string; width: number; height
 const portraitApproved = Boolean(brandApprovals.founderPortrait?.by && brandApprovals.founderPortrait?.date && brandApprovals.founderPortrait?.reference);
 export const brandMedia: BrandMediaItem[] = [
   { id: 'founder-portrait', src: founderData.portrait.src, width: founderData.portrait.width, height: founderData.portrait.height, alt: founderData.portrait.alt, rights: 'owner-licensed', ownerApproved: portraitApproved, source: 'Owner-supplied photograph of Devender Garg (approvals.founderPortrait)', responsive: founderData.portrait.srcset.map(([src, width]) => ({ src, width })) },
+  // Owner-approved horizontal logo (V16.0). Untouched source: src/assets/brand/stageliora-primary-horizontal.png (2172×724).
+  // Served files are the same artwork with only the empty margin trimmed (box 52,83 2084×562), resized, never redrawn or recolored.
+  { id: 'brand-logo', src: '/media/brand/stageliora-logo-480w.webp', width: 2084, height: 562, alt: 'StageLiora', rights: 'owner-licensed', ownerApproved: Boolean(brandApprovals.brandLogo?.by && brandApprovals.brandLogo?.date && brandApprovals.brandLogo?.reference), source: 'Owner-uploaded approved STAGELIORA horizontal logo (approvals.brandLogo)', responsive: [320, 480, 640, 960].map((w) => ({ src: `/media/brand/stageliora-logo-${w}w.webp`, width: w })) },
   { id: 'founder-headshot', src: founderData.portrait.headshot, width: 400, height: 400, alt: founderData.portrait.altHeadshot, rights: 'owner-licensed', ownerApproved: portraitApproved, source: 'Square crop of the owner-supplied photograph', responsive: [{ src: founderData.portrait.headshotSmall, width: 200 }, { src: founderData.portrait.headshot, width: 400 }] },
 ];

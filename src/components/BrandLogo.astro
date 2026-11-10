@@ -1,0 +1,33 @@
+---
+/**
+ * The one brand logo on the site, used by the header and footer.
+ * Shows the owner-approved horizontal artwork (brandMedia 'brand-logo') once approvals.brandLogo is recorded;
+ * otherwise the original text wordmark. The artwork is never recolored, cropped into or redrawn here.
+ */
+import { url } from '../lib/url.ts';
+import { isLive } from '../data/routes.ts';
+import { brandMedia } from '../data/media.ts';
+interface Props { variant?: 'header' | 'footer'; class?: string }
+const { variant = 'header', class: className } = Astro.props;
+const logo = brandMedia.find((m) => m.id === 'brand-logo');
+const approved = Boolean(logo?.ownerApproved);
+const href = url(isLive('/') ? '/' : '#main');
+// Rendered CSS widths per breakpoint (see .brand-logo in global.css). The browser picks the file from srcset.
+const sizes = variant === 'header' ? '(max-width: 430px) 136px, (max-width: 480px) 148px, (max-width: 1120px) 172px, 200px' : '(max-width: 480px) 220px, 248px';
+---
+{approved && logo ? (
+  <a class:list={['brand-logo', `brand-logo--${variant}`, className]} href={href} aria-label="StageLiora — Home">
+    <img
+      src={url(logo.src)}
+      srcset={logo.responsive!.map((v) => `${url(v.src)} ${v.width}w`).join(', ')}
+      sizes={sizes}
+      width={logo.width}
+      height={logo.height}
+      alt=""
+      loading={variant === 'header' ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  </a>
+) : (
+  <a class:list={['logo', className]} href={href} aria-label="StageLiora — Home">Stage<i aria-hidden="true"></i>Liora</a>
+)}

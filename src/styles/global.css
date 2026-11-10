@@ -111,7 +111,20 @@ li { margin-bottom: .4em; }
 .mega a[aria-current='page'] { background: var(--wall); }
 @media (max-width: 480px) { .head-call { padding: 10px 12px; font-size: .9rem; gap: 7px; } }
 /* Very narrow phones: icon only; the number stays in the accessible name. */
-@media (max-width: 400px) { .head-call { padding: 0; width: 46px; justify-content: center; } .head-call__num { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+@media (max-width: 430px) { .head-call { padding: 0; width: 46px; justify-content: center; } .head-call__num { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+/* Approved horizontal logo (BrandLogo.astro). Sized by width; height follows the artwork's own 2084:562 ratio. */
+.brand-logo { display: inline-flex; align-items: center; flex: none; line-height: 0; border-radius: 6px; }
+.brand-logo img { display: block; width: 100%; height: auto; object-fit: contain; }
+.brand-logo--header { width: 200px; min-height: 44px; }
+/* Rendering only: blends the artwork's near-white ground (RGB 252-255) into the header; artwork colors on white are unchanged. */
+.brand-logo--header img { mix-blend-mode: multiply; }
+.brand-logo:focus-visible { outline-offset: 4px; }
+@media (max-width: 1120px) { .brand-logo--header { width: 172px; } }
+@media (max-width: 480px) { .brand-logo--header { width: 148px; } }
+@media (max-width: 430px) { .brand-logo--header { width: 136px; } }
+/* Footer: the artwork has a white ground and navy lettering, so it sits on a deliberate white plate rather than on navy. */
+.brand-logo--footer { width: 248px; box-sizing: content-box; padding: 12px 16px; background: #fff; border: 1px solid rgba(201,154,46,.45); border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.18); margin-bottom: 6px; }
+@media (max-width: 480px) { .brand-logo--footer { width: 220px; } }
 .menu-btn { display: none; }
 @media (max-width: 1120px) {
   .menu-btn { display: inline-flex; min-height: 44px; min-width: 44px; padding: 8px 12px; border: 2px solid var(--ink); background: #fff; font: 600 .95rem var(--text); color: var(--ink); border-radius: var(--radius); align-items: center; }

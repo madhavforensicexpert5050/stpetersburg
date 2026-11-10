@@ -3,6 +3,7 @@ import { url } from '../lib/url.ts';
 import { services } from '../data/services.ts';
 import { business } from '../data/business.ts';
 import { isLive } from '../data/routes.ts';
+import BrandLogo from './BrandLogo.astro';
 const { path } = Astro.props as { path: string };
 const listing = services.filter((s) => s.track === 'listing-editing' && isLive(s.path));
 const concept = services.filter((s) => s.track === 'concept-visualization' && isLive(s.path));
@@ -19,7 +20,7 @@ const rest = [
 ---
 <header class="site-header">
   <div class="wrap head-in">
-    <a class="logo" href={url(isLive('/') ? '/' : '#main')} aria-label="StageLiora home">Stage<i aria-hidden="true"></i>Liora</a>
+    <BrandLogo variant="header" />
     <nav class="nav" id="site-nav" aria-label="Main">
       {isLive(home.href) && <a href={url(home.href)} aria-current={path === home.href ? 'page' : undefined}>{home.label}</a>}
       {showServices && (

@@ -185,6 +185,14 @@ const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact
 const footBad = Object.entries(wantFoot).flatMap(([h, ls]) => { const got = footGroup(h); return [...ls.filter((l) => !got.includes(l)).map((l) => `${h} lacks ${l}`), ...(new Set(got).size !== got.length ? [`${h} has a duplicate`] : [])]; });
 check('Footer groups hold the required links with no duplicates within a group', !footBad.length, footBad);
 
+// Approved logo (V16.0): one shared component, owner-approved artwork, linked home, intrinsic size, header not lazy.
+const logoRe = (variant) => new RegExp(`<a class="brand-logo brand-logo--${variant}" href="/" aria-label="StageLiora — Home">\\s*<img src="/media/brand/stageliora-logo-\\d+w\\.webp" srcset="[^"]+" sizes="[^"]+" width="2084" height="562" alt="" loading="${variant === 'header' ? 'eager' : 'lazy'}"`);
+const logoMiss = pages.filter(({ html }) => !logoRe('header').test(html) || !logoRe('footer').test(html)).map(({ r }) => r.path);
+check('Every page shows the approved logo in the header and footer, linked home', !logoMiss.length, logoMiss.slice(0, 10));
+check('No page still renders the old text wordmark', !pages.some(({ html }) => /class="logo"[^>]*>Stage<i/.test(html)));
+const { approvals: liveApprovals } = await import('../src/data/approvals.ts');
+check('Logo artwork is backed by an owner approval and an untouched source file', Boolean(liveApprovals.brandLogo?.reference) && fs.existsSync('src/assets/brand/stageliora-primary-horizontal.png') && [320, 480, 640, 960].every((w) => fs.existsSync(`public/media/brand/stageliora-logo-${w}w.webp`)));
+
 check('Brand images are owner-licensed, owner-approved and present on disk', brandMedia.length > 0 && brandMedia.every((m) => m.rights === 'owner-licensed' && m.ownerApproved && m.alt && fs.existsSync(path.join('public', m.src)) && (m.responsive || []).every((v) => fs.existsSync(path.join('public', v.src)))));
 
 // Secrets and third parties

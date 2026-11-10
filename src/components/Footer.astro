@@ -5,6 +5,7 @@ import { services } from '../data/services.ts';
 import { legalDocs } from '../data/legal.ts';
 import { isLive } from '../data/routes.ts';
 import { anyIllustrations } from '../data/media.ts';
+import BrandLogo from './BrandLogo.astro';
 const year = new Date().getFullYear();
 // Only published pages: legal links appear automatically once a policy is approved and built.
 const bottomLinks = [
@@ -26,7 +27,7 @@ const groups = [
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <a class="logo" href={url(isLive('/') ? '/' : '#main')} aria-label="StageLiora home">Stage<i aria-hidden="true"></i>Liora</a>
+        <BrandLogo variant="footer" />
         <p>Virtual staging and real estate photo editing, written for the St. Petersburg, Florida market. We work remotely and have no public office in Florida.</p>
         <p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
       </div>

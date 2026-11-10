@@ -1,8 +1,16 @@
 ---
+import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
+import Compare from '../components/Compare.astro';
 import Cta from '../components/Cta.astro';
 import Notice from '../components/Notice.astro';
-import { process } from '../data/content.ts';
+import { process, imageChecks } from '../data/content.ts';
+import { exampleCurrent } from '../data/image-notes.ts';
+import { media } from '../data/media.ts';
+import { isLive } from '../data/routes.ts';
+// The example text describes these two files only. If either is replaced, it is hidden (and npm run qa fails).
+const PAIR = 'showcase-bedroom';
+const showExample = exampleCurrent([`${PAIR}-before`, `${PAIR}-after`], media);
 ---
 <PageHero path="/how-it-works/" eyebrow="How it works" h1="Five steps, and one rule that never moves" lede="Add what moves. Leave what stays. Everything in the process exists to protect that line." pair="svc-virtual-staging" />
 <section class="section on-ink">
@@ -25,11 +33,34 @@ import { process } from '../data/content.ts';
       <h2>What you need to do</h2>
       <ul class="tick">
         <li>Keep the original of every edited photo</li>
-        <li>Tell us which MLS you will use</li>
-        <li>Complete your MLS disclosure yourself</li>
+        <li>Tell us which MLS you will use, and check your brokerage's policy on edited photos</li>
+        <li>Complete your MLS disclosure yourself, and carry it to your website, flyers and social posts</li>
         <li>Tell buyers and showing agents the rooms are staged in the images</li>
       </ul>
     </div>
+  </div>
+</section>
+<section class="section section--wall" id="check-images" aria-labelledby="check-h">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">Your review</p><h2 id="check-h">{imageChecks.h}</h2></div>
+      <p class="lede">{imageChecks.intro}</p>
+    </div>
+    <div class="grid grid--4 how-checks">
+      {imageChecks.checks.map((c) => <div class="how-check"><h3>{c.h}</h3><p>{c.b}</p></div>)}
+    </div>
+    <p class="how-stop"><strong>If something permanent changed:</strong> {imageChecks.stop}</p>
+    {isLive('/guides/virtual-staging-disclosure-florida/') && <p style="margin:18px 0 0"><a class="textlink" href={url('/guides/virtual-staging-disclosure-florida/')}>Read the Florida disclosure guide</a></p>}
+    {showExample && (
+      <div class="two-col how-example">
+        <Compare pair={PAIR} />
+        <div>
+          <h3>{imageChecks.example.h}</h3>
+          <p>{imageChecks.example.intro}</p>
+          <dl>{imageChecks.example.rows.map((r) => <div><dt>{r.h}</dt><dd>{r.b}</dd></div>)}</dl>
+        </div>
+      </div>
+    )}
   </div>
 </section>
 <section class="section section--tight">
@@ -38,3 +69,16 @@ import { process } from '../data/content.ts';
   </div>
 </section>
 <Cta />
+
+<style>
+  .how-checks { grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); }
+  .how-check { background: #fff; border-radius: 6px; padding: 20px; border-top: 3px solid var(--bay); min-width: 0; }
+  .how-check h3 { font-size: 1.1rem; margin: 0 0 6px; }
+  .how-check p { margin: 0; }
+  .how-stop { margin: 22px 0 0; padding: 14px 18px; border-left: 3px solid var(--err); background: #fffaf5; max-width: 72ch; }
+  .how-example { margin-top: clamp(32px, 4vw, 52px); align-items: start; }
+  .how-example h3 { margin: 0 0 6px; }
+  .how-example dl { margin: 14px 0 0; display: grid; gap: 14px; }
+  .how-example dt { font-weight: 650; color: var(--ink); margin-bottom: 2px; }
+  .how-example dd { margin: 0; }
+</style>

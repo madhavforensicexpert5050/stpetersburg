@@ -22,6 +22,8 @@ const line = (s = '') => console.log(s);
 
 // Imported after the environment is set, because the registry reads it at load time.
 const { routes, publicPreviewExclusion } = await import('../src/data/routes.ts');
+const { retiredRoutes } = await import('../src/data/retired-routes.ts');
+const retiredFrom = new Set(retiredRoutes.map((r) => r.from));
 const expected = routes.filter((r) => !publicPreviewExclusion(r)).map((r) => r.path);
 const excluded = routes.filter((r) => publicPreviewExclusion(r));
 
@@ -39,7 +41,7 @@ const htmlFiles = [];
 const rel = (f) => path.relative(OUT, f).replace(/\\/g, '/');
 const builtPaths = htmlFiles.filter((f) => !f.endsWith('404.html')).map((f) => `/${path.relative(OUT, path.dirname(f)).replace(/\\/g, '/')}/`.replace('//', '/'));
 for (const p of expected) if (!builtPaths.includes(p)) fail.push(`Eligible route was not built: ${p}`);
-for (const p of builtPaths) if (!expected.includes(p)) fail.push(`Excluded or unknown route was built: ${p}`);
+for (const p of builtPaths) if (!expected.includes(p) && !retiredFrom.has(p)) fail.push(`Excluded or unknown route was built: ${p}`);
 if (!fs.existsSync(path.join(OUT, '404.html'))) fail.push('404.html is missing');
 
 /** Maps a URL path on the live site to a file in the artifact, or null if it would 404. */
@@ -51,6 +53,19 @@ const resolveLocal = (u) => {
   if (fs.existsSync(path.join(t, 'index.html'))) return path.join(t, 'index.html');
   return null;
 };
+
+// Retired routes: a noindex moved page whose refresh, visible link and canonical all point at a page in this artifact.
+for (const r of retiredRoutes) {
+  if (expected.includes(r.from)) { fail.push(`Retired route is still in the registry: ${r.from}`); continue; }
+  const f = path.join(OUT, r.from, 'index.html');
+  if (!fs.existsSync(f)) { fail.push(`Retired route has no moved page: ${r.from}`); continue; }
+  const h = fs.readFileSync(f, 'utf8');
+  const dest = expected.includes(r.to) ? r.to : '/';
+  if (!h.includes(`<meta http-equiv="refresh" content="0; url=${BASE}${dest}">`)) fail.push(`${r.from} moved page does not refresh to ${BASE}${dest}`);
+  if (!h.includes(`<link rel="canonical" href="${ORIGIN}${BASE}${dest}">`)) fail.push(`${r.from} moved page canonical is not ${ORIGIN}${BASE}${dest}`);
+  if (!h.includes(`<a href="${BASE}${dest}">`)) fail.push(`${r.from} moved page has no visible link to ${BASE}${dest}`);
+  if (!resolveLocal(`${BASE}${dest}`)) fail.push(`${r.from} moved page points at a page that is not in the artifact`);
+}
 
 const forbidden = [
   [/Local preview/, 'internal-preview ribbon'], [/Internal [Dd]raft/, 'private-screen draft label'], [/\bDEC-\d{3}\b/, 'internal decision ID'],
@@ -89,6 +104,7 @@ for (const f of htmlFiles) {
   for (const m of html.matchAll(/srcset="([^"]*)"/g)) for (const part of m[1].split(',')) { const u = part.trim().split(/\s+/)[0]; if (u.startsWith('/') && !resolveLocal(u)) fail.push(`${name} has a broken srcset entry: ${u}`); }
   if (!f.endsWith('404.html')) {
     const p = `/${path.relative(OUT, path.dirname(f)).replace(/\\/g, '/')}/`.replace('//', '/');
+    if (retiredFrom.has(p)) continue; // checked above: its canonical names the destination, not itself
     const want = `${ORIGIN}${BASE}${p}`;
     if (!html.includes(`<link rel="canonical" href="${want}"`)) fail.push(`${name} canonical is not ${want}`);
   }
@@ -135,4 +151,4 @@ if (fail.length) {
 }
 // Actions deploys the artifact without Jekyll, but this keeps _astro/ safe if the folder is ever served by a branch build.
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
-line(`\nGitHub Pages preview valid: ${builtPaths.length} routes plus 404.html in ${OUT}/, served at ${ORIGIN}${BASE}/ (noindex).`);
+line(`\nGitHub Pages preview valid: ${expected.length} routes, ${retiredFrom.size} moved page(s) for retired routes, plus 404.html in ${OUT}/, served at ${ORIGIN}${BASE}/ (noindex).`);

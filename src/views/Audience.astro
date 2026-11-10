@@ -1,28 +1,24 @@
 ---
 import PageHero from '../components/PageHero.astro';
 import Cta from '../components/Cta.astro';
-import Agents from './Agents.astro';
 import { audiences } from '../data/content.ts';
 import { routes } from '../data/routes.ts';
-// The agents page has its own decision-guide layout (Agents.astro); photographers and brokerages share this one.
-const { slug } = Astro.props as { slug: keyof typeof audiences | 'agents' };
-const a = slug === 'agents' ? null : audiences[slug];
+// Photographers and brokerages share this layout. The agents landing page was retired in V18; its content
+// now lives in the agent guide, How It Works, Pricing, the FAQ and the furniture removal service.
+const { slug } = Astro.props as { slug: keyof typeof audiences };
+const a = audiences[slug];
 const path = routes.find((r) => r.template === 'audience' && r.ref === slug)!.path;
 ---
-{a ? (
-  <>
-    <PageHero path={path} eyebrow={a.eyebrow} h1={a.h1} lede={a.intro} pair={a.pairKey} />
-    <section class="section">
-      <div class="wrap">
-        <div class="grid grid--3">{a.needs.map((n) => <div class="card card--flat"><h2 style="font-size:1.4rem">{n.h}</h2><p>{n.b}</p></div>)}</div>
-      </div>
-    </section>
-    <section class="section section--wall">
-      <div class="wrap two-col">
-        <div><p class="eyebrow">Checklist</p><h2>Before an edited photo goes out</h2></div>
-        <ul class="tick">{a.checklist.map((x) => <li>{x}</li>)}</ul>
-      </div>
-    </section>
-    <Cta />
-  </>
-) : <Agents />}
+<PageHero path={path} eyebrow={a.eyebrow} h1={a.h1} lede={a.intro} pair={a.pairKey} />
+<section class="section">
+  <div class="wrap">
+    <div class="grid grid--3">{a.needs.map((n) => <div class="card card--flat"><h2 style="font-size:1.4rem">{n.h}</h2><p>{n.b}</p></div>)}</div>
+  </div>
+</section>
+<section class="section section--wall">
+  <div class="wrap two-col">
+    <div><p class="eyebrow">Checklist</p><h2>Before an edited photo goes out</h2></div>
+    <ul class="tick">{a.checklist.map((x) => <li>{x}</li>)}</ul>
+  </div>
+</section>
+<Cta />

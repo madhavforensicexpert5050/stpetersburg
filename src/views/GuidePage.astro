@@ -9,10 +9,11 @@ import { isLive } from '../data/routes.ts';
 import { business } from '../data/business.ts';
 const { slug } = Astro.props as { slug: string };
 const g = getGuide(slug);
+const checked = new Date(`${g.updated}T00:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' });
 const others = guides.filter((x) => x.slug !== slug && isLive(x.path)).slice(0, 4);
 ---
 <PageHero path={g.path} eyebrow="Guide" h1={g.h1} lede={g.summary} pair={g.heroPair}>
-  <p class="small muted" style="margin:14px 0 0">{g.reading} read. Sources checked November 5, 2026.</p>
+  <p class="small muted" style="margin:14px 0 0">{g.reading} read. Sources checked {checked}.</p>
 </PageHero>
 <section class="section">
   <div class="wrap doc-side">

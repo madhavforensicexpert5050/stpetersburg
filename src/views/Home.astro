@@ -30,7 +30,10 @@ const faqs = [
   faq('Will an edited photo be compliant with my MLS?'),
   faq('Can the words "virtually staged" go on the image itself?'),
   faq('How is the price of a project set?'),
+  faq('Will virtual staging guarantee a faster sale?'),
 ];
+// NAR news release where the room-importance figures are published (checked 2026-11-10).
+const NAR_STAGING = 'https://www.nar.realtor/newsroom/nar-report-reveals-home-staging-boosts-sale-prices-and-reduces-time-on-market';
 
 // Room-by-room showcase: one tab per room, each a same-scene pair from the portfolio set.
 const roomItems: ShowcaseItem[] = [
@@ -93,6 +96,7 @@ const stepIcons = [
       <p class="lede">An empty room gives a buyer no sense of scale. Furniture answers simple questions: does a bed fit here, and what is this space for? Pick a room, then drag the divider.</p>
     </div>
     <ShowcaseTabs id="rooms" label="Rooms" items={roomItems} />
+    <p class="small home-research">Where buyers look first: in NAR's <a href={NAR_STAGING} rel="noopener nofollow">2025 Profile of Home Staging</a> (agents surveyed February 2025, released May 6, 2025), the living room (37%), primary bedroom (34%) and kitchen (23%) were rated the most important rooms to stage for buyers. The survey covers staging in general, not virtual staging results.</p>
     {isLive('/portfolio/') && <div class="cta-row"><LinkButton href="/portfolio/" label="See Every Room in the Portfolio" /></div>}
   </div>
 </section>
@@ -136,20 +140,26 @@ const stepIcons = [
 </section>
 
 <section class="section">
-  <div class="wrap two-col two-col--media">
-    <div>
-      <p class="eyebrow">For listing agents</p>
-      <h2>Useful where photos are the problem</h2>
-      <p class="lede" style="margin-top:16px">Virtual staging cannot fix a price or a roof. It can give buyers a better read of a room they are seeing on a phone.</p>
-      <ul class="tick">
-        <li>Show the scale and purpose of vacant rooms</li>
-        <li>Replace distracting movable furniture in occupied homes</li>
-        <li>Get a read on MLS limits before any work starts</li>
-        <li>Keep the original beside every edited image</li>
-      </ul>
-      {isLive('/for-real-estate-agents/') && <div class="cta-row"><LinkButton href="/for-real-estate-agents/" label="More for Real Estate Agents" /></div>}
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">For listing agents</p><h2>Vacant or occupied, the edit is different</h2></div>
+      <p class="lede">An empty home needs furniture to show what each room holds. A lived-in home needs the seller's belongings out of the way first.</p>
     </div>
-    <Compare pair="svc-furniture-removal" />
+    <div class="grid grid--2 home-vo">
+      <div class="card home-vo__card">
+        <Compare pair="svc-virtual-staging" />
+        <h3>Vacant properties</h3>
+        <p>Furniture and decor are placed in each empty room at true scale, so buyers can judge its size and purpose. Walls, floors and fixtures stay as photographed.</p>
+        {isLive('/services/virtual-staging/') && <LinkButton href="/services/virtual-staging/" label="Virtual Staging" />}
+      </div>
+      <div class="card home-vo__card">
+        <Compare pair="svc-furniture-removal" />
+        <h3>Occupied properties</h3>
+        <p>Movable furniture and clutter are removed from the photo, then the room is restaged. Built-ins and anything that conveys with the house stay where they are.</p>
+        {isLive('/services/furniture-removal-and-staging/') && <LinkButton href="/services/furniture-removal-and-staging/" label="Furniture Removal and Staging" />}
+      </div>
+    </div>
+    {isLive('/guides/virtual-staging-for-real-estate-agents/') && <p class="home-vo__more">Planning a whole listing? <a class="textlink" href={url('/guides/virtual-staging-for-real-estate-agents/')}>How to use virtual staging for a real estate listing</a></p>}
   </div>
 </section>
 
@@ -163,18 +173,18 @@ const stepIcons = [
       <div class="card">
         <h3>A good fit</h3>
         <ul class="tick">
-          <li>Vacant rooms whose size or purpose is hard to read in a photo</li>
-          <li>Occupied homes where dated or personal furniture distracts from the space</li>
-          <li>Odd layouts, where furniture shows one sensible way to use the room</li>
-          <li>Listings marketed mostly online, where photos do the first showing</li>
+          <li>Rooms with no clear purpose, such as a loft, bonus room or alcove</li>
+          <li>Spaces whose scale is hard to judge in a photo</li>
+          <li>Vacant rooms that need furniture to show how they can be used</li>
+          <li>Listings where dated furniture or an odd layout hides how the space works</li>
         </ul>
       </div>
       <div class="card">
         <h3>Not a fix for</h3>
         <ul class="cross">
-          <li>Condition problems, damage or repairs a buyer will see in person</li>
-          <li>Permanent features such as walls, flooring, fixtures or the view</li>
-          <li>Photos that are too dark, blurred or tightly cropped to show the room</li>
+          <li>An unrealistic asking price</li>
+          <li>Poor condition or unfinished repairs, and damage must never be edited out</li>
+          <li>Weak photography: a dark, blurred or tightly cropped photo needs a reshoot first</li>
           <li>Pre-construction listings, where Stellar MLS does not allow staging</li>
         </ul>
       </div>
@@ -295,3 +305,12 @@ const stepIcons = [
 </section>
 <Lightbox />
 <Cta />
+
+<style>
+  .home-research { max-width: 80ch; margin: 18px 0 0; color: var(--muted); }
+  .home-vo__card { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .home-vo__card h3 { margin: 6px 0 0; }
+  .home-vo__card p { margin: 0; }
+  .home-vo__card > :last-child:not(p) { margin-top: auto; align-self: flex-start; }
+  .home-vo__more { margin: 24px 0 0; }
+</style>

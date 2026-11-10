@@ -104,6 +104,21 @@ const faqs = [
   </div>
 </section>
 
+<section class="section" id="planning" aria-labelledby="planning-h">
+  <div class="wrap two-col plan-cost">
+    <div>
+      <p class="eyebrow">Budget</p>
+      <h2 id="planning-h">{pricing.planning.h}</h2>
+      <p class="lede" style="margin-top:16px">{pricing.planning.intro}</p>
+      {pricing.planning.example && <p class="plan-cost__example">{pricing.planning.example}</p>}
+      {isLive('/guides/virtual-staging-for-real-estate-agents/') && <p style="margin-top:18px"><a class="textlink" href={url('/guides/virtual-staging-for-real-estate-agents/')}>Choosing which rooms to stage</a></p>}
+    </div>
+    <ol class="plan-cost__steps">
+      {pricing.planning.steps.map((s) => <li><h3>{s.h}</h3><p>{s.b}</p></li>)}
+    </ol>
+  </div>
+</section>
+
 <section class="section">
   <div class="wrap">
     <div class="section-head"><p class="eyebrow">Before you start</p><h2>Know what goes into your project</h2></div>
@@ -127,3 +142,14 @@ const faqs = [
 </section>
 
 <Cta h="Talk to StageLiora about Dedicated Assistance" p="Discuss your property images, ongoing requirements and the type of presentation you are considering." />
+
+<style>
+  .plan-cost { align-items: start; }
+  .plan-cost__example { margin: 18px 0 0; padding: 16px 18px; background: #fbf7ee; border: 1px solid #efe4c9; border-left: 3px solid var(--sun); border-radius: 6px; color: var(--ink); max-width: 62ch; }
+  .plan-cost__steps { list-style: none; margin: 0; padding: 0; counter-reset: plancost; }
+  .plan-cost__steps li { counter-increment: plancost; position: relative; padding: 18px 0 18px 46px; border-top: 1px solid var(--line); }
+  .plan-cost__steps li:first-child { border-top: 3px solid var(--ink); }
+  .plan-cost__steps li::before { content: counter(plancost); position: absolute; left: 0; top: 18px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: #fff; font: 650 .9rem/30px var(--text); text-align: center; }
+  .plan-cost__steps h3 { font-size: 1.15rem; margin: 0 0 6px; }
+  .plan-cost__steps p { margin: 0; }
+</style>

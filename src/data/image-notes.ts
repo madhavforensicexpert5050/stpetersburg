@@ -93,7 +93,7 @@ export const portfolioNotes: Record<string, ImageNote> = Object.fromEntries([
 
 /**
  * Page explanations of a specific comparison, keyed by media id. Written from the files on 2026-11-10.
- * /for-real-estate-agents/ reads its "Reading the example above" text only while both files still match.
+ * How It Works reads its "Reading this example" text (image review section) only while both files still match.
  */
 export const exampleNotes: Record<string, ImageNote> = {
   'showcase-bedroom-before': { src: '/media/generated/virtual-staging-bedroom-before.webp', text: 'Empty bedroom: four-door built-in wardrobe, wide three-pane window onto a garden, light wood floor, open door to the hallway, round ceiling light.' },

@@ -12,7 +12,8 @@ const onServices = path === '/services/' || services.some((s) => s.path === path
 // Order: Home | Services (menu, inserted after Home) | Real Estate | How It Works | Portfolio | Pricing
 const home = { href: '/', label: 'Home' };
 const rest = [
-  { href: '/for-real-estate-agents/', label: 'Real Estate' },
+  // Real Estate opens the agent guide: the agents landing page was retired in V18 (src/data/retired-routes.ts).
+  { href: '/guides/virtual-staging-for-real-estate-agents/', label: 'Real Estate' },
   { href: '/how-it-works/', label: 'How It Works' },
   { href: '/portfolio/', label: 'Portfolio' },
   { href: '/pricing/', label: 'Pricing' },

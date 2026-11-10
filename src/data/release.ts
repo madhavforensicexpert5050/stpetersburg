@@ -83,7 +83,7 @@ export function validateRelease(env: { endpoint?: string } = {}): ReleaseReport 
   if (idx.length && !valid(approvals.searchIndexing)) errors.push('Route indexing approvals exist without APPROVE SEARCH INDEXING');
   if (env.endpoint && !valid(approvals.formDeliveryVerified)) warnings.push('A form endpoint is configured, but real inbox delivery has not been recorded. Verify on the deployed site before relying on it.');
   if (!env.endpoint) warnings.push('No form endpoint configured. Forms stay in truthful email-fallback mode.');
-  for (const p of pub) if (['/', '/services/', '/for-real-estate-agents/'].includes(p) && media.some((m) => m.page === p && m.rights === 'project-placeholder')) warnings.push(`${p} still shows labeled placeholder drawings`);
+  for (const p of pub) if (['/', '/services/', '/guides/virtual-staging-for-real-estate-agents/'].includes(p) && media.some((m) => m.page === p && m.rights === 'project-placeholder')) warnings.push(`${p} still shows labeled placeholder drawings`);
   if (qaFixtureName) warnings.push(`QA fixture active: ${qaFixtureName}`);
 
   const state = errors.length ? 'INVALID' : blockers.length ? 'BLOCKED' : 'READY';

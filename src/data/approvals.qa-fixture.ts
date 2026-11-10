@@ -3,7 +3,7 @@ const R = { by: 'QA-FIXTURE', date: '2000-01-01', reference: 'Automated gate tes
 const rec = (keys: string[]) => Object.fromEntries(keys.map((k) => [k, R]));
 const service = { ...R, performedBy: 'QA', customerFiles: 'QA', output: 'QA', limitations: 'QA', turnaround: 'QA', revisions: 'QA', disclosureRestrictionsReviewed: true };
 
-const core = ['/', '/about/', '/contact/', '/how-it-works/', '/pricing/', '/faq/', '/services/', '/services/virtual-staging/', '/guides/', '/guides/what-is-virtual-staging/', '/guides/virtual-staging-disclosure-florida/', '/for-real-estate-agents/', '/locations/st-petersburg-fl/', '/request-quote/', '/privacy-policy/', '/terms-of-service/'];
+const core = ['/', '/about/', '/contact/', '/how-it-works/', '/pricing/', '/faq/', '/services/', '/services/virtual-staging/', '/guides/', '/guides/what-is-virtual-staging/', '/guides/virtual-staging-disclosure-florida/', '/guides/virtual-staging-for-real-estate-agents/', '/locations/st-petersburg-fl/', '/request-quote/', '/privacy-policy/', '/terms-of-service/'];
 const indexed = ['/', '/about/', '/guides/', '/guides/what-is-virtual-staging/', '/guides/virtual-staging-disclosure-florida/', '/locations/st-petersburg-fl/'];
 
 const valid = () => ({

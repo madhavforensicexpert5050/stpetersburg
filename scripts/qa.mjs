@@ -40,8 +40,16 @@ const expected = `/ /about/ /contact/ /how-it-works/ /pricing/ /faq/ /reviews/
 /request-quote/ /order/ /account/ /orders/ /upload/`.split(/\s+/);
 // Added by the owner in V10.1, outside the 60-route V3.0 approval.
 const addedLater = ['/about/devender-garg/'];
+// Retired by the owner in V18 (src/data/retired-routes.ts). They leave the registry but keep a forward.
+const { retiredRoutes } = await import('../src/data/retired-routes.ts');
+const retired = retiredRoutes.map((r) => r.from);
+const current = expected.filter((p) => !retired.includes(p));
 const reg = routes.map((r) => r.path);
-check('Registry matches the owner final structure (60 routes plus the V10.1 founder page)', expected.length === 60 && [...expected, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => expected.includes(p) || addedLater.includes(p)), `expected ${expected.length}, registry ${reg.length}; missing: ${expected.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !expected.includes(p))}`);
+check(`Registry matches the owner final structure (60 routes, ${retired.length} retired in V18, plus the V10.1 founder page)`, expected.length === 60 && retired.every((p) => expected.includes(p)) && [...current, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => current.includes(p) || addedLater.includes(p)), `expected ${current.length}, registry ${reg.length}; missing: ${current.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !current.includes(p) && !addedLater.includes(p))}`);
+check('Each retired route forwards to a current route, and no retired path is still a page', retiredRoutes.every((r) => reg.includes(r.to) && !reg.includes(r.from) && !fs.existsSync(path.join('dist', r.from, 'index.html'))), retiredRoutes.map((r) => `${r.from} -> ${r.to}`));
+const redirectsFile = path.join('dist', '_redirects');
+const redirectsTxt = fs.existsSync(redirectsFile) ? fs.readFileSync(redirectsFile, 'utf8') : '';
+check('_redirects sends a 301 from each retired route to its destination', retiredRoutes.every((r) => redirectsTxt.includes(`${r.from} ${r.to} 301`) && redirectsTxt.includes(`${r.from.replace(/\/$/, '')} ${r.to} 301`)), redirectsTxt);
 check('Every route built', routes.every((r) => fs.existsSync(pagePath(r))), routes.filter((r) => !fs.existsSync(pagePath(r))).map((r) => r.path).join(' '));
 for (const f of ['404.html', 'robots.txt', 'sitemap.xml', 'llms.txt', '_headers']) check(`Technical file exists: ${f}`, fs.existsSync(path.join('dist', f)));
 
@@ -172,13 +180,40 @@ const faqDup = [];
 for (const p of VISUAL) for (const q of faqQs(pages.find((x) => x.r.path === p).html)) for (const o of pages) if (o.r.path !== p && faqQs(o.html).includes(q)) faqDup.push(`${p} & ${o.r.path}: ${q}`);
 check('FAQ questions on the visual pages appear nowhere else on the site', !faqDup.length, faqDup);
 
+// V18 consolidation: the retired agents page was spread over these pages. Nothing migrated may be pasted twice.
+// Deliberately shared components are removed first: the CTA band, FAQ answers (the homepage shows a few from /faq/),
+// the guide "Keep reading" sidebar, and the five process steps that Home and How It Works both render.
+const { process: processSteps } = await import('../src/data/content.ts');
+const CONSOLIDATED = ['/', '/how-it-works/', '/pricing/', '/faq/', '/guides/virtual-staging-for-real-estate-agents/', '/guides/how-to-prepare-photos-for-virtual-staging/', '/guides/virtual-staging-disclosure-florida/', '/services/furniture-removal-and-staging/', '/guides/virtual-staging-faqs/'];
+const processSentences = new Set(processSteps.flatMap((s) => `${s.h} ${s.b}`.split(/(?<=[.?!])\s+/)).map((s) => s.trim().toLowerCase()));
+const consolMain = (h) => visible(((h.match(/<main[\s\S]*?<\/main>/) || [''])[0])
+  .replace(/<section class="cta-band"[\s\S]*?<\/section>/g, ' ').replace(/<details[\s\S]*?<\/details>/g, ' ')
+  .replace(/<aside class="side-box[\s\S]*?<\/aside>/g, ' ').replace(/<ol class="(?:process__list|steps)"[^>]*>[\s\S]*?<\/ol>/g, ' '));
+const consol = CONSOLIDATED.map((p) => { const t = consolMain(pages.find((x) => x.r.path === p).html); return { p, sent: new Set(t.split(/(?<=[.?!])\s+/).map((s) => s.trim().toLowerCase()).filter((s) => s.split(/\s+/).length >= 8 && !processSentences.has(s))), sh: shingles(t.toLowerCase()) }; });
+const consolShared = []; let consolMax = 0, consolPair = '';
+for (let i = 0; i < consol.length; i++) for (let j = i + 1; j < consol.length; j++) {
+  for (const s of consol[i].sent) if (consol[j].sent.has(s)) consolShared.push(`${consol[i].p} & ${consol[j].p}: "${s.slice(0, 80)}"`);
+  let inter = 0; for (const x of consol[i].sh) if (consol[j].sh.has(x)) inter++;
+  const J = inter / (consol[i].sh.size + consol[j].sh.size - inter);
+  if (J > consolMax) { consolMax = J; consolPair = `${consol[i].p} ~ ${consol[j].p}`; }
+}
+check('Consolidated pages share no sentence of eight words or more (exact duplicate check)', !consolShared.length, consolShared.slice(0, 8));
+check(`Consolidated pages are not near-duplicates (max 5-word overlap ${(consolMax * 100).toFixed(1)}% ${consolPair})`, consolMax < 0.12, 'Threshold 12%.');
+const generalQs = faqQs(pages.find((x) => x.r.path === '/faq/').html), agentFaqQs = faqQs(pages.find((x) => x.r.path === '/guides/virtual-staging-faqs/').html);
+check('The FAQ page repeats no question from the agent FAQ guide', !generalQs.some((q) => agentFaqQs.includes(q)), generalQs.filter((q) => agentFaqQs.includes(q)));
+
 // Navigation (owner spec, header and footer update)
 const homeHtml = pages.find((x) => x.r.path === '/').html;
 const navHtml = (homeHtml.match(/<nav class="nav"[\s\S]*?<\/nav>/) || [''])[0];
 const topItems = [...navHtml.replace(/<div class="mega">[\s\S]*?<\/details>/g, '</details>').matchAll(/<(?:a|summary)\b[^>]*>([\s\S]*?)<\/(?:a|summary)>/g)].map((m) => visible(m[1]).trim());
 check('Header nav reads Home | Services | Real Estate | How It Works | Portfolio | Pricing', topItems.join('|') === 'Home|Services|Real Estate|How It Works|Portfolio|Pricing', topItems.join('|'));
 check('Header phone button shows the verified number and dials tel:+918890929329', /<a class="head-call" href="tel:\+918890929329"[^>]*>[\s\S]*?<svg[\s\S]*?\+91 88909 29329/.test(homeHtml));
-check('Header Real Estate links to /for-real-estate-agents/ and marks it current there', /href="\/for-real-estate-agents\/"[^>]*>Real Estate</.test(navHtml) && /<nav class="nav"[\s\S]*?href="\/for-real-estate-agents\/" aria-current="page">Real Estate/.test(pages.find((x) => x.r.path === '/for-real-estate-agents/').html));
+// V18: the agents landing page was retired, so Real Estate opens the agent guide that absorbed its content.
+const AGENT_GUIDE = '/guides/virtual-staging-for-real-estate-agents/';
+check('Header Real Estate links to the agent guide and marks it current there', new RegExp(`href="${AGENT_GUIDE}"[^>]*>Real Estate<`).test(navHtml) && new RegExp(`<nav class="nav"[\\s\\S]*?href="${AGENT_GUIDE}" aria-current="page">Real Estate`).test(pages.find((x) => x.r.path === AGENT_GUIDE).html));
+check('No page links to a retired route', !pages.some(({ html }) => retired.some((p) => html.includes(`href="${p}"`))), pages.filter(({ html }) => retired.some((p) => html.includes(`href="${p}"`))).map(({ r }) => r.path));
+const footWho = ((homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0].match(/<h2>Who We Serve<\/h2>\s*<ul>([\s\S]*?)<\/ul>/) || ['', ''])[1];
+check('Footer Who We Serve keeps Photographers and Brokerages, and Real Estate Agents opens the agent guide', footWho.includes(`href="${AGENT_GUIDE}">Real Estate Agents<`) && footWho.includes('href="/for-real-estate-photographers/">Photographers<') && footWho.includes('href="/for-brokerages/">Brokerages<'), footWho);
 const footHtml = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const footGroup = (h) => { const m = footHtml.match(new RegExp(`<h2>${h}</h2>\\s*<ul>([\\s\\S]*?)</ul>`)); return m ? [...m[1].matchAll(/<a[^>]*>([^<]*)<\/a>/g)].map((x) => x[1]) : []; };
 const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], 'Who We Serve': ['Real Estate Agents', 'Photographers', 'Brokerages'], Explore: ['Design Styles', 'Design Library', 'Portfolio'], Resources: ['Guides', 'How It Works'] };
@@ -209,7 +244,7 @@ check('Every route has one of the five publication statuses', routes.every((r) =
 check('No route is APPROVED_FOR_PUBLICATION without a documented approval', routes.filter((r) => publicationOf(r) === 'APPROVED_FOR_PUBLICATION').length === Object.keys(approvals.publication).length);
 const founderRoute = routes.find((r) => r.template === 'founder');
 check('Founder page content counts as approved only with its own approval record', founderRoute && contentApprovalOf(founderRoute) === (approvals.founderStatements ? 'APPROVED' : 'NOT_APPROVED') && designApprovalOf(founderRoute) === contentApprovalOf(founderRoute));
-check('Owner content and design approval is recorded for all 60 routes', routes.filter((r) => r.template !== 'founder').length === 60 && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
+check(`Owner content and design approval is recorded for all ${60 - retired.length} remaining V3.0 routes (60 approved, ${retired.length} retired in V18)`, routes.filter((r) => r.template !== 'founder').length === 60 - retired.length && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
 {
   const { plans, approvedPrice } = await import('../src/data/pricing-plans.ts');
   const pricingHtml = fs.readFileSync(path.join('dist', 'pricing', 'index.html'), 'utf8');

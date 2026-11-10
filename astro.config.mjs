@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { retiredRoutes } from './src/data/retired-routes.ts';
 
 const mode = process.env.SITE_MODE === 'production' ? 'production' : 'preview';
 const indexing = process.env.INDEXING === 'on';
@@ -30,6 +31,53 @@ if (mode === 'production' && process.env.RELEASE_CHECK_PASSED !== '1') {
 }
 const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'";
 
+/**
+ * Retired routes (src/data/retired-routes.ts) keep a forwarding path to the page that now holds their content.
+ * Custom-domain builds get a real 301 in _redirects (Cloudflare Pages / Netlify format). GitHub Pages cannot send
+ * a 301, so it gets a small noindex "this page has moved" page: visible link, immediate refresh, canonical to the
+ * destination. If the destination is not in this build, the forward goes home; with no home either, none is written.
+ */
+function writeRetiredForwards(out) {
+  const { site, base } = TARGETS[target];
+  const prefix = base.replace(/\/$/, '');
+  const built = (p) => fs.existsSync(path.join(out, p, 'index.html'));
+  for (const r of retiredRoutes) if (built(r.from)) throw new Error(`Retired route ${r.from} was built as a page. Remove it from the registry.`);
+  const forwards = retiredRoutes
+    .map((r) => (built(r.to) ? { ...r, dest: r.to } : built('/') ? { ...r, dest: '/', label: 'the StageLiora homepage' } : null))
+    .filter(Boolean);
+  if (target === 'github-pages') {
+    for (const r of forwards) {
+      const href = `${prefix}${r.dest}`;
+      const html = `<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This page has moved | StageLiora</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="${site}${href}">
+<meta http-equiv="refresh" content="0; url=${href}">
+<style>body{margin:0;padding:48px 16px;background:#fff;color:#14213d;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:40rem;margin:0 auto}a{color:#0b4f6c}</style>
+</head>
+<body>
+<main>
+<h1>This page has moved</h1>
+<p>The guidance that was here is now in <a href="${href}">${r.label}</a>.</p>
+<p><a href="${prefix}/">Go to the StageLiora homepage</a></p>
+</main>
+</body>
+</html>
+`;
+      fs.mkdirSync(path.join(out, r.from), { recursive: true });
+      fs.writeFileSync(path.join(out, r.from, 'index.html'), html);
+    }
+    return;
+  }
+  if (!forwards.length) return;
+  const lines = forwards.flatMap((r) => [`${r.from} ${r.dest} 301`, `${r.from.replace(/\/$/, '')} ${r.dest} 301`]);
+  fs.writeFileSync(path.join(out, '_redirects'), ['# Retired routes. Source: src/data/retired-routes.ts', ...lines, ''].join('\n'));
+}
+
 /** Post-build safety layer: writes host headers and unlinks anchors that point at excluded routes. */
 function buildGuards() {
   return {
@@ -37,6 +85,7 @@ function buildGuards() {
     hooks: {
       'astro:build:done': ({ dir }) => {
         const out = fileURLToPath(dir);
+        writeRetiredForwards(out);
         // GitHub Pages ignores _headers. There, robots meta tags carry noindex and scripts/build-github-pages.mjs checks them.
         if (target === 'github-pages') return;
         // With indexing on, each page's own robots meta decides. A global header here would override approved pages.

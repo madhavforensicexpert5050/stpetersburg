@@ -69,6 +69,7 @@ export const services: Service[] = [
     stellar: { use: 'permitted-with-disclosure', label: 'Permitted, with limits', source: A404, detail: 'Article 04.04 permits removing existing furniture and replacing it with digital furniture and decor. It prohibits removing negative elements such as holes in a wall, exposed wiring or damaged flooring, and prohibits altering permanent fixtures. The same disclosure steps apply.' },
     faqs: [
       { q: 'Can you remove a stain or a crack while the furniture is out?', a: 'No. Stellar specifically prohibits removing negative visual elements, and hiding a defect would misrepresent the property in any market.' },
+      { q: 'Why confirm what conveys with the sale before editing?', a: 'Because only movable belongings may come out of the photo, and buyers will expect to find whatever stays with the house. Ceiling fans, light fixtures, built-ins and anything else attached to the home must appear as photographed. Agree with your seller in writing which items convey, then mark them on the photo, so nothing that stays is removed by mistake.' },
       { q: 'Is the built-in shelving movable?', a: 'Usually not. If it is attached to the home, treat it as a permanent fixture that has to stay in the photo.' },
       { q: 'Can items just be removed, with no new furniture?', a: 'Stellar\'s permitted use describes removal paired with digital replacement. Ask your MLS before relying on removal alone for a listing photo.' },
     ],

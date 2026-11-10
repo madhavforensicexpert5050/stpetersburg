@@ -2,24 +2,67 @@
 import PageHero from '../components/PageHero.astro';
 import Compare from '../components/Compare.astro';
 import Cta from '../components/Cta.astro';
-import { portfolioPairs, anyIllustrations } from '../data/media.ts';
+import Faq from '../components/Faq.astro';
+import { portfolioPairs, anyIllustrations, getPair } from '../data/media.ts';
 import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { rooms, styles } from '../data/taxonomy.ts';
+import { portfolioPage as c } from '../data/visual-pages.ts';
+
+// An explanation is shown only while the pair still shows the after image it was written from.
+const storyFor = (key: string) => {
+  const s = c.stories.find((x) => x.key === key);
+  return s && getPair(key).after.src === s.afterSrc ? s : null;
+};
+const related = c.related.filter((r) => isLive(r.href));
 ---
-<PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1="Before and after, room by room" lede="Drag the divider to compare each room. Furniture and decor change. Walls, windows, floors and fixtures stay as they are." />
+<PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1={c.h1} lede={c.lede} />
+
+<section class="section section--tight">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">{c.introHead.eyebrow}</p><h2>{c.introHead.h}</h2><p>{c.introHead.p}</p></div>
+    <div class="grid grid--4">
+      {c.checks.map((x) => <div class="card card--flat"><h3 style="font-size:1.1rem">{x.h}</h3><p style="margin:0">{x.b}</p></div>)}
+    </div>
+  </div>
+</section>
+
 <section class="section">
   <div class="wrap">
     {anyIllustrations() && isLive('/about/') && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
     <div class="grid grid--2">
-      {portfolioPairs.map((p) => (
-        <article>
-          <Compare pair={p.key} />
-          <h2 style="font-size:1.25rem;margin-top:6px">{rooms.find((r) => r.id === p.room)!.name}</h2>
-          <p class="gal__meta">{styles.find((s) => s.id === p.style)!.name} direction</p>
-        </article>
-      ))}
+      {portfolioPairs.map((p) => {
+        const room = rooms.find((r) => r.id === p.room)!.name;
+        const style = styles.find((s) => s.id === p.style)!;
+        const s = storyFor(p.key);
+        return (
+          <article id={p.key.replace(/^pf-/, '')}>
+            <Compare pair={p.key} />
+            <h2 style="font-size:1.25rem;margin-top:6px">{style.name} {room.toLowerCase()}</h2>
+            {s ? (
+              <dl class="small" style="margin:0">
+                <dt><strong>Before</strong></dt><dd style="margin:0 0 8px">{s.before}</dd>
+                <dt><strong>Added</strong></dt><dd style="margin:0 0 8px">{s.added}</dd>
+                <dt><strong>Left as it was</strong></dt><dd style="margin:0">{s.unchanged}</dd>
+              </dl>
+            ) : <p class="gal__meta">{style.name} direction</p>}
+          </article>
+        );
+      })}
     </div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap narrow">
+    <div class="section-head"><p class="eyebrow">Questions</p><h2>About these before-and-after comparisons</h2></div>
+    <Faq items={c.faqs} />
+    {related.length > 0 && (
+      <nav class="related-links" aria-label="Related pages">
+        <h2 style="font-size:1.15rem;margin:0 0 8px">Keep exploring</h2>
+        <ul>{related.map((r) => <li><a class="textlink" href={url(r.href)}>{r.label}</a></li>)}</ul>
+      </nav>
+    )}
   </div>
 </section>
 <Cta />

@@ -4,14 +4,22 @@ import MediaImage from '../components/MediaImage.astro';
 import PageHero from '../components/PageHero.astro';
 import Lightbox from '../components/Lightbox.astro';
 import Cta from '../components/Cta.astro';
+import Faq from '../components/Faq.astro';
 import { library, zoomTitle, zoomLabel, anyIllustrations } from '../data/media.ts';
 import { isLive } from '../data/routes.ts';
 import { styles, rooms } from '../data/taxonomy.ts';
+import { libraryPage as c } from '../data/visual-pages.ts';
+
+const coveredRooms = rooms.filter((r) => library.some((it) => it.room === r.id));
+const coverage = coveredRooms.map((r) => ({ room: r, styles: styles.filter((s) => library.some((it) => it.room === r.id && it.style === s.id)) }));
+const related = c.related.filter((r) => isLive(r.href));
 ---
-<PageHero path="/design-library/" eyebrow="Design library" h1="Browse design directions by style and room" lede="Use the filters to narrow eight styles across thirteen room types. Open any image for its details." />
+<PageHero path="/design-library/" eyebrow="Design library" h1={c.h1} lede={c.lede(library.length, coveredRooms.length)} />
 <section class="section section--tight">
   <div class="wrap" data-library>
-    <p class="lede" style="margin:0 0 10px">Use the filters to compare how each style reads in a particular room before deciding what suits a listing.</p>
+    <ol class="grid grid--3" style="list-style:none;padding:0;margin:0 0 18px" aria-label="How to use the library">
+      {c.howTo.map((x, i) => <li class="card card--flat"><h2 style="font-size:1.1rem;margin-bottom:4px">{i + 1}. {x.h}</h2><p style="margin:0">{x.b}</p></li>)}
+    </ol>
     {anyIllustrations() && isLive('/about/') && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
     <div class="filters">
       <fieldset class="filter-group">
@@ -37,12 +45,14 @@ import { styles, rooms } from '../data/taxonomy.ts';
     <div class="gal">
       {library.map((it) => {
         const st = styles.find((s) => s.id === it.style)!;
+        // A checked description of this exact image when one exists; otherwise the style's materials.
+        const info = it.description ?? `${st.note} Materials: ${st.materials}.`;
         return (
           <figure class="gal__item" data-item data-style={it.style} data-room={it.room}>
-            <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={`${st.note} Materials: ${st.materials}.`} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
+            <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={info} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
               <MediaImage media={it} />
             </button>
-            <figcaption><h3>{it.styleName} {it.roomName}</h3><p class="gal__meta">{st.materials}</p></figcaption>
+            <figcaption><h3>{it.styleName} {it.roomName}</h3><p class="gal__meta">{it.description ?? st.materials}</p></figcaption>
           </figure>
         );
       })}
@@ -53,6 +63,48 @@ import { styles, rooms } from '../data/taxonomy.ts';
       <button type="button" class="btn" data-clear-2>Clear filters</button>
     </div>
     <Lightbox />
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">{c.readingHead.eyebrow}</p><h2>{c.readingHead.h}</h2></div>
+    <div class="grid grid--2">
+      <div class="card card--flat"><h3>It shows</h3><ul class="tick">{c.canTell.map((x) => <li>{x}</li>)}</ul></div>
+      <div class="card card--flat"><h3>It does not show</h3><ul>{c.cannotTell.map((x) => <li>{x}</li>)}</ul>
+        {isLive('/design-styles/') && <p style="margin-bottom:0"><a class="textlink" href={url('/design-styles/')}>How to match a style to the house</a></p>}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">{c.coverageHead.eyebrow}</p><h2>{c.coverageHead.h}</h2><p>{c.coverageHead.p}</p></div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Library coverage by room">
+      <table>
+        <caption>Styles shown for each room type ({library.length} designs)</caption>
+        <thead><tr><th scope="col">Room</th><th scope="col">Styles shown</th></tr></thead>
+        <tbody>
+          {coverage.map(({ room, styles: ss }) => (
+            <tr><th scope="row"><a class="textlink" href={url(`/design-library/?room=${room.id}`)}>{room.name}</a></th><td>{ss.length === styles.length ? `All eight styles` : ss.map((s) => s.name).join(', ')}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--wall">
+  <div class="wrap narrow">
+    <div class="section-head"><p class="eyebrow">Questions</p><h2>Using the Design Library: common questions</h2></div>
+    <Faq items={c.faqs} />
+    {related.length > 0 && (
+      <nav class="related-links" aria-label="Related pages">
+        <h2 style="font-size:1.15rem;margin:0 0 8px">Keep exploring</h2>
+        <ul>{related.map((r) => <li><a class="textlink" href={url(r.href)}>{r.label}</a></li>)}</ul>
+      </nav>
+    )}
   </div>
 </section>
 <Cta h="Prefer to describe the look?" p="Tell us about the property and who you expect to buy it. A quote request can note any style you have in mind." />

@@ -6,6 +6,7 @@
  */
 import { rooms, styles, type RoomId, type StyleId } from './taxonomy.ts';
 import { generatedMedia } from './generated-media.ts';
+import { noteFor } from './image-notes.ts';
 
 export type Rights = 'project-placeholder' | 'owner-licensed' | 'ai-generated';
 export type Publication = 'placeholder-preview-only' | 'approved' | 'synthetic-preview-only';
@@ -33,6 +34,8 @@ export interface MediaItem {
   publication: Publication;
   scene: Scene;
   responsive?: { src: string; width: number }[];
+  /** What this exact image visibly shows (from image-notes.ts). Absent when no checked note matches the file. */
+  description?: string;
 }
 
 const W = 1500, H = 1000;
@@ -99,11 +102,17 @@ const portfolioRooms: { room: RoomId; style: StyleId }[] = [
   { room: 'living-room', style: 'coastal' }, { room: 'primary-bedroom', style: 'modern' }, { room: 'guest-bedroom', style: 'traditional' },
   { room: 'dining-room', style: 'contemporary' }, { room: 'home-office', style: 'industrial' }, { room: 'kitchen', style: 'scandinavian' },
 ];
+/** Swaps in the checked, image-specific description when one matches the file this slot shows. */
+const withNote = <T extends MediaItem>(m: T, describe: (text: string) => string): T => {
+  const text = noteFor(m.id, m.src);
+  return text && m.rights === 'ai-generated' ? { ...m, description: text, alt: describe(text) } : m;
+};
 const portfolio: MediaItem[] = portfolioRooms.flatMap(({ room, style }) => {
   const r = rooms.find((x) => x.id === room)!.name;
   return pair(`pf-${room}`, '/portfolio/', 'Portfolio slot', `Empty ${r}`, `Staged ${r}`,
     `Illustration of an empty ${r.toLowerCase()}.`, `Illustration of the same ${r.toLowerCase()} with furniture added.`,
-    { kind: 'interior', room, style, furnish: 'none' }, { kind: 'interior', room, style, furnish: 'staged' });
+    { kind: 'interior', room, style, furnish: 'none' }, { kind: 'interior', room, style, furnish: 'staged' })
+    .map((m) => withNote(m, (t) => `AI-created image of ${t}`));
 });
 
 /** Design Library grid. Deliberately not every style in every room, so filters reach real empty states. */
@@ -123,7 +132,9 @@ export const library: LibraryItem[] = styles.flatMap((s) => libraryPlan[s.id].ma
   const item = base(`lib-${s.id}-${roomId}`, '/design-library/', 'Library grid', `${s.name} ${roomName}`,
     `Illustration of ${/^[aeiou]/i.test(s.name) ? 'an' : 'a'} ${s.name.toLowerCase()} style ${roomName.toLowerCase()}: ${s.materials.toLowerCase()}.`,
     { kind: 'interior', room: roomId, style: s.id, furnish: 'staged' }, { role: 'single' });
-  return { ...item, style: s.id, room: roomId, styleName: s.name, roomName };
+  const a = /^[aeiou]/i.test(s.name) ? 'an' : 'a';
+  const noted = withNote(item, (t) => `AI-created image of ${a} ${s.name.toLowerCase()} ${roomName.toLowerCase()}: ${t.charAt(0).toLowerCase()}${t.slice(1)}`);
+  return { ...noted, style: s.id, room: roomId, styleName: s.name, roomName };
 }));
 
 export const media: MediaItem[] = [...pairs, ...portfolio, ...library];

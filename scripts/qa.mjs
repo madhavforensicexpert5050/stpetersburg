@@ -153,6 +153,25 @@ check('Every before has an after in its pair', media.filter((m) => m.pair).every
 check('Synthetic examples are disclosed and remain separate from licensed client work', media.every((m) => m.rights === 'owner-licensed' || (!m.ownerApproved && (m.rights === 'project-placeholder' ? fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') : m.rights === 'ai-generated' && m.publication === 'synthetic-preview-only' && /AI-created|AI-generated/.test(m.caption) && /^AI-(created|generated)/.test(m.alt)))));
 const { brandMedia } = await import('../src/data/media.ts');
 check('Images are served only through the manifest (property examples or approved brand images)', all.every(([, h]) => [...h.matchAll(/<img[^>]+src="(\/media[^"]+)"/g)].every((m) => media.some((x) => x.src === m[1]) || brandMedia.some((x) => x.src === m[1]))));
+// Image-specific wording must describe the file actually shown (image-notes.ts, visual-pages.ts).
+const { staleNotes } = await import('../src/data/image-notes.ts');
+const { portfolioPage } = await import('../src/data/visual-pages.ts');
+const stale = [...staleNotes(media), ...portfolioPage.stories.filter((s) => media.find((m) => m.id === `${s.key}-after`)?.src !== s.afterSrc).map((s) => `story:${s.key}`)];
+check('Image captions and portfolio explanations match the image files they were written for', !stale.length, `Recheck the text against the new image, then update its src: ${stale.join(' ')}`);
+
+// The three visual pages answer different questions, so they share no sentence and no FAQ with each other or the site.
+const VISUAL = ['/design-styles/', '/design-library/', '/portfolio/'];
+const visualMain = (h) => visible(((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).replace(/<section class="cta-band"[\s\S]*?<\/section>/g, ''));
+const sentencesOf = (h) => new Set(visualMain(h).split(/(?<=[.?!])\s+/).map((s) => s.trim().toLowerCase()).filter((s) => s.split(/\s+/).length >= 8));
+const vis = VISUAL.map((p) => [p, sentencesOf(pages.find((x) => x.r.path === p).html)]);
+const shared = [];
+for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) for (const s of vis[i][1]) if (vis[j][1].has(s)) shared.push(`${vis[i][0]} & ${vis[j][0]}: "${s.slice(0, 80)}"`);
+check('Design Styles, Design Library and Portfolio share no sentence of eight words or more', !shared.length, shared.slice(0, 8));
+const faqQs = (h) => [...((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).matchAll(/<summary>([\s\S]*?)<\/summary>/g)].map((m) => visible(m[1]).trim().toLowerCase());
+const faqDup = [];
+for (const p of VISUAL) for (const q of faqQs(pages.find((x) => x.r.path === p).html)) for (const o of pages) if (o.r.path !== p && faqQs(o.html).includes(q)) faqDup.push(`${p} & ${o.r.path}: ${q}`);
+check('FAQ questions on the visual pages appear nowhere else on the site', !faqDup.length, faqDup);
+
 check('Brand images are owner-licensed, owner-approved and present on disk', brandMedia.length > 0 && brandMedia.every((m) => m.rights === 'owner-licensed' && m.ownerApproved && m.alt && fs.existsSync(path.join('public', m.src)) && (m.responsive || []).every((v) => fs.existsSync(path.join('public', v.src)))));
 
 // Secrets and third parties

@@ -83,7 +83,7 @@ check('No requests to third parties', externalRequests.length === 0, [...new Set
 
 // --- Layout shift on key pages ---
 const cls = [];
-for (const p of ['/', '/services/', '/pricing/', '/guides/what-is-virtual-staging/', '/locations/st-petersburg-fl/', '/design-library/']) {
+for (const p of ['/', '/services/', '/pricing/', '/guides/what-is-virtual-staging/', '/locations/st-petersburg-fl/', '/portfolio/']) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto(origin + p, { waitUntil: 'load' });
   const v = await page.evaluate(() => new Promise((ok) => { let s = 0; new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) s += e.value; }).observe({ type: 'layout-shift', buffered: true }); setTimeout(() => ok(s), 1800); }));
@@ -145,7 +145,7 @@ await tile.hover(); await page.waitForTimeout(700);
 check('Service tile reveals the after image on hover', (await tile.locator('.after').evaluate((el) => getComputedStyle(el).clipPath)).includes('8%'));
 
 // --- Design library ---
-await page.goto(origin + '/design-library/');
+await page.goto(origin + '/portfolio/');
 const visibleCount = () => page.locator('[data-item]:visible').count();
 const total = await visibleCount();
 const countText = () => page.locator('[data-count]').innerText();
@@ -159,9 +159,9 @@ await page.locator('[data-filter=room][data-value=basement]').click();
 check('Library: an empty combination shows the empty state', (await visibleCount()) === 0 && (await page.locator('[data-empty]').isVisible()) && (await countText()).startsWith('0'));
 await page.locator('[data-clear-2]').click();
 check('Library: clearing filters restores the grid', (await visibleCount()) === total && !(await page.locator('[data-empty]').isVisible()));
-await page.goto(origin + '/design-library/?style=modern&room=kitchen');
+await page.goto(origin + '/portfolio/?style=modern&room=kitchen');
 check('Library: URL parameters preset the filters', (await visibleCount()) === 1);
-await page.goto(origin + '/design-library/?style=bogus');
+await page.goto(origin + '/portfolio/?style=bogus');
 check('Library: unknown URL parameter is ignored', (await visibleCount()) === total);
 await page.locator('[data-filter=style][data-value=modern]').focus();
 await page.keyboard.press('Enter');
@@ -225,7 +225,7 @@ const nj = await browser.newContext({ javaScriptEnabled: false, viewport: { widt
 const np = await nj.newPage();
 await np.goto(origin + '/services/virtual-staging/');
 check('No JavaScript: comparison falls back to side by side', (await np.locator('.compare').first().evaluate((el) => getComputedStyle(el).display)) === 'grid');
-await np.goto(origin + '/design-library/');
+await np.goto(origin + '/portfolio/');
 check('No JavaScript: library still lists all images', (await np.locator('[data-item]').count()) > 40 && (await np.locator('[data-empty]').isHidden()));
 await nj.close();
 

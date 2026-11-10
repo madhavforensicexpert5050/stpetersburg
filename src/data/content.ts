@@ -22,7 +22,7 @@ export const pricing = {
   ],
   expect: [
     { h: 'Photo requirements', b: 'Level, well-lit, full-resolution photos with the floor visible give the most believable result. Send only photos you have the right to edit.', href: '/guides/how-to-prepare-photos-for-virtual-staging/', link: 'How to prepare your photos' },
-    { h: 'Styling direction', b: 'Choose a direction that suits the house and its likely buyers. The Design Library shows eight styles across different rooms.', href: '/design-library/', link: 'Browse the Design Library' },
+    { h: 'Styling direction', b: 'Choose a direction that suits the house and its likely buyers. The Portfolio shows eight styles across different rooms, with a guide to choosing one.', href: '/portfolio/', link: 'Browse styles and room designs' },
     { h: 'Image review', b: 'Check each edited image against its original. Walls, windows, floors and fixtures should match before an image is used.', href: '/how-it-works/', link: 'How it works' },
     { h: 'Listing disclosure', b: 'In Stellar MLS, virtually staged photos are disclosed in the listing fields, not with words on the image.', href: '/guides/virtual-staging-disclosure-florida/', link: 'Florida disclosure guide' },
   ],
@@ -60,7 +60,7 @@ export const generalFaqs = [
     { q: 'Who is StageLiora for?', a: 'Real estate agents, photographers, brokerages and other people who market property.' },
     { q: 'Do the walls, windows and floors stay the same?', a: 'In a listing photo edit, yes. Virtual staging adds or replaces movable furniture and decor. Walls, windows, flooring, fixtures and the view stay as photographed. Changing those, such as new paint, flooring or cabinets, is a renovation or concept visualization. It can help someone plan, but it does not show the home as it is, so in Stellar MLS it cannot be used as a listing photo.' },
     { q: 'Should I stage every empty room in a listing?', a: 'Usually not. Stage the rooms buyers see first and the ones hardest to read without furniture, then stop. A listing can mix staged and unstaged photos, as long as each staged one is disclosed.' },
-    { q: 'Can I see the same room in more than one style?', a: 'The Design Library shows each room type across several of the eight design directions, so you can compare them side by side. In the listing itself, one style per home is usually better: buyers scrolling the photos would see the same room twice, and each version is another image to pay for and disclose. Keep alternatives for a seller conversation.' },
+    { q: 'Can I see the same room in more than one style?', a: 'The room designs in the Portfolio show each room type across several of the eight design directions, so you can compare them side by side. In the listing itself, one style per home is usually better: buyers scrolling the photos would see the same room twice, and each version is another image to pay for and disclose. Keep alternatives for a seller conversation.' },
     { q: 'How is the price of a project set?', a: `By the service, the number of images, what each room needs and the quality of the source photo. ${anyPlanPriced() ? 'The pricing page lists the current rates' : 'Rates are not published on the site'}, and explains how each factor affects the cost.` },
     { q: 'Will virtual staging guarantee a faster sale?', a: 'No, and nobody can promise that. In NAR\'s 2025 Profile of Home Staging, 49% of sellers\' agents said staging reduced time on market, but that is agents\' experience of staging in general, not a measured result of virtual staging. Your own inquiries and showings are better evidence.' },
     { q: 'Do you have an office in St. Petersburg?', a: 'No. StageLiora works remotely and has no public office or storefront in Florida. St. Petersburg is the market this site is written for.' },
@@ -80,38 +80,6 @@ export const generalFaqs = [
     { q: 'What about revisions and refunds?', a: 'Revision and refund terms will be set out in writing before any work starts.' },
   ] },
 ];
-
-/** Original copy for the four design-style pages. */
-export const stylePages: Record<string, { h1: string; intro: string; bestFor: string[]; pieces: string[]; watch: string; title: string; description: string }> = {
-  modern: {
-    title: 'Modern Virtual Staging Style | StageLiora', description: 'What modern staging looks like in a listing photo, which homes suit it, and what to watch for. Original style notes with room examples.',
-    h1: 'Modern: fewer pieces, stronger lines', intro: 'Modern staging relies on low furniture, plain surfaces and a limited palette. It leaves wall and floor visible, which can help a compact room feel uncluttered.',
-    bestFor: ['Newer condos and downtown towers', 'Mid-century homes with clean rooflines', 'Rooms with strong windows or a good view that is really there'],
-    pieces: ['Low sofa with a slim frame', 'Black metal or dark wood accents', 'One strong piece of art', 'A single accent color'],
-    watch: 'Too little furniture can make a room look unfinished, and undersized pieces can misstate its size. Keep the scale true.',
-  },
-  scandinavian: {
-    title: 'Scandinavian Virtual Staging Style | StageLiora', description: 'How Scandinavian staging reads in listing photos: pale wood, soft textiles and daylight. Which rooms suit it, with room examples.',
-    h1: 'Scandinavian: pale wood and borrowed daylight', intro: 'This style uses light woods, soft fabrics and simple forms. It works with the daylight a room already has, which makes it a natural choice for smaller or brighter rooms.',
-    bestFor: ['Bungalows with original windows', 'Small bedrooms and home offices', 'Rooms that already get good natural light'],
-    pieces: ['Rounded, light-legged seating', 'Pale oak tables and shelving', 'Wool rugs in quiet tones', 'A plant or two'],
-    watch: 'In a dark room the pale palette can look washed out. Correct the exposure first, and keep the color truthful.',
-  },
-  farmhouse: {
-    title: 'Farmhouse Virtual Staging Style | StageLiora', description: 'Farmhouse staging in listing photos: painted wood, sturdy shapes and warm texture. Which homes it suits and where it can feel out of place.',
-    h1: 'Farmhouse: sturdy, warm and easy to live in', intro: 'Farmhouse staging uses substantial shapes, natural textures and a little wear in the finishes. It suggests family life, and tends to suit homes with some traditional character.',
-    bestFor: ['Older homes with porches and wood details', 'Larger kitchens and dining rooms', 'Single-family homes in established neighborhoods'],
-    pieces: ['Slipcovered seating', 'A long wood dining table', 'Iron lighting and hardware', 'Woven baskets and greenery'],
-    watch: 'This style can look out of place in a sleek high-rise. Match it to the architecture that is really in the photo.',
-  },
-  contemporary: {
-    title: 'Contemporary Virtual Staging Style | StageLiora', description: 'Contemporary staging in listing photos: current shapes, curves and layered neutrals. Which homes it suits, and how it differs from modern staging.',
-    h1: 'Contemporary: what feels current right now', intro: 'Modern refers to a fixed design era. Contemporary simply means what feels current, so its shapes keep changing. Today that often means soft curves, layered neutrals and mixed metals.',
-    bestFor: ['Recently renovated homes', 'Open-plan living and dining rooms', 'Homes where buyers expect a finished, current look'],
-    pieces: ['Curved sofas and rounded tables', 'Textured neutral fabrics', 'Brushed brass or smoked glass', 'Layered rugs and lighting'],
-    watch: 'Trends date quickly. If a look feels too specific, it may distract from the home. Keep the attention on the room.',
-  },
-};
 
 export const interiorDesign = {
   title: 'Online Interior Design (Not Yet Offered) | StageLiora',

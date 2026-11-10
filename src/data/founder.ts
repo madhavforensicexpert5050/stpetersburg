@@ -73,7 +73,6 @@ export const founder = {
     links: [
       ['/services/', 'Explore Our Services', 'arrow'],
       ['/portfolio/', 'View Before & After', 'arrow'],
-      ['/design-styles/', 'Browse Design Styles', 'guide'],
     ] as [string, string, 'arrow' | 'guide'][],
   },
 

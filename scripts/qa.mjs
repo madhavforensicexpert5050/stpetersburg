@@ -45,7 +45,7 @@ const { retiredRoutes } = await import('../src/data/retired-routes.ts');
 const retired = retiredRoutes.map((r) => r.from);
 const current = expected.filter((p) => !retired.includes(p));
 const reg = routes.map((r) => r.path);
-check(`Registry matches the owner final structure (60 routes, ${retired.length} retired in V18, plus the V10.1 founder page)`, expected.length === 60 && retired.every((p) => expected.includes(p)) && [...current, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => current.includes(p) || addedLater.includes(p)), `expected ${current.length}, registry ${reg.length}; missing: ${current.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !current.includes(p) && !addedLater.includes(p))}`);
+check(`Registry matches the owner final structure (60 routes, ${retired.length} retired by the owner in V18-V19, plus the V10.1 founder page)`, expected.length === 60 && retired.every((p) => expected.includes(p)) && [...current, ...addedLater].every((p) => reg.includes(p)) && reg.every((p) => current.includes(p) || addedLater.includes(p)), `expected ${current.length}, registry ${reg.length}; missing: ${current.filter((p) => !reg.includes(p))}; extra: ${reg.filter((p) => !current.includes(p) && !addedLater.includes(p))}`);
 check('Each retired route forwards to a current route, and no retired path is still a page', retiredRoutes.every((r) => reg.includes(r.to) && !reg.includes(r.from) && !fs.existsSync(path.join('dist', r.from, 'index.html'))), retiredRoutes.map((r) => `${r.from} -> ${r.to}`));
 const redirectsFile = path.join('dist', '_redirects');
 const redirectsTxt = fs.existsSync(redirectsFile) ? fs.readFileSync(redirectsFile, 'utf8') : '';
@@ -103,8 +103,11 @@ check(`Internal links and assets resolve (${linkCount} checked)`, bad.size === 0
 const inbound = new Set();
 for (const [p, html] of all) for (const m of html.matchAll(/href="(\/[^"#?]*)/g)) if (m[1] !== p) inbound.add(m[1]);
 const orphans = reg.filter((p) => !inbound.has(p) && p !== '/');
-const orphanOk = orphans.every((p) => ['/order/', '/account/', '/orders/', '/upload/'].includes(p));
-check('No orphan pages (internal order routes deliberately unlinked)', orphanOk, `unlinked: ${orphans.join(' ')}`);
+// Private routes never reach a public or production build. The order routes and, since the owner removed the footer
+// Explore group (V19), the three interior-design drafts are deliberately unlinked. Every other route needs a link.
+const privateRoute = (p) => routes.find((r) => r.path === p)?.plan.proposed === 'PRIVATE_OR_DISABLED';
+const orphanOk = orphans.every((p) => privateRoute(p));
+check('No orphan pages (private draft routes deliberately unlinked)', orphanOk, `unlinked: ${orphans.join(' ')}`);
 const leak = pages.filter(({ r }) => !['/order/', '/account/', '/orders/', '/upload/'].includes(r.path)).filter(({ html }) => /href="\/(order|account|orders|upload)\/"/.test(html)).map(({ r }) => r.path);
 check('No public page links to order, account, orders or upload', !leak.length, leak);
 
@@ -167,14 +170,16 @@ const { portfolioPage } = await import('../src/data/visual-pages.ts');
 const stale = [...staleNotes(media), ...portfolioPage.stories.filter((s) => media.find((m) => m.id === `${s.key}-after`)?.src !== s.afterSrc).map((s) => `story:${s.key}`)];
 check('Image captions and portfolio explanations match the image files they were written for', !stale.length, `Recheck the text against the new image, then update its src: ${stale.join(' ')}`);
 
-// The three visual pages answer different questions, so they share no sentence and no FAQ with each other or the site.
-const VISUAL = ['/design-styles/', '/design-library/', '/portfolio/'];
+// V19: Design Styles, the style pages and the Design Library were merged into the Portfolio. Their sections came from
+// separate pages, so the merged page must not repeat a sentence, and its FAQs must appear nowhere else on the site.
+const VISUAL = ['/portfolio/'];
 const visualMain = (h) => visible(((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).replace(/<section class="cta-band"[\s\S]*?<\/section>/g, ''));
-const sentencesOf = (h) => new Set(visualMain(h).split(/(?<=[.?!])\s+/).map((s) => s.trim().toLowerCase()).filter((s) => s.split(/\s+/).length >= 8));
-const vis = VISUAL.map((p) => [p, sentencesOf(pages.find((x) => x.r.path === p).html)]);
-const shared = [];
-for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) for (const s of vis[i][1]) if (vis[j][1].has(s)) shared.push(`${vis[i][0]} & ${vis[j][0]}: "${s.slice(0, 80)}"`);
-check('Design Styles, Design Library and Portfolio share no sentence of eight words or more', !shared.length, shared.slice(0, 8));
+const sentenceList = (h) => visualMain(h).split(/(?<=[.?!])\s+/).map((s) => s.trim().toLowerCase()).filter((s) => s.split(/\s+/).length >= 8);
+const pfSentences = sentenceList(pages.find((x) => x.r.path === '/portfolio/').html);
+const repeated = [...new Set(pfSentences.filter((s, i) => pfSentences.indexOf(s) !== i))];
+check('The merged Portfolio repeats no sentence of eight words or more', !repeated.length, repeated.slice(0, 8));
+const pfHtml = pages.find((x) => x.r.path === '/portfolio/').html;
+check('Portfolio holds the merged sections: before and after, filterable room designs, and the style guide', ['id="before-after"', 'id="room-designs"', 'data-library', 'id="styles"', 'id="compare-styles"', 'id="faq"'].every((s) => pfHtml.includes(s)) && (pfHtml.match(/class="card pf-style"/g) || []).length === 8 && (pfHtml.match(/<details class="pf-more"/g) || []).length === 4);
 const faqQs = (h) => [...((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).matchAll(/<summary>([\s\S]*?)<\/summary>/g)].map((m) => visible(m[1]).trim().toLowerCase());
 const faqDup = [];
 for (const p of VISUAL) for (const q of faqQs(pages.find((x) => x.r.path === p).html)) for (const o of pages) if (o.r.path !== p && faqQs(o.html).includes(q)) faqDup.push(`${p} & ${o.r.path}: ${q}`);
@@ -184,7 +189,7 @@ check('FAQ questions on the visual pages appear nowhere else on the site', !faqD
 // Deliberately shared components are removed first: the CTA band, FAQ answers (the homepage shows a few from /faq/),
 // the guide "Keep reading" sidebar, and the five process steps that Home and How It Works both render.
 const { process: processSteps } = await import('../src/data/content.ts');
-const CONSOLIDATED = ['/', '/how-it-works/', '/pricing/', '/faq/', '/guides/virtual-staging-for-real-estate-agents/', '/guides/how-to-prepare-photos-for-virtual-staging/', '/guides/virtual-staging-disclosure-florida/', '/services/furniture-removal-and-staging/', '/guides/virtual-staging-faqs/'];
+const CONSOLIDATED = ['/', '/how-it-works/', '/pricing/', '/faq/', '/guides/virtual-staging-for-real-estate-agents/', '/guides/how-to-prepare-photos-for-virtual-staging/', '/guides/virtual-staging-disclosure-florida/', '/services/furniture-removal-and-staging/', '/guides/virtual-staging-faqs/', '/portfolio/'];
 const processSentences = new Set(processSteps.flatMap((s) => `${s.h} ${s.b}`.split(/(?<=[.?!])\s+/)).map((s) => s.trim().toLowerCase()));
 const consolMain = (h) => visible(((h.match(/<main[\s\S]*?<\/main>/) || [''])[0])
   .replace(/<section class="cta-band"[\s\S]*?<\/section>/g, ' ').replace(/<details[\s\S]*?<\/details>/g, ' ')
@@ -215,10 +220,10 @@ check('No page links to a retired route', !pages.some(({ html }) => retired.some
 // V18.2: the owner removed the Who We Serve group and its pages. Four link groups remain, with no empty column.
 const footBlock = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const footGroups = [...footBlock.matchAll(/<nav aria-label="Footer: ([^"]+)"[^>]*>\s*<h2[^>]*>[^<]+<\/h2>\s*<ul[^>]*>([\s\S]*?)<\/ul>/g)].map((m) => ({ h: m[1], n: (m[2].match(/<li[\s>]/g) || []).length }));
-check('Footer has exactly Services, Company, Explore and Resources, each with links, and no Who We Serve group', footGroups.map((g) => g.h).join('|') === 'Services|Company|Explore|Resources' && footGroups.every((g) => g.n > 0) && !/Who We Serve|for-real-estate-photographers|for-brokerages/.test(footBlock), footGroups.map((g) => `${g.h}:${g.n}`).join(' '));
+check('Footer has exactly Services, Company and Resources, each with links, and no Who We Serve or Explore group', footGroups.map((g) => g.h).join('|') === 'Services|Company|Resources' && footGroups.every((g) => g.n > 0) && !/Who We Serve|>Explore<|for-real-estate-photographers|for-brokerages|design-styles|design-library/.test(footBlock), footGroups.map((g) => `${g.h}:${g.n}`).join(' '));
 const footHtml = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const footGroup = (h) => { const m = footHtml.match(new RegExp(`<h2>${h}</h2>\\s*<ul>([\\s\\S]*?)</ul>`)); return m ? [...m[1].matchAll(/<a[^>]*>([^<]*)<\/a>/g)].map((x) => x[1]) : []; };
-const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], Explore: ['Design Styles', 'Design Library', 'Portfolio'], Resources: ['Guides', 'How It Works'] };
+const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], Resources: ['Guides', 'How It Works'] };
 const footBad = Object.entries(wantFoot).flatMap(([h, ls]) => { const got = footGroup(h); return [...ls.filter((l) => !got.includes(l)).map((l) => `${h} lacks ${l}`), ...(new Set(got).size !== got.length ? [`${h} has a duplicate`] : [])]; });
 check('Footer groups hold the required links with no duplicates within a group', !footBad.length, footBad);
 
@@ -246,7 +251,7 @@ check('Every route has one of the five publication statuses', routes.every((r) =
 check('No route is APPROVED_FOR_PUBLICATION without a documented approval', routes.filter((r) => publicationOf(r) === 'APPROVED_FOR_PUBLICATION').length === Object.keys(approvals.publication).length);
 const founderRoute = routes.find((r) => r.template === 'founder');
 check('Founder page content counts as approved only with its own approval record', founderRoute && contentApprovalOf(founderRoute) === (approvals.founderStatements ? 'APPROVED' : 'NOT_APPROVED') && designApprovalOf(founderRoute) === contentApprovalOf(founderRoute));
-check(`Owner content and design approval is recorded for all ${60 - retired.length} remaining V3.0 routes (60 approved, ${retired.length} retired in V18)`, routes.filter((r) => r.template !== 'founder').length === 60 - retired.length && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
+check(`Owner content and design approval is recorded for all ${60 - retired.length} remaining V3.0 routes (60 approved, ${retired.length} retired in V18-V19)`, routes.filter((r) => r.template !== 'founder').length === 60 - retired.length && routes.filter((r) => r.template !== 'founder').every((r) => contentApprovalOf(r) === 'APPROVED' && designApprovalOf(r) === 'APPROVED') && /V3\.0/.test(approvals.websiteContent.reference) && /V3\.0/.test(approvals.pageDesign.reference));
 {
   const { plans, approvedPrice } = await import('../src/data/pricing-plans.ts');
   const pricingHtml = fs.readFileSync(path.join('dist', 'pricing', 'index.html'), 'utf8');

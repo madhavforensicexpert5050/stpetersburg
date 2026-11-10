@@ -1,13 +1,20 @@
 ---
+/**
+ * /portfolio/ (V19). One page for the visual work: before-and-after pairs, the filterable room designs (formerly
+ * /design-library/) and the style guide (formerly /design-styles/ and its four style pages). Copy: visual-pages.ts.
+ * The style/room filter is driven by [data-library] in src/scripts/site.ts, including ?style= and ?room= presets.
+ */
 import PageHero from '../components/PageHero.astro';
 import Compare from '../components/Compare.astro';
+import MediaImage from '../components/MediaImage.astro';
+import Lightbox from '../components/Lightbox.astro';
 import Cta from '../components/Cta.astro';
 import Faq from '../components/Faq.astro';
-import { portfolioPairs, anyIllustrations, getPair } from '../data/media.ts';
+import { portfolioPairs, anyIllustrations, getPair, library, zoomTitle, zoomLabel } from '../data/media.ts';
 import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { rooms, styles } from '../data/taxonomy.ts';
-import { portfolioPage as c } from '../data/visual-pages.ts';
+import { portfolioPage as c, roomDesigns as d, styleGuide as g, styleNotes } from '../data/visual-pages.ts';
 
 // An explanation is shown only while the pair still shows the after image it was written from.
 const storyFor = (key: string) => {
@@ -15,21 +22,39 @@ const storyFor = (key: string) => {
   return s && getPair(key).after.src === s.afterSrc ? s : null;
 };
 const related = c.related.filter((r) => isLive(r.href));
+const coveredRooms = rooms.filter((r) => library.some((it) => it.room === r.id));
+const coverage = coveredRooms.map((r) => ({ room: r, styles: styles.filter((s) => library.some((it) => it.room === r.id && it.style === s.id)) }));
+const nameOf = (id: string) => styles.find((s) => s.id === id)!.name;
+/** Filtered view of the room designs on this page. */
+const roomsOf = (filter: string, id: string) => url(`/portfolio/?${filter}=${id}#room-designs`);
+const swatches = (id: string) => { const p = styles.find((s) => s.id === id)!.palette; return [p.wall, p.sofa, p.wood, p.accent, p.rug]; };
+const showImageInfo = anyIllustrations() && isLive('/about/');
 ---
-<PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1={c.h1} lede={c.lede} />
+<PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1={c.h1} lede={c.lede(library.length)}>
+  <nav class="pf-toc" aria-label="On this page">
+    <p class="pf-toc__label">On this page</p>
+    <ul>{c.nav.map((x) => <li><a href={`#${x.id}`}>{x.label}</a></li>)}</ul>
+  </nav>
+</PageHero>
 
-<section class="section section--tight">
+<!-- 1. Before and after -->
+<section class="section section--tight" id="before-after" aria-labelledby="pairs-h">
   <div class="wrap">
-    <div class="section-head"><p class="eyebrow">{c.introHead.eyebrow}</p><h2>{c.introHead.h}</h2><p>{c.introHead.p}</p></div>
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">{c.pairsHead.eyebrow}</p><h2 id="pairs-h">{c.pairsHead.h}</h2></div>
+      <p class="lede">{c.pairsHead.p}</p>
+    </div>
+    <h3 class="pf-sub">{c.introHead.h}</h3>
+    <p class="pf-sub-p">{c.introHead.p}</p>
     <div class="grid grid--4">
-      {c.checks.map((x) => <div class="card card--flat"><h3 style="font-size:1.1rem">{x.h}</h3><p style="margin:0">{x.b}</p></div>)}
+      {c.checks.map((x) => <div class="card card--flat"><h4 style="font-size:1.05rem;margin:0 0 4px">{x.h}</h4><p style="margin:0">{x.b}</p></div>)}
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section section--tight">
   <div class="wrap">
-    {anyIllustrations() && isLive('/about/') && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
+    {showImageInfo && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
     <div class="grid grid--2">
       {portfolioPairs.map((p) => {
         const room = rooms.find((r) => r.id === p.room)!.name;
@@ -38,7 +63,7 @@ const related = c.related.filter((r) => isLive(r.href));
         return (
           <article id={p.key.replace(/^pf-/, '')}>
             <Compare pair={p.key} />
-            <h2 style="font-size:1.25rem;margin-top:6px">{style.name} {room.toLowerCase()}</h2>
+            <h3 style="font-size:1.25rem;margin-top:6px">{style.name} {room.toLowerCase()}</h3>
             {s ? (
               <dl class="small" style="margin:0">
                 <dt><strong>Before</strong></dt><dd style="margin:0 0 8px">{s.before}</dd>
@@ -46,6 +71,7 @@ const related = c.related.filter((r) => isLive(r.href));
                 <dt><strong>Left as it was</strong></dt><dd style="margin:0">{s.unchanged}</dd>
               </dl>
             ) : <p class="gal__meta">{style.name} direction</p>}
+            <p class="small" style="margin:8px 0 0"><a class="textlink" href={roomsOf('style', style.id)}>More {style.name} room designs</a></p>
           </article>
         );
       })}
@@ -53,10 +79,177 @@ const related = c.related.filter((r) => isLive(r.href));
   </div>
 </section>
 
-<section class="section section--wall">
+<!-- 2. Room designs (formerly the Design Library) -->
+<section class="section section--wall" id="room-designs" aria-labelledby="designs-h">
+  <div class="wrap" data-library>
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">{d.head.eyebrow}</p><h2 id="designs-h">{d.head.h}</h2></div>
+      <p class="lede">{d.lede(library.length, coveredRooms.length)}</p>
+    </div>
+    <ol class="grid grid--3" style="list-style:none;padding:0;margin:0 0 18px" aria-label="How to use the room designs">
+      {d.howTo.map((x, i) => <li class="card card--flat"><h3 style="font-size:1.1rem;margin-bottom:4px">{i + 1}. {x.h}</h3><p style="margin:0">{x.b}</p></li>)}
+    </ol>
+    {showImageInfo && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
+    <div class="filters">
+      <fieldset class="filter-group">
+        <legend>Style</legend>
+        <div class="chips">
+          <button type="button" class="chip" data-filter="style" data-value="all" aria-pressed="true">All styles</button>
+          {styles.map((s) => <button type="button" class="chip" data-filter="style" data-value={s.id} aria-pressed="false">{s.name}</button>)}
+        </div>
+      </fieldset>
+      <fieldset class="filter-group">
+        <legend>Room</legend>
+        <div class="chips">
+          <button type="button" class="chip" data-filter="room" data-value="all" aria-pressed="true">All rooms</button>
+          {rooms.map((r) => <button type="button" class="chip" data-filter="room" data-value={r.id} aria-pressed="false">{r.name}</button>)}
+        </div>
+      </fieldset>
+    </div>
+    <div class="results-bar">
+      <p data-count role="status" aria-live="polite">{library.length} designs shown</p>
+      <button type="button" class="mini-btn" data-clear hidden>Clear filters</button>
+    </div>
+    <h3 class="visually-hidden">Designs</h3>
+    <div class="gal">
+      {library.map((it) => {
+        const st = styles.find((s) => s.id === it.style)!;
+        // A checked description of this exact image when one exists; otherwise the style's materials.
+        const info = it.description ?? `${st.note} Materials: ${st.materials}.`;
+        return (
+          <figure class="gal__item" data-item data-style={it.style} data-room={it.room}>
+            <button type="button" class="gal__btn" data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={info} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
+              <MediaImage media={it} />
+            </button>
+            <figcaption><h4>{it.styleName} {it.roomName}</h4><p class="gal__meta">{it.description ?? st.materials}</p></figcaption>
+          </figure>
+        );
+      })}
+    </div>
+    <div class="empty" data-empty hidden>
+      <h3>No designs for this combination yet</h3>
+      <p>Try a different room or style. Some combinations have not been planned.</p>
+      <button type="button" class="btn" data-clear-2>Clear filters</button>
+    </div>
+    <Lightbox />
+
+    <div class="pf-block">
+      <p class="eyebrow">{d.readingHead.eyebrow}</p><h3 class="pf-h3">{d.readingHead.h}</h3>
+      <div class="grid grid--2">
+        <div class="card card--flat"><h4>It shows</h4><ul class="tick">{d.canTell.map((x) => <li>{x}</li>)}</ul></div>
+        <div class="card card--flat"><h4>It does not show</h4><ul>{d.cannotTell.map((x) => <li>{x}</li>)}</ul>
+          <p style="margin-bottom:0"><a class="textlink" href="#styles">How to match a style to the house</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-block">
+      <p class="eyebrow">{d.coverageHead.eyebrow}</p><h3 class="pf-h3">{d.coverageHead.h}</h3><p>{d.coverageHead.p}</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Room design coverage by room">
+        <table>
+          <caption>Styles shown for each room type ({library.length} designs)</caption>
+          <thead><tr><th scope="col">Room</th><th scope="col">Styles shown</th></tr></thead>
+          <tbody>
+            {coverage.map(({ room, styles: ss }) => (
+              <tr><th scope="row"><a class="textlink" href={roomsOf('room', room.id)}>{room.name}</a></th><td>{ss.length === styles.length ? `All eight styles` : ss.map((s) => s.name).join(', ')}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Choosing a style (formerly Design Styles and the four style pages) -->
+<section class="section" id="styles" aria-labelledby="styles-h">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">{g.head.eyebrow}</p><h2 id="styles-h">{g.head.h}</h2></div>
+      <p class="lede">{g.head.p}</p>
+    </div>
+    <h3 class="pf-sub">{g.cuesHead.h}</h3>
+    <p class="pf-sub-p">{g.cuesHead.p}</p>
+    <div class="grid grid--4">
+      {g.cues.map((x) => <div class="card card--flat"><h4>{x.h}</h4><p>{x.b}</p></div>)}
+    </div>
+
+    <div class="pf-block">
+      <p class="eyebrow">Eight directions</p><h3 class="pf-h3">What each style brings to a room</h3>
+      <div class="pf-styles">
+        {g.entries.map((e) => {
+          const s = styles.find((x) => x.id === e.id)!;
+          const n = styleNotes[e.id];
+          return (
+            <article class="card pf-style" id={`style-${s.id}`}>
+              <div class="pf-swatches" aria-hidden="true">{swatches(s.id).map((col) => <span style={`background:${col}`}></span>)}</div>
+              <h4 class="pf-style__name">{s.name}</h4>
+              <p>{e.summary}</p>
+              <p class="gal__meta"><strong>Look for:</strong> {e.lookFor}</p>
+              {n && (
+                <details class="pf-more">
+                  <summary>{n.h}</summary>
+                  <p>{n.intro}</p>
+                  <div class="pf-more__cols">
+                    <div><p class="pf-more__h">Tends to suit</p><ul class="tick">{n.bestFor.map((x) => <li>{x}</li>)}</ul></div>
+                    <div><p class="pf-more__h">Typical pieces</p><ul>{n.pieces.map((x) => <li>{x}</li>)}</ul></div>
+                  </div>
+                  <p><strong>Watch for:</strong> {n.watch}</p>
+                </details>
+              )}
+              <a class="textlink small" href={roomsOf('style', s.id)}>Show {s.name} room designs</a>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--wall" id="compare-styles" aria-labelledby="compare-h">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">{g.tableHead.eyebrow}</p><h2 id="compare-h">{g.tableHead.h}</h2><p>{g.tableHead.p}</p></div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Design styles comparison table">
+      <table style="min-width:760px">
+        <caption>Mood, materials and fit for the eight staging styles</caption>
+        <thead><tr><th scope="col">Style</th><th scope="col">Mood</th><th scope="col">Signature materials</th><th scope="col">Sits well with</th><th scope="col">Use with care when</th></tr></thead>
+        <tbody>
+          {g.entries.map((e) => <tr><th scope="row"><a class="textlink" href={`#style-${e.id}`}>{nameOf(e.id)}</a></th><td>{e.mood}</td><td>{e.signature}</td><td>{e.pairsWith}</td><td>{e.care}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pf-block">
+      <p class="eyebrow">{g.situationsHead.eyebrow}</p><h3 class="pf-h3">{g.situationsHead.h}</h3><p>{g.situationsHead.p}</p>
+      <div class="grid grid--3">
+        {g.situations.map((x) => (
+          <div class="card card--flat">
+            <h4 style="font-size:1.1rem">{x.photo}</h4>
+            <p class="gal__meta">Consider: {x.styles.map((id, i) => <>{i > 0 && ', '}<a class="textlink" href={`#style-${id}`}>{nameOf(id)}</a></>)}</p>
+            <p>{x.why}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="pf-block">
+      <p class="eyebrow">{g.confusedHead.eyebrow}</p><h3 class="pf-h3">{g.confusedHead.h}</h3>
+      <div class="grid grid--2">
+        {g.confused.map((x) => <div class="card card--flat"><h4 style="font-size:1.15rem">{nameOf(x.a)} or {nameOf(x.b).toLowerCase()}?</h4><p>{x.body}</p></div>)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Questions -->
+<section class="section" id="faq" aria-labelledby="faq-h">
   <div class="wrap narrow">
-    <div class="section-head"><p class="eyebrow">Questions</p><h2>About these before-and-after comparisons</h2></div>
+    <div class="section-head"><p class="eyebrow">Questions</p><h2 id="faq-h">Portfolio, room designs and styles: common questions</h2></div>
+    <h3 class="pf-faq-h">{c.faqGroups.pairs}</h3>
     <Faq items={c.faqs} />
+    <h3 class="pf-faq-h">{c.faqGroups.designs}</h3>
+    <Faq items={d.faqs} />
+    <h3 class="pf-faq-h">{c.faqGroups.styles}</h3>
+    <Faq items={g.faqs} />
     {related.length > 0 && (
       <nav class="related-links" aria-label="Related pages">
         <h2 style="font-size:1.15rem;margin:0 0 8px">Keep exploring</h2>
@@ -65,4 +258,34 @@ const related = c.related.filter((r) => isLive(r.href));
     )}
   </div>
 </section>
-<Cta />
+<Cta h="Prefer to describe the look?" p="Tell us about the property and who you expect to buy it. A quote request can note any style you have in mind." />
+
+<style>
+  .pf-toc { margin-top: 24px; }
+  .pf-toc__label { font: 600 .74rem/1.2 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .pf-toc ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .pf-toc li { margin: 0; }
+  .pf-toc a { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-size: .9rem; text-decoration: none; }
+  .pf-toc a:hover { border-color: var(--ink); }
+  .pf-sub { font-size: 1.25rem; margin: 0 0 4px; }
+  .pf-sub-p { margin: 0 0 18px; max-width: 72ch; }
+  .pf-block { margin-top: clamp(40px, 5vw, 64px); }
+  .pf-h3 { font-size: clamp(1.4rem, 2.4vw, 1.8rem); margin: 0 0 10px; }
+  /* Eight cards: 4, 2 or 1 per row, so no row is ever left half empty. */
+  .pf-styles { display: grid; gap: 20px; align-items: start; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 1100px) { .pf-styles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .pf-styles { grid-template-columns: minmax(0, 1fr); } }
+  .pf-style { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .pf-style p { margin: 0 0 8px; }
+  .pf-style__name { font-size: 1.35rem; margin: 6px 0 4px; }
+  .pf-swatches { display: flex; gap: 6px; }
+  .pf-swatches span { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .12); }
+  .pf-more { margin: 4px 0 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .pf-more summary { cursor: pointer; font-weight: 650; color: var(--ink); min-height: 32px; }
+  .pf-more summary:focus-visible { outline: 3px solid var(--sun-deep); outline-offset: 2px; }
+  .pf-more[open] summary { margin-bottom: 8px; }
+  .pf-more__cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 4px 20px; }
+  .pf-more__h { font-weight: 650; color: var(--ink); margin: 0 0 4px !important; }
+  .pf-more ul { margin: 0 0 10px; }
+  .pf-faq-h { font-size: 1.15rem; margin: 26px 0 8px; }
+</style>

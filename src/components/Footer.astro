@@ -13,12 +13,11 @@ const bottomLinks = [
   ...(anyIllustrations() && isLive('/about/') ? [['/about/#images', 'About our images']] : []),
 ];
 const live = (xs: string[][]) => xs.filter(([p]) => isLive(p));
-// Each page appears once per group. Pages dropped from the header (Design Library, Guides, Contact)
-// stay reachable here. The Who We Serve group and its pages were removed by the owner in V18.2.
+// Each page appears once per group. Pages dropped from the header (Guides, Contact) stay reachable here.
+// The owner removed Who We Serve (V18.2) and Explore (V19); Portfolio is in the header.
 const groups = [
   { h: 'Services', links: [...services.filter((s) => isLive(s.path)).map((s) => [s.path, s.name]), ...live([['/services/', 'All services']])] },
   { h: 'Company', links: live([['/about/', 'About StageLiora'], ['/about/devender-garg/', 'About Devender Garg'], ['/contact/', 'Contact'], ['/pricing/', 'Pricing'], ['/reviews/', 'Reviews']]) },
-  { h: 'Explore', links: live([['/design-styles/', 'Design Styles'], ['/design-library/', 'Design Library'], ['/portfolio/', 'Portfolio'], ['/online-interior-design/', 'Online Interior Design'], ['/interior-designers/', 'Interior Designers'], ['/interior-design-projects/', 'Interior Design Projects']]) },
   { h: 'Resources', links: live([['/guides/', 'Guides'], ['/how-it-works/', 'How It Works'], ['/faq/', 'FAQ'], ['/locations/', 'Local market notes']]) },
 ].filter((g) => g.links.length > 0);
 ---

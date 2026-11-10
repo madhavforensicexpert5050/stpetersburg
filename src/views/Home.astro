@@ -51,11 +51,12 @@ const serviceItems: ShowcaseItem[] = services.filter((s) => isLive(s.path)).map(
   id: s.slug, label: s.name, pair: s.pairKey, title: s.name, body: s.short, href: s.path, linkLabel: `About ${s.name.toLowerCase()}`,
   pill: { text: `Stellar MLS: ${s.stellar.label}`, tone: tone[s.stellar.use] },
 }));
-const lib = isLive('/design-library/');
+// V19: styles and room designs live on the Portfolio (formerly /design-styles/ and /design-library/).
+const lib = isLive('/portfolio/');
 const liveServices = services.filter((s) => isLive(s.path));
 const bothTracks = liveServices.some((s) => s.track === 'concept-visualization') && liveServices.some((s) => s.track === 'listing-editing');
-const showStyles = isLive('/design-styles/') || lib;
-const showRooms = isLive('/portfolio/') || lib;
+const showStyles = lib;
+const showRooms = lib;
 const ico = (d: string) => `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const stepIcons = [
   ico('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 14h6M9 17h4"/>'),
@@ -205,9 +206,7 @@ const stepIcons = [
   </div>
   <div class="strip" tabindex="0" role="region" aria-label="Design style previews">
     {styleCards.map(({ s, img }) => (
-      isLive(`/design-styles/${s.id}/`)
-        ? <a href={url(`/design-styles/${s.id}/`)}><MediaImage media={img} /><span>{s.name}</span></a>
-        : <a href={url(lib ? `/design-library/?style=${s.id}` : '#main')}><MediaImage media={img} /><span>{s.name}</span></a>
+      <a href={url(`/portfolio/?style=${s.id}#room-designs`)}><MediaImage media={img} /><span>{s.name}</span></a>
     ))}
   </div>
 </section>}
@@ -230,7 +229,7 @@ const stepIcons = [
     </div>
     <div class="btn-row" style="margin-top:26px">
       {isLive('/portfolio/') && <a class="btn" href={url('/portfolio/')}>View Before and After Examples</a>}
-      {lib && <a class="btn" href={url('/design-library/')}>Browse the Design Library</a>}
+      {lib && <a class="btn" href={url('/portfolio/#room-designs')}>Browse Room Designs by Style</a>}
     </div>
   </div>
 </section>}

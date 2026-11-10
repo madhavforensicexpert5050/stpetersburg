@@ -115,7 +115,7 @@ const portfolio: MediaItem[] = portfolioRooms.flatMap(({ room, style }) => {
     .map((m) => withNote(m, (t) => `AI-created image of ${t}`));
 });
 
-/** Design Library grid. Deliberately not every style in every room, so filters reach real empty states. */
+/** Portfolio room designs grid (formerly the Design Library). Deliberately not every style in every room, so filters reach real empty states. */
 const libraryPlan: Record<StyleId, RoomId[]> = {
   modern: ['living-room', 'primary-bedroom', 'dining-room', 'home-office', 'kitchen', 'basement', 'patio'],
   scandinavian: ['living-room', 'primary-bedroom', 'guest-bedroom', 'childrens-bedroom', 'dining-room', 'home-office', 'entryway', 'sunroom'],
@@ -129,7 +129,7 @@ const libraryPlan: Record<StyleId, RoomId[]> = {
 export interface LibraryItem extends MediaItem { style: StyleId; room: RoomId; styleName: string; roomName: string }
 export const library: LibraryItem[] = styles.flatMap((s) => libraryPlan[s.id].map((roomId) => {
   const roomName = rooms.find((r) => r.id === roomId)!.name;
-  const item = base(`lib-${s.id}-${roomId}`, '/design-library/', 'Library grid', `${s.name} ${roomName}`,
+  const item = base(`lib-${s.id}-${roomId}`, '/portfolio/', 'Room designs grid', `${s.name} ${roomName}`,
     `Illustration of ${/^[aeiou]/i.test(s.name) ? 'an' : 'a'} ${s.name.toLowerCase()} style ${roomName.toLowerCase()}: ${s.materials.toLowerCase()}.`,
     { kind: 'interior', room: roomId, style: s.id, furnish: 'staged' }, { role: 'single' });
   const a = /^[aeiou]/i.test(s.name) ? 'an' : 'a';

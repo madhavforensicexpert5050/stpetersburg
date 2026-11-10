@@ -382,11 +382,12 @@ input:disabled, select:disabled { background: var(--wall); }
 
 /* Footer */
 .site-footer { background: #091824; color: var(--on-ink-muted); padding-top: clamp(44px, 6vw, 76px); font-size: .96rem; }
-/* Brand plus four link groups (Services, Company, Explore, Resources). Every breakpoint divides the four evenly. */
-.foot-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr)); gap: 28px 36px; }
-@media (max-width: 1180px) { .foot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .foot-brand { grid-column: 1 / -1; } }
-@media (max-width: 860px) { .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 480px) { .foot-grid { grid-template-columns: minmax(0, 1fr); } }
+/* Brand plus three link groups (Services, Company, Resources), with no empty column at any width.
+   Desktop: brand + 3. Tablet: brand row, then 3. Large phone: Services full width in two columns, then Company and Resources side by side. */
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 28px 36px; }
+@media (max-width: 1180px) { .foot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .foot-brand { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .foot-grid > nav:first-of-type { grid-column: 1 / -1; } .foot-grid > nav:first-of-type ul { columns: 2; column-gap: 24px; } }
+@media (max-width: 480px) { .foot-grid { grid-template-columns: minmax(0, 1fr); } .foot-grid > nav:first-of-type ul { columns: 1; } }
 .foot-grid h2 { font: 600 .78rem/1.2 var(--text); letter-spacing: .1em; text-transform: uppercase; color: #fff; margin-bottom: 12px; }
 .foot-grid ul { list-style: none; padding: 0; margin: 0; }
 .foot-grid li { margin-bottom: 2px; }

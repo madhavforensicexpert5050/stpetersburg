@@ -18,7 +18,7 @@ for (const [name, type, opts] of [['Chrome', chromium, { channel: 'chrome' }], [
   await input.focus(); await p.keyboard.press('ArrowRight');
   r.sliderMoved = (await input.inputValue()) === '51';
   r.clipApplied = (await p.locator('.compare__after').first().evaluate((e) => getComputedStyle(e).clipPath)).includes('51');
-  await p.goto(`${origin}/design-library/`);
+  await p.goto(`${origin}/portfolio/`);
   const all = await p.locator('[data-item]:visible').count();
   await p.locator('[data-filter=style][data-value=coastal]').click();
   r.filterWorks = (await p.locator('[data-item]:visible').count()) < all;

@@ -91,6 +91,20 @@ export const portfolioNotes: Record<string, ImageNote> = Object.fromEntries([
   pf('kitchen', 'after', 'the same kitchen with an oak dining table and chairs on a cream rug and three oak stools at the counter.'),
 ]);
 
+/**
+ * Page explanations of a specific comparison, keyed by media id. Written from the files on 2026-11-10.
+ * /for-real-estate-agents/ reads its "Reading the example above" text only while both files still match.
+ */
+export const exampleNotes: Record<string, ImageNote> = {
+  'showcase-bedroom-before': { src: '/media/generated/virtual-staging-bedroom-before.webp', text: 'Empty bedroom: four-door built-in wardrobe, wide three-pane window onto a garden, light wood floor, open door to the hallway, round ceiling light.' },
+  'showcase-bedroom-after': { src: '/media/generated/virtual-staging-bedroom-after.webp', text: 'Same room with a linen-dressed bed and knitted throw, upholstered bench, wool rug, one visible nightstand with lamp, framed art, woven basket and windowsill decor.' },
+};
+
+/** True while every listed media slot still shows the file its example note was written for. */
+export function exampleCurrent(ids: string[], current: { id: string; src: string }[]): boolean {
+  return ids.every((id) => exampleNotes[id] && current.find((m) => m.id === id)?.src === exampleNotes[id].src);
+}
+
 /** The note for a media slot, only while the slot still shows the exact file the note was written for. */
 export function noteFor(id: string, src: string): string | null {
   const n = libraryNotes[id] ?? portfolioNotes[id];
@@ -99,6 +113,6 @@ export function noteFor(id: string, src: string): string | null {
 
 /** Notes whose slot now shows a different file. `npm run qa` fails on any of these. */
 export function staleNotes(current: { id: string; src: string }[]): string[] {
-  const all = { ...libraryNotes, ...portfolioNotes };
+  const all = { ...libraryNotes, ...portfolioNotes, ...exampleNotes };
   return Object.entries(all).filter(([id, n]) => { const m = current.find((x) => x.id === id); return !m || m.src !== n.src; }).map(([id]) => id);
 }

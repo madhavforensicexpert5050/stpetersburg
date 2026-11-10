@@ -3,6 +3,7 @@ import { absUrl, siteRoot } from '../lib/url.ts';
 import Base from '../layouts/Base.astro';
 import { buildRoutes, findRoute, isInternalReview, type RouteDef } from '../data/routes.ts';
 import { getGuide } from '../data/guides.ts';
+import { agentsPage } from '../data/agents-page.ts';
 import { getService } from '../data/services.ts';
 import { business } from '../data/business.ts';
 import Home from '../views/Home.astro';
@@ -55,6 +56,8 @@ if (route.template === 'founder') {
   schema.push({ '@type': 'ProfilePage', url: canonical, mainEntity: { '@type': 'Person', name: 'Devender Garg', ...(roleOk ? { jobTitle: 'Founder & Owner' } : {}), ...(photoOk ? { image: absUrl(founder.portrait.src) } : {}), worksFor: org } });
 }
 if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name }); }
+if (route.template === 'audience' && route.ref === 'agents') {
+  schema.push({ '@type': 'WebPage', name: agentsPage.h1, description: route.description, url: canonical, inLanguage: 'en-US', publisher: org, audience: { '@type': 'Audience', audienceType: 'Real estate agents' } });}
 if (route.template === 'guide') {
   const g = getGuide(route.ref!);
   schema.push({ '@type': 'Article', headline: g.h1, description: g.description, url: canonical, dateModified: g.updated, inLanguage: 'en-US', author: org, publisher: org });

@@ -62,17 +62,7 @@ export const generalFaqs = [
 ];
 
 export const audiences = {
-  agents: {
-    eyebrow: 'For real estate agents', h1: 'Vacant listing, sitting too long? Start with the photos.',
-    intro: 'Most people meet your listing as a stack of photos on a phone. An empty room gives them very little to go on. Staging the right rooms can help them read scale and use, without pretending the house is something it is not.',
-    pairKey: 'showcase-bedroom',
-    needs: [
-      { h: 'Decide which rooms to stage', b: 'You rarely need every room. Start with the living area, the primary bedroom and any room whose use is unclear, like a bonus room or an odd alcove.' },
-      { h: 'Keep the record straight', b: 'Hold on to the original of every edited photo. In Stellar MLS you complete the disclosure in the fields, because words on the photo itself are not allowed.' },
-      { h: 'Set expectations before the showing', b: 'Buyers will walk into an empty room. A clear label and an original in the listing materials help avoid an awkward moment at the door.' },
-    ],
-    checklist: ['Original files saved and backed up', 'Permission to edit the photos, if a photographer took them', 'Photo description reads "Virtually staged"', 'Virtually staged field is checked', 'Public remarks begin with the required sentence', 'No defects, fixtures, views or room sizes altered'],
-  },
+  // agents: replaced by the decision-guide page in src/data/agents-page.ts (V17).
   photographers: {
     eyebrow: 'For real estate photographers', h1: 'Add staging to a shoot without adding it to your day.',
     intro: 'Agents ask their photographer about staging because you are the person holding the files. This page describes how a partner workflow could work. No partner or white-label program is in place today.',

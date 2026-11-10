@@ -2,7 +2,8 @@
 import { absUrl, siteRoot } from '../lib/url.ts';
 import Base from '../layouts/Base.astro';
 import { buildRoutes, findRoute, isInternalReview, type RouteDef } from '../data/routes.ts';
-import { getGuide } from '../data/guides.ts';
+import { getGuide, featuredOf } from '../data/guides.ts';
+import { getPair } from '../data/media.ts';
 import { getService } from '../data/services.ts';
 import { business } from '../data/business.ts';
 import Home from '../views/Home.astro';
@@ -53,7 +54,9 @@ if (route.template === 'founder') {
 if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name }); }
 if (route.template === 'guide') {
   const g = getGuide(route.ref!);
-  schema.push({ '@type': 'Article', headline: g.h1, description: g.description, url: canonical, dateModified: g.updated, inLanguage: 'en-US', author: org, publisher: org });
+  const f = featuredOf(g);
+  const image = f ? absUrl((f.show === 'before' ? getPair(f.pair).before : getPair(f.pair).after).src) : undefined;
+  schema.push({ '@type': 'Article', headline: g.h1, description: g.description, url: canonical, dateModified: g.updated, inLanguage: 'en-US', author: org, publisher: org, ...(image ? { image } : {}) });
 }
 ---
 <Base route={route} title={isInternalReview ? route.title : route.title.replace(/ \((Draft|Placeholders)\)/, '')} description={route.description} path={path} schema={schema} noCta={['order', 'account', 'orders', 'upload'].includes(route.template)}>

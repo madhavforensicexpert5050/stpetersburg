@@ -207,6 +207,15 @@ check(`Consolidated pages are not near-duplicates (max 5-word overlap ${(consolM
 const generalQs = faqQs(pages.find((x) => x.r.path === '/faq/').html), agentFaqQs = faqQs(pages.find((x) => x.r.path === '/guides/virtual-staging-faqs/').html);
 check('The FAQ page repeats no question from the agent FAQ guide', !generalQs.some((q) => agentFaqQs.includes(q)), generalQs.filter((q) => agentFaqQs.includes(q)));
 
+// Guides: every card on the hub shows its featured image, and every guide's Article schema names an image.
+const guidePages = pages.filter(({ r }) => r.template === 'guide');
+const hubHtml = pages.find((x) => x.r.path === '/guides/').html;
+const hubCards = [...hubHtml.matchAll(/<a class="card card--link gcard"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: m[1], img: /<div class="gcard__img[^"]*"[^>]*>\s*<img [^>]*src="\/media\//.test(m[2]) }));
+const noFeatured = guidePages.map(({ r }) => r.path).filter((p) => !hubCards.some((c) => c.href === p && c.img));
+check(`Every guide card on the Guides hub shows a featured image (${hubCards.filter((c) => c.img).length}/${guidePages.length})`, !noFeatured.length && hubCards.length === guidePages.length, noFeatured);
+const noSchemaImage = guidePages.filter(({ html }) => !/"@type":"Article"[^<]*"image":"https?:\/\/[^"]+\/media\/[^"]+\.webp"/.test(html)).map(({ r }) => r.path);
+check('Every guide Article schema includes its featured image', !noSchemaImage.length, noSchemaImage);
+
 // Navigation (owner spec, header and footer update)
 const homeHtml = pages.find((x) => x.r.path === '/').html;
 const navHtml = (homeHtml.match(/<nav class="nav"[\s\S]*?<\/nav>/) || [''])[0];

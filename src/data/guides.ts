@@ -10,7 +10,13 @@ export type Block =
   | { t: 'compare'; pair: string }
   | { t: 'links'; h: string; items: { href: string; label: string }[] };
 
-export interface Guide { slug: string; path: string; title: string; h1: string; description: string; summary: string; reading: string; updated: string; heroPair?: string; sources: { name: string; url: string }[]; body: Block[]; faqs?: { q: string; a: string }[] }
+/**
+ * Featured image on the Guides hub card and in Article schema. Defaults to the guide's hero pair shown half before,
+ * half after. 'before' shows only the original frame, for guides about the source photo rather than the edit.
+ */
+export interface Featured { pair: string; show: 'split' | 'before' }
+
+export interface Guide { slug: string; path: string; title: string; h1: string; description: string; summary: string; reading: string; updated: string; heroPair?: string; featured?: Featured; sources: { name: string; url: string }[]; body: Block[]; faqs?: { q: string; a: string }[] }
 
 const UPDATED = '2026-11-05';
 const STELLAR = { name: 'Stellar MLS Article 04.04: Virtually Staged Photos (last updated Sep 27, 2026)', url: 'https://rules.stellarmls.com/article/article-0404-virtually-staged-photos' };
@@ -19,7 +25,7 @@ const NAR = { name: 'NAR, 2025 Profile of Home Staging', url: 'https://www.nar.r
 
 export const guides: Guide[] = [
   {
-    slug: 'what-is-virtual-staging', path: '/guides/what-is-virtual-staging/', reading: '5 min', updated: UPDATED, sources: [STELLAR, NAR],
+    slug: 'what-is-virtual-staging', path: '/guides/what-is-virtual-staging/', heroPair: 'svc-virtual-staging', reading: '5 min', updated: UPDATED, sources: [STELLAR, NAR],
     title: 'What Is Virtual Staging? A Plain-English Guide | StageLiora', h1: 'What is virtual staging?',
     description: 'Virtual staging adds furniture and decor to a photo of a room. How it works, when it helps, what it should never change, and how to disclose it.',
     summary: 'Virtual staging adds furniture and decor to a photo of a room without changing the room itself.',
@@ -106,7 +112,7 @@ export const guides: Guide[] = [
     ],
   },
   {
-    slug: 'how-to-prepare-photos-for-virtual-staging', path: '/guides/how-to-prepare-photos-for-virtual-staging/', heroPair: 'svc-photo-enhancement', reading: '5 min', updated: UPDATED, sources: [STELLAR_PR],
+    slug: 'how-to-prepare-photos-for-virtual-staging', path: '/guides/how-to-prepare-photos-for-virtual-staging/', heroPair: 'svc-photo-enhancement', featured: { pair: 'pf-primary-bedroom', show: 'before' }, reading: '5 min', updated: UPDATED, sources: [STELLAR_PR],
     title: 'How to Prepare Photos for Virtual Staging | StageLiora', h1: 'How to prepare photos for virtual staging',
     description: 'A practical shooting checklist for virtual staging: camera height, angles, light, clutter, file size and rights, for phones and professional cameras.',
     summary: 'A good staged image starts with a level, well-exposed photo that shows the floor.',
@@ -223,6 +229,9 @@ export const guides: Guide[] = [
     ],
   },
 ];
+
+/** The guide's featured image: its own setting, else its hero pair split, else none. */
+export const featuredOf = (g: Guide): Featured | null => g.featured ?? (g.heroPair ? { pair: g.heroPair, show: 'split' } : null);
 
 export const getGuide = (slug: string) => {
   const g = guides.find((x) => x.slug === slug);

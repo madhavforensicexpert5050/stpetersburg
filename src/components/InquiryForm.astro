@@ -3,12 +3,22 @@ import { url } from '../lib/url.ts';
 import { business } from '../data/business.ts';
 import { services } from '../data/services.ts';
 import { isLive } from '../data/routes.ts';
+import { rooms, styles } from '../data/taxonomy.ts';
 interface Props { full?: boolean }
 const { full = false } = Astro.props;
 const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT || '';
 const privacy = isLive('/privacy-policy/');
+// Known style and room ids, so a link from the Portfolio (?ask=staging&style=&room=) can fill "Asking about"
+// with real names and nothing else from the URL ever reaches the form.
+const styleNames = JSON.stringify(Object.fromEntries(styles.map((s) => [s.id, s.name])));
+const roomNames = JSON.stringify(Object.fromEntries(rooms.map((r) => [r.id, r.name])));
 ---
-<form class="form" novalidate data-inquiry data-endpoint={endpoint} data-email={business.email} data-subject={full ? 'Quote request from the StageLiora website' : 'Question from the StageLiora website'}>
+<form class="form" id="inquiry" novalidate data-inquiry data-endpoint={endpoint} data-email={business.email} data-styles={styleNames} data-rooms={roomNames} data-subject={full ? 'Quote request from the StageLiora website' : 'Question from the StageLiora website'}>
+  <div class="field" data-interest hidden>
+    <label for="f-interest">Asking about</label>
+    <input id="f-interest" name="interest" type="text" maxlength="160" aria-describedby="h-interest" />
+    <p class="hint" id="h-interest">Filled in from the page you were viewing. Change it or clear it as you like.</p>
+  </div>
   <div class="field-row">
     <div class="field">
       <label for="f-name">Name <span class="req">(required)</span></label>

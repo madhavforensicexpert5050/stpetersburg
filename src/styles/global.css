@@ -282,6 +282,8 @@ dialog.lb::backdrop { background: rgba(6,16,24,.82); }
 .lb__info { padding: 12px 14px 16px; font-size: .95rem; }
 .lb__info p { margin: 0; }
 .lb__info:has(p:empty) { display: none; }
+.lb__ask { padding: 0 14px 16px; }
+.lb__ask[hidden], .field[hidden] { display: none; }
 
 /* FAQ */
 .faq details { border-top: 1px solid var(--line); }

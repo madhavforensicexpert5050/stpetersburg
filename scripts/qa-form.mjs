@@ -25,6 +25,8 @@ check('Reply-to is the customer', t.sent[0]?.replyTo === 'pat.secret@example.com
 check('Email contains the request details', /Private message/.test(t.sent[0]?.text) && /Virtual Staging/.test(t.sent[0]?.text));
 const logged = JSON.stringify(t.logs);
 check('Logs contain no name, email, phone or message', !/Secret|secret|33705/.test(logged) && /inquiry_delivered/.test(logged), logged);
+resetRateLimit(); t = await run({ ...good, services: undefined, interest: 'Virtual staging, Coastal style' });
+check('A style chosen on the Portfolio reaches the email', /Asking about: Virtual staging, Coastal style/.test(t.sent[0]?.text ?? ''));
 resetRateLimit(); t = await run({ ...good, services: undefined });
 check('Contact form (no services) is accepted', t.res.status === 200 && /Website message/.test(t.sent[0].subject));
 resetRateLimit(); t = await run({ ...good, name: 'Pat\r\nBcc: evil@example.com', email: 'pat@example.com' });

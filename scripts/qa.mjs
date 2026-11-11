@@ -179,7 +179,16 @@ const pfSentences = sentenceList(pages.find((x) => x.r.path === '/portfolio/').h
 const repeated = [...new Set(pfSentences.filter((s, i) => pfSentences.indexOf(s) !== i))];
 check('The merged Portfolio repeats no sentence of eight words or more', !repeated.length, repeated.slice(0, 8));
 const pfHtml = pages.find((x) => x.r.path === '/portfolio/').html;
-check('Portfolio holds the merged sections: before and after, filterable room designs, and the style guide', ['id="before-after"', 'id="room-designs"', 'data-library', 'id="styles"', 'id="compare-styles"', 'id="faq"'].every((s) => pfHtml.includes(s)) && (pfHtml.match(/class="card pf-style"/g) || []).length === 8 && (pfHtml.match(/<details class="pf-more"/g) || []).length === 4);
+check('Portfolio holds the merged sections: before and after, filterable room designs, and the style guide', ['id="before-after"', 'id="room-designs"', 'data-library', 'id="styles"', 'id="compare-styles"', 'id="faq"'].every((s) => pfHtml.includes(s)) && (pfHtml.match(/class="card pf-style"/g) || []).length === 8);
+// V21: "Choosing a style" and "Styles compared" were merged. Each style is described once, on its card; the
+// comparison table and the four expandable style notes must not come back alongside the cards.
+check('Portfolio describes each style once: no second comparison table or style notes', !/<details class="pf-more"/.test(pfHtml) && !/Mood, materials and fit for the eight staging styles/.test(pfHtml) && (pfHtml.match(/<dt[^>]*>Look for<\/dt>/g) || []).length === 8);
+// V21 inquiry path: every Ask About This Style link opens the inquiry form with known ids only.
+const askHrefs = [...pfHtml.matchAll(/href="([^"]*\?ask=staging[^"]*)"/g)].map((m) => m[1].replace(/&amp;/g, '&'));
+const askData = [...pfHtml.matchAll(/data-ask="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&'));
+const askAll = [...askHrefs, ...askData];
+const askTarget = (h) => h.split('?')[0];
+check('Portfolio: style cards, pairs, room designs and the pairs CTA link to the inquiry form with their context', askHrefs.length === 8 + 6 + 1 && askData.length === (pfHtml.match(/data-item /g) || []).length && askAll.every((h) => ['/contact/', '/request-quote/'].includes(askTarget(h)) && /#inquiry$/.test(h)), `${askHrefs.length} links, ${askData.length} designs`);
 const faqQs = (h) => [...((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).matchAll(/<summary>([\s\S]*?)<\/summary>/g)].map((m) => visible(m[1]).trim().toLowerCase());
 const faqDup = [];
 for (const p of VISUAL) for (const q of faqQs(pages.find((x) => x.r.path === p).html)) for (const o of pages) if (o.r.path !== p && faqQs(o.html).includes(q)) faqDup.push(`${p} & ${o.r.path}: ${q}`);
@@ -232,7 +241,7 @@ const footGroups = [...footBlock.matchAll(/<nav aria-label="Footer: ([^"]+)"[^>]
 check('Footer has exactly Services, Company and Resources, each with links, and no Who We Serve or Explore group', footGroups.map((g) => g.h).join('|') === 'Services|Company|Resources' && footGroups.every((g) => g.n > 0) && !/Who We Serve|>Explore<|for-real-estate-photographers|for-brokerages|design-styles|design-library/.test(footBlock), footGroups.map((g) => `${g.h}:${g.n}`).join(' '));
 const footHtml = (homeHtml.match(/<footer[\s\S]*?<\/footer>/) || [''])[0];
 const footGroup = (h) => { const m = footHtml.match(new RegExp(`<h2>${h}</h2>\\s*<ul>([\\s\\S]*?)</ul>`)); return m ? [...m[1].matchAll(/<a[^>]*>([^<]*)<\/a>/g)].map((x) => x[1]) : []; };
-const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], Resources: ['Guides', 'How It Works'] };
+const wantFoot = { Company: ['About StageLiora', 'About Devender Garg', 'Contact'], Resources: ['Guides', 'How It Works', 'Portfolio'] };
 const footBad = Object.entries(wantFoot).flatMap(([h, ls]) => { const got = footGroup(h); return [...ls.filter((l) => !got.includes(l)).map((l) => `${h} lacks ${l}`), ...(new Set(got).size !== got.length ? [`${h} has a duplicate`] : [])]; });
 check('Footer groups hold the required links with no duplicates within a group', !footBad.length, footBad);
 

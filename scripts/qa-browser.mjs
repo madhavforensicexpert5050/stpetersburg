@@ -175,6 +175,9 @@ const dlg = page.locator('dialog.lb');
 const lbSrc = await dlg.locator('img').evaluate((i) => new Promise((ok) => { if (i.complete && i.naturalWidth) ok(i.naturalWidth); else { i.onload = () => ok(i.naturalWidth); setTimeout(() => ok(i.naturalWidth), 2000); } }));
 check('Lightbox: opens from the keyboard and loads the image', (await dlg.isVisible()) && lbSrc > 1);
 check('Lightbox: titled by name, without a per-image AI label', (await dlg.locator('[data-lb-title]').innerText()).trim().length > 0 && !/AI concept|AI-created example/.test(await dlg.locator('[data-lb-title]').innerText()));
+const lbAsk = dlg.locator('[data-lb-ask]');
+const openerAsk = await opener.getAttribute('data-ask');
+check('Lightbox: a room design offers Ask About This Style for that design', (await lbAsk.isVisible()) && (await lbAsk.getAttribute('href')) === openerAsk && /\?ask=staging&style=modern&room=/.test(openerAsk || ''), openerAsk);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(80);
 check('Lightbox: Escape closes it and focus returns to the opener', !(await dlg.isVisible()) && (await opener.evaluate((el) => el === document.activeElement)));
@@ -182,7 +185,47 @@ await page.goto(origin + '/');
 const hgb = page.locator('.gal__btn').first();
 await hgb.click();
 check('Lightbox: works on the homepage gallery', await page.locator('dialog.lb').isVisible());
+check('Lightbox: the homepage gallery shows no inquiry link', !(await page.locator('[data-lb-ask]').isVisible()));
 await page.locator('[data-lb-close]').click();
+
+// --- Portfolio to inquiry form: the chosen style arrives filled in, visible and editable ---
+await page.goto(origin + '/portfolio/');
+const styleAsk = page.locator('#style-coastal a.pf-ask');
+await styleAsk.click();
+// Preview builds open the quote form; the GitHub Pages preview, without a live quote form, opens the contact form.
+await page.waitForURL(/\/(contact|request-quote)\/\?ask=staging&style=coastal#inquiry$/);
+const interestField = page.locator('[name=interest]');
+check('Inquiry: a style card fills "Asking about" with that style', (await interestField.isVisible()) && (await interestField.inputValue()) === 'Virtual staging, Coastal style', await interestField.inputValue());
+await interestField.fill('Coastal, but warmer woods');
+check('Inquiry: the filled-in style can be edited', (await interestField.inputValue()) === 'Coastal, but warmer woods');
+await page.goto(origin + '/contact/?ask=staging&style=coastal&room=deck');
+check('Inquiry: a room design adds the room', (await interestField.inputValue()) === 'Virtual staging, Coastal style, as in the Coastal Deck design', await interestField.inputValue());
+await page.goto(origin + '/contact/?ask=staging&style=<script>&room=bogus');
+check('Inquiry: unknown ids are never copied into the form', (await interestField.inputValue()) === 'Virtual staging');
+await page.goto(origin + '/contact/');
+check('Inquiry: without a link, the "Asking about" field stays hidden', !(await interestField.isVisible()));
+await page.goto(origin + '/portfolio/');
+await page.locator('.pf-cta a.btn').click();
+await page.waitForURL(/\/(contact|request-quote)\/\?ask=staging#inquiry$/);
+check('Inquiry: Ask About Your Rooms opens the inquiry form', (await interestField.inputValue()) === 'Virtual staging');
+
+// --- Portfolio order and mobile progressive disclosure ---
+await page.goto(origin + '/portfolio/');
+const order = await page.evaluate(() => ['before-after', 'styles', 'room-designs', 'faq'].map((id) => document.getElementById(id)?.getBoundingClientRect().top ?? -1));
+const tocOk = await page.evaluate(() => [...document.querySelectorAll('.pf-toc a')].every((a) => document.getElementById(a.getAttribute('href').slice(1))));
+check('Portfolio: before and after, then Choose your style, then room designs, then questions; every jump link has a target', order.every((v, i) => v >= 0 && (i === 0 || v > order[i - 1])) && tocOk, order.join(','));
+await page.setViewportSize({ width: 390, height: 800 });
+await page.goto(origin + '/portfolio/');
+const allDesigns = await page.locator('[data-item]').count();
+check('Gallery (mobile): shows a first batch and a Show all button', (await visibleCount()) === 8 && (await page.locator('[data-more]').innerText()) === `Show all ${allDesigns} designs` && (await countText()) === `Showing 8 of ${allDesigns} designs`, `${await visibleCount()} ${await countText()}`);
+await page.locator('[data-more]').click();
+check('Gallery (mobile): Show all reveals every design and moves focus to the first new one', (await visibleCount()) === allDesigns && !(await page.locator('[data-more]').isVisible()) && (await page.evaluate(() => [...document.querySelectorAll('[data-item]')].indexOf(document.activeElement.closest('[data-item]')))) === 8);
+await page.locator('[data-filter=room][data-value=living-room]').click();
+check('Gallery (mobile): a filter with eight or fewer matches needs no button', (await visibleCount()) === 8 && !(await page.locator('[data-more]').isVisible()));
+await page.locator('[data-filter=room][data-value=all]').click();
+await page.locator('[data-filter=style][data-value=scandinavian]').click();
+check('Gallery (mobile): filters still narrow the list', (await page.locator('[data-item]:visible').evaluateAll((els) => els.every((e) => e.dataset.style === 'scandinavian'))) && (await visibleCount()) > 0);
+await page.setViewportSize({ width: 1280, height: 900 });
 
 // --- Mobile nav ---
 await page.setViewportSize({ width: 390, height: 800 });

@@ -49,6 +49,12 @@ if (lb) {
     img.alt = t.dataset.alt || '';
     title.textContent = t.dataset.title || '';
     info.textContent = t.dataset.info || '';
+    const askRow = lb.querySelector<HTMLElement>('[data-lb-ask-row]');
+    const ask = lb.querySelector<HTMLAnchorElement>('[data-lb-ask]');
+    if (askRow && ask) {
+      askRow.hidden = !t.dataset.ask;
+      if (t.dataset.ask) { ask.href = t.dataset.ask; ask.setAttribute('aria-label', `Ask about this style: ${t.dataset.title || ''}`.trim()); }
+    }
     lb.showModal();
   });
   lb.querySelector('[data-lb-close]')?.addEventListener('click', () => lb.close());
@@ -64,14 +70,25 @@ if (libRoot) {
   const empty = libRoot.querySelector<HTMLElement>('[data-empty]')!;
   const clear = libRoot.querySelector<HTMLButtonElement>('[data-clear]')!;
   const state: Record<string, string> = { style: 'all', room: 'all' };
+  // Narrow screens: show the first batch of matching designs, then a "Show all" button for the rest. Every filter
+  // change starts a new short list; wider screens and visitors without JavaScript always see every match.
+  const moreRow = libRoot.querySelector<HTMLElement>('[data-more-row]');
+  const more = libRoot.querySelector<HTMLButtonElement>('[data-more]');
+  const first = Number(more?.dataset.first || 0);
+  const narrow = window.matchMedia('(max-width: 720px)');
+  let expanded = false;
   const apply = () => {
-    let n = 0;
+    let n = 0, shown = 0;
+    const limit = more && first > 0 && narrow.matches && !expanded ? first : Infinity;
     items.forEach((el) => {
-      const show = (state.style === 'all' || el.dataset.style === state.style) && (state.room === 'all' || el.dataset.room === state.room);
+      const match = (state.style === 'all' || el.dataset.style === state.style) && (state.room === 'all' || el.dataset.room === state.room);
+      if (match) n++;
+      const show = match && n <= limit;
       el.hidden = !show;
-      if (show) n++;
+      if (show) shown++;
     });
-    count.textContent = `${n} ${n === 1 ? 'design' : 'designs'} shown`;
+    count.textContent = shown < n ? `Showing ${shown} of ${n} designs` : `${n} ${n === 1 ? 'design' : 'designs'} shown`;
+    if (moreRow && more) { moreRow.hidden = shown >= n; more.textContent = `Show all ${n} designs`; }
     empty.hidden = n > 0;
     clear.hidden = state.style === 'all' && state.room === 'all';
     libRoot.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) => {
@@ -80,9 +97,16 @@ if (libRoot) {
   };
   libRoot.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
-    if (b) { state[b.dataset.filter!] = b.dataset.value!; apply(); }
-    if ((e.target as HTMLElement).closest('[data-clear], [data-clear-2]')) { state.style = 'all'; state.room = 'all'; apply(); }
+    if (b) { state[b.dataset.filter!] = b.dataset.value!; expanded = false; apply(); }
+    if ((e.target as HTMLElement).closest('[data-clear], [data-clear-2]')) { state.style = 'all'; state.room = 'all'; expanded = false; apply(); }
+    if ((e.target as HTMLElement).closest('[data-more]')) {
+      const before = items.filter((el) => !el.hidden).length;
+      expanded = true; apply();
+      // Keyboard and screen reader users continue from the first design that was just revealed.
+      items.filter((el) => !el.hidden)[before]?.querySelector<HTMLElement>('.gal__btn')?.focus();
+    }
   });
+  narrow.addEventListener('change', apply);
   const q = new URLSearchParams(location.search);
   const qs = q.get('style'); const qr = q.get('room');
   if (qs && libRoot.querySelector(`[data-filter=style][data-value="${CSS.escape(qs)}"]`)) state.style = qs;
@@ -93,6 +117,19 @@ if (libRoot) {
 // Quote and contact forms --------------------------------------------------
 document.querySelectorAll<HTMLFormElement>('form[data-inquiry]').forEach((form) => {
   const status = form.querySelector<HTMLElement>('[data-status]')!;
+  // Arriving from an "Ask About This Style" link: ?ask=staging&style=<id>&room=<id>. Only known ids are used, mapped
+  // to their names from the form's own lists, and the result goes into a visible field the visitor can edit or clear.
+  const interestBox = form.querySelector<HTMLElement>('[data-interest]');
+  const interest = form.querySelector<HTMLInputElement>('[name=interest]');
+  const q = new URLSearchParams(location.search);
+  if (interestBox && interest && q.get('ask') === 'staging') {
+    const names = (k: string): Record<string, string> => { try { return JSON.parse(form.dataset[k] || '{}'); } catch { return {}; } };
+    const st = names('styles')[q.get('style') || ''];
+    const rm = names('rooms')[q.get('room') || ''];
+    interest.value = !st ? 'Virtual staging' : rm ? `Virtual staging, ${st} style, as in the ${st} ${rm} design` : `Virtual staging, ${st} style`;
+    interest.defaultValue = interest.value;
+    interestBox.hidden = false;
+  }
   const contact = form.dataset.email!;
   const fieldErr = (name: string, msg: string) => {
     const el = form.querySelector<HTMLElement>(`[data-err="${name}"]`);
@@ -124,7 +161,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-inquiry]').forEach((form) 
   const composeBody = (fd: FormData) => {
     const lines: string[] = [];
     const add = (l: string, k: string) => { const v = fd.getAll(k).map(String).filter(Boolean).join(', '); if (v) lines.push(`${l}: ${v}`); };
-    add('Name', 'name'); add('Email', 'email'); add('Phone', 'phone'); add('Company', 'company'); add('Role', 'role'); add('Services', 'services');
+    add('Name', 'name'); add('Email', 'email'); add('Phone', 'phone'); add('Company', 'company'); add('Asking about', 'interest'); add('Role', 'role'); add('Services', 'services');
     add('Number of photos', 'photos'); add('Property location', 'location'); add('MLS', 'mls'); add('Intended use', 'use');
     lines.push('', String(fd.get('message') ?? ''));
     return lines.join('\n');

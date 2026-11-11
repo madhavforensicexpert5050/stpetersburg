@@ -9,7 +9,7 @@ export interface InquiryDeps { send: (m: OutgoingEmail) => Promise<boolean>; log
 export interface InquiryResponse { status: number; body: { ok: boolean; error?: string; fields?: string[] } }
 
 export const MAX_BODY = 20_000;
-const LIMITS: Record<string, number> = { name: 120, email: 200, phone: 40, company: 150, role: 60, photos: 40, location: 120, mls: 60, use: 80, message: 5000 };
+const LIMITS: Record<string, number> = { name: 120, email: 200, phone: 40, company: 150, interest: 160, role: 60, photos: 40, location: 120, mls: 60, use: 80, message: 5000 };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const RATE_MAX = 5, RATE_WINDOW = 10 * 60 * 1000;
 const hits = new Map<string, number[]>();
@@ -54,7 +54,7 @@ export async function handleInquiry(req: InquiryRequest, env: InquiryEnv, deps: 
   if (data.consent !== 'yes') bad.push('consent');
   if (bad.length) return fail(422, 'Please check the highlighted fields', 'inquiry_invalid', bad);
 
-  const rows: [string, string][] = [['Name', f.name], ['Email', f.email], ['Phone', f.phone], ['Company', f.company], ['Role', f.role], ['Services', services.join(', ')], ['Number of photos', f.photos], ['Property location', f.location], ['MLS', f.mls], ['Intended use', f.use]];
+  const rows: [string, string][] = [['Name', f.name], ['Email', f.email], ['Phone', f.phone], ['Company', f.company], ['Asking about', f.interest], ['Role', f.role], ['Services', services.join(', ')], ['Number of photos', f.photos], ['Property location', f.location], ['MLS', f.mls], ['Intended use', f.use]];
   const text = `${rows.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nMessage:\n${f.message}\n\nSent from the StageLiora St. Petersburg website. The sender agreed to the privacy policy.\n`;
   const kind = services.length ? 'Quote request' : 'Website message';
   let delivered = false;

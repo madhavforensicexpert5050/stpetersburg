@@ -3,6 +3,11 @@
 #   Build command:          npm run build:production
 #   Build output directory: dist-production
 #   Environment variable:   NODE_VERSION = 24   (the build scripts import TypeScript directly)
+#   Production runtime var: SITE_MODE = production   (Production environment ONLY. Without it, functions/_middleware.ts
+#                           answers every request with 403 "Preview is closed", or asks for PREVIEW_PASSWORD if set.
+#                           Never set SITE_MODE on the Preview environment: previews must stay password-gated.)
+#   Inquiry form (optional, only after a processor is approved): INQUIRY_TO, INQUIRY_FROM, ALLOWED_ORIGIN, RESEND_API_KEY
+#                           (secret). Without them the form stays in email-fallback mode.
 # build:production refuses to create dist-production until every release gate in src/data/release.ts passes,
 # so a failed Cloudflare build is expected, and correct, while approvals are missing.
 # Never point Cloudflare at "npm run build" or "dist": that is the internal review build with owner notes.

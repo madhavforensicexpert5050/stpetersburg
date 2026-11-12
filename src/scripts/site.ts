@@ -243,7 +243,20 @@ if (styleSwitch) {
     return true;
   };
   btns.forEach((b) => {
-    b.addEventListener('click', () => select(b.dataset.style));
+    b.addEventListener('click', () => {
+      select(b.dataset.style);
+      // Short screens cannot pin the photo (Portfolio CSS). If the photo that just changed is mostly out of view,
+      // bring it back into view; instantly when the visitor prefers reduced motion.
+      const stage = styleSwitch.querySelector<HTMLElement>('.compare');
+      if (!stage) return;
+      const r = stage.getBoundingClientRect();
+      const head = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const seen = Math.max(0, Math.min(r.bottom, window.innerHeight) - Math.max(r.top, head));
+      if (seen < r.height * 0.5) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: window.scrollY + r.top - head - 8, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    });
     b.addEventListener('pointerenter', () => preload(b));
     b.addEventListener('focus', () => preload(b));
   });

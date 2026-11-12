@@ -87,6 +87,13 @@ const OWNER_CONTENT_DESIGN: ApprovalRecord = {
   reference: 'Master Prompt V3.0, Section 1',
 };
 
+/** V23 location approval. Same honesty rule as above: no signer or timestamp is invented. */
+const LOCATION_COVERAGE: ApprovalRecord = {
+  by: 'Owner instruction in the Claude Code session (no named signer)',
+  date: '2026-11-12',
+  reference: 'V23: "All 12 StageLiora location pages are now owner-approved"; remote service coverage and page ownership for this site, subject to factual and editorial checks',
+};
+
 const OWNER_APPROVALS: OwnerApprovals = {
   websiteContent: OWNER_CONTENT_DESIGN,
   pageDesign: OWNER_CONTENT_DESIGN,
@@ -105,7 +112,11 @@ const OWNER_APPROVALS: OwnerApprovals = {
   // V13: not approved. Bundle eligibility (size, prepayment, expiry, refunds) is not set, so no savings badge is published.
   pricingClaims: { bundleSavings: null, noBundleRequired: null },
   legalReview: {},
-  coverage: {},
+  // V23: the owner approved all 12 location pages in one written instruction. It named no signer, so none is recorded.
+  // This covers geographic coverage (remote editing of listing photos for properties in that city) and authorization
+  // for this site to own the page. It is NOT publication of the production site, search indexing or a service approval.
+  // Whether a page meets the editorial bar is a separate check: see `decision` in src/data/locations.ts.
+  coverage: Object.fromEntries(['st-petersburg-fl', 'st-pete-beach', 'gulfport', 'treasure-island', 'south-pasadena', 'madeira-beach', 'pinellas-park', 'seminole', 'largo', 'clearwater', 'dunedin', 'safety-harbor'].map((slug) => [slug, LOCATION_COVERAGE])),
   formDeliveryVerified: null,
   genuineReviews: null,
   founderStatements: { by: 'Devender Garg (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V10.1: first-person statements in src/data/founder.ts approved as written' },

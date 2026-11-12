@@ -2,21 +2,52 @@
 import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Notice from '../components/Notice.astro';
+import Cta from '../components/Cta.astro';
 import { locations, decisionLabel } from '../data/locations.ts';
 import { isLive, isInternalReview } from '../data/routes.ts';
+const live = locations.filter((l) => isLive(l.path));
+const groups = [
+  { h: 'St. Petersburg and the bay side', ids: ['st-petersburg-fl', 'gulfport', 'south-pasadena'] },
+  { h: 'Gulf beach cities', ids: ['st-pete-beach', 'treasure-island', 'madeira-beach'] },
+  { h: 'Mid-county', ids: ['pinellas-park', 'seminole', 'largo'] },
+  { h: 'North county', ids: ['clearwater', 'dunedin', 'safety-harbor'] },
+].map((g) => ({ ...g, items: live.filter((l) => g.ids.includes(l.slug)) })).filter((g) => g.items.length);
 ---
-<PageHero path="/locations/" eyebrow="Locations" h1="St. Petersburg area market notes" lede="Housing-mix notes for St. Petersburg and nearby Pinellas County cities, to help plan listing photos. StageLiora works remotely and has no office in any of them." />
-<section class="section">
+<PageHero path="/locations/" eyebrow="Pinellas County, Florida" h1="Virtual staging across Pinellas County: city-by-city listing notes" lede="Twelve Pinellas cities, twelve different housing markets. Each guide covers the local housing mix, recent listing data and the photo rules that matter there. StageLiora works remotely and has no office in any of them." />
+<section class="section section--tight">
   <div class="wrap">
-    <Notice h="Market notes, not service-area claims">A place listed here has market data only. Its inclusion is not a claim of a local office or a confirmed service area.{isInternalReview && <> Decisions below are recommendations for the owner.</>}</Notice>
-    <div class="table-wrap" tabindex="0" role="region" aria-label="Pinellas County places">
+    <Notice h="Remote service, no local offices">StageLiora edits listing photos online for properties in every city below. None of these pages claims a local office, staff or a completed local project.{isInternalReview && <> Decisions below are recommendations for the owner.</>}</Notice>
+  </div>
+</section>
+{groups.map((g) => (
+  <section class="section section--tight" aria-label={g.h}>
+    <div class="wrap">
+      <h2 style="font-size:1.6rem;margin-bottom:16px">{g.h}</h2>
+      <div class="grid grid--3">
+        {g.items.map((l) => (
+          <a class="card card--link" href={url(l.path)}>
+            <h3>{l.name}</h3>
+            <p>{l.hubLine}</p>
+            <span class="textlink">{l.linkLabel}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+))}
+<section class="section section--wall" aria-labelledby="hub-compare">
+  <div class="wrap">
+    <h2 id="hub-compare" style="font-size:1.6rem;margin-bottom:16px">Housing mix compared</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Housing mix in Pinellas County cities">
       <table>
         <caption>Census data: ACS 2020–2024 5-year estimates, table B25024. Building types, not ownership form.</caption>
-        <thead><tr><th scope="col">Place</th><th scope="col">Relationship to St. Petersburg</th><th scope="col">Detached</th><th scope="col">10+ units</th><th scope="col">Mobile</th>{isInternalReview && <th scope="col">Decision</th>}</tr></thead>
+        <thead><tr><th scope="col">City</th><th scope="col">Detached</th><th scope="col">10+ units</th><th scope="col">Mobile</th>{isInternalReview && <th scope="col">Decision</th>}</tr></thead>
         <tbody>
-          {locations.map((l) => <tr><td>{isLive(l.path) ? <a href={url(l.path)}>{l.name}</a> : l.name}</td><td>{l.relationship}</td><td>{l.detached}%</td><td>{l.tenPlus}%</td><td>{l.mobile}%</td>{isInternalReview && <td>{decisionLabel[l.decision]}</td>}</tr>)}
+          {locations.filter((l) => isInternalReview || isLive(l.path)).map((l) => <tr><td>{isLive(l.path) ? <a href={url(l.path)}>{l.name}</a> : l.name}</td><td>{l.detached}%</td><td>{l.tenPlus}%</td><td>{l.mobile}%</td>{isInternalReview && <td>{decisionLabel[l.decision]}</td>}</tr>)}
         </tbody>
       </table>
     </div>
+    <p class="small muted" style="margin-top:12px">The same Stellar MLS rules apply in every city: permanent fixtures, views and the condition of the home stay as photographed, and virtually staged photos are disclosed in the listing.{isLive('/guides/virtual-staging-disclosure-florida/') && <> See the <a href={url('/guides/virtual-staging-disclosure-florida/')}>Florida disclosure guide</a>.</>}</p>
   </div>
 </section>
+<Cta h="Have a listing somewhere in Pinellas County?" p="Tell us the city, the rooms and where the images will be used. The process is the same in every city." />

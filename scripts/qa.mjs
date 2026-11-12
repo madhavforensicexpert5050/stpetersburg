@@ -147,6 +147,18 @@ for (let i = 0; i < loc.length; i++) for (let j = i + 1; j < loc.length; j++) {
 check(`Location pages are not near-duplicates (max 5-word overlap ${(maxJ * 100).toFixed(1)}% ${maxPair})`, maxJ < 0.5, 'Threshold 50%. Shared template sentences account for the overlap.');
 const statsOk = pages.filter(({ r }) => r.template === 'location').every(({ html }) => /No local office/.test(html));
 check('Every location page states there is no local office', statsOk);
+// V23 location SEO rules: one primary keyword per page, never shared; titles fit; each page carries its own FAQs and links.
+const { locations: qaLocs } = await import('../src/data/locations.ts');
+const pubLocs = qaLocs.filter((l) => l.decision === 'PUBLISH');
+const prim = pubLocs.map((l) => l.keywords.primary.toLowerCase());
+check('Location pages: every primary keyword is unique and differs from the homepage target', new Set(prim).size === prim.length && !prim.includes('virtual staging st. petersburg fl'), prim);
+const tooLong = pubLocs.filter((l) => l.title.replace(/&/g, '&amp;').length > 70 || l.description.length > 160 || l.description.length < 110).map((l) => `${l.slug} (${l.title.length}/${l.description.length})`);
+check('Location pages: titles at most 70 characters, descriptions 110-160', !tooLong.length, tooLong);
+const kwWords = (t) => t.toLowerCase().replace(/[.,:']/g, ' ').split(/\s+/).filter((w) => w && w !== 'fl' && w !== 'florida');
+const kwMiss = pubLocs.filter((l) => { const have = new Set(kwWords(`${l.title} ${l.h1}`)); return !kwWords(l.keywords.primary).every((w) => have.has(w)) || !kwWords(l.keywords.primary).every((w) => new Set(kwWords(l.title)).has(w)); }).map((l) => l.slug);
+check('Location pages: every word of the primary keyword appears in the title', !kwMiss.length, kwMiss);
+check('Location pages: at least three city-specific FAQs, two nearby links and no snippet-only facts', pubLocs.every((l) => l.faq.length >= 3 && l.nearby.length >= 2 && l.nearby.every((n) => pubLocs.some((x) => x.slug === n)) && l.facts.every((f) => f.evidence !== 'snippet')), pubLocs.filter((l) => !(l.faq.length >= 3 && l.nearby.length >= 2)).map((l) => l.slug));
+check('Location pages: each shows a different example image', new Set(pubLocs.map((l) => l.image)).size === pubLocs.length);
 
 // Indexing safeguards
 const robots = fs.readFileSync('dist/robots.txt', 'utf8');
@@ -297,7 +309,7 @@ check(`Owner content and design approval is recorded for all ${60 - retired.leng
   check('Pricing: no reference-site prices, unapproved savings badges or Individuals/Teams tabs', !/\$35\b|\$28\b|\$24\.50|\$399|\$799|Save 20%|Save 30%|Most Popular|For Individuals|For Teams/.test(pricingHtml) && saveShown.every((s) => allowedSave.has(s)));
 }
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));
-check('Content approval did not create any other approval', Object.keys(approvals.publication).length === 0 && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.keys(approvals.coverage).length === 0 && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
+check('Content approval did not create any other approval', Object.keys(approvals.publication).length === 0 && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
 check('Service slugs were not changed by the hostname migration', routes.some((r) => r.path === '/locations/st-petersburg-fl/'));
 const oldHost = ['st-petersburg', 'stageliora', 'com'].join('.');
 const scan = walk('dist').filter((f) => /\.(html|txt|xml|js)$/.test(f)).filter((f) => fs.readFileSync(f, 'utf8').includes(oldHost));
@@ -346,7 +358,7 @@ if (V.exists) {
   const gsm = fs.readFileSync(path.join(G, 'sitemap.xml'), 'utf8');
   const locs = [...gsm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   check(`Valid fixture: sitemap has exactly the ${idx.length} index-approved URLs`, locs.length === idx.length && idx.every((p) => locs.includes(`${business.siteUrl}${p}`)), locs.join(' '));
-  check('Valid fixture: lastmod only where known', /<lastmod>2026-11-05<\/lastmod>/.test(gsm) && (gsm.match(/<lastmod>/g) || []).length === 2);
+  check('Valid fixture: lastmod only where known', /<lastmod>2026-11-05<\/lastmod>/.test(gsm) && /<loc>[^<]*\/locations\/st-petersburg-fl\/<\/loc>\s*<lastmod>2026-11-12<\/lastmod>/.test(gsm) && (gsm.match(/<lastmod>/g) || []).length === 3);
   check('Valid fixture: published but not index-approved pages carry noindex', /noindex/.test(fs.readFileSync(path.join(G, 'faq/index.html'), 'utf8')) && /noindex/.test(fs.readFileSync(path.join(G, 'request-quote/index.html'), 'utf8')));
   check('Valid fixture: approved pages are indexable and draft wording is gone', /content="index,follow/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')) && !gh.some(([, h]) => /class="ribbon"|Not yet offered|Bookings not yet open|Draft: not reviewed/.test(h)));
   check('Valid fixture: robots.txt allows crawling and names the sitemap', /Allow: \//.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')) && /Sitemap: https:\/\/st\.petersburg\.stageliora\.com\/sitemap\.xml/.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')));

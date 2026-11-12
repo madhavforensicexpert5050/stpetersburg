@@ -6,6 +6,7 @@ import { approvals, qaFixtureName } from './approvals.ts';
 import { media } from './media.ts';
 import { routes, findRoute, type RouteDef } from './routes.ts';
 import { services } from './services.ts';
+import { locations } from './locations.ts';
 
 const valid = (x?: { by: string; date: string; reference: string } | null) => Boolean(x && x.by && x.date && x.reference);
 
@@ -41,7 +42,7 @@ export function unmet(dep: string): string | null {
     case 'realImages': return pageImagesApproved(arg) ? null : `Licensed images missing for ${arg}`;
     case 'founderStatements': return valid(approvals.founderStatements) ? null : 'Devender Garg has not approved the first-person statements';
     case 'genuineReviews': return valid(approvals.genuineReviews) ? null : 'No genuine, permitted reviews exist';
-    case 'twoLocations': return routes.filter((r) => r.template === 'location' && valid(approvals.publication[r.path])).length >= 2 ? null : 'Fewer than two location pages approved';
+    case 'twoLocations': return locations.filter((l) => l.decision === 'PUBLISH' && valid(approvals.coverage[l.slug])).length >= 2 ? null : 'Fewer than two location pages are approved and eligible';
     case 'capability': return `Capability "${arg}" does not exist`;
     case 'backend': return `Backend "${arg}" does not exist`;
     default: return `Unknown dependency "${dep}"`;

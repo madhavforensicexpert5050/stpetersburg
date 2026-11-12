@@ -1,9 +1,20 @@
 ---
+/**
+ * One location page. Every word that is specific to a city lives in src/data/locations.ts (V23), so two pages
+ * differ by research, not by a swapped city name. Shared lines here are kept short on purpose: qa.mjs fails the
+ * build if any two location pages share half of their five-word sequences.
+ */
 import { url } from '../lib/url.ts';
 import PageHero from '../components/PageHero.astro';
 import Notice from '../components/Notice.astro';
 import Cta from '../components/Cta.astro';
+import Faq from '../components/Faq.astro';
+import MediaImage from '../components/MediaImage.astro';
+import LinkButton from '../components/LinkButton.astro';
 import { getLocation, locations, stPeteZips, decisionLabel } from '../data/locations.ts';
+import { getMedia } from '../data/media.ts';
+import { services } from '../data/services.ts';
+import { guides } from '../data/guides.ts';
 import { isLive, isInternalReview } from '../data/routes.ts';
 const { slug } = Astro.props as { slug: string };
 const l = getLocation(slug);
@@ -19,15 +30,42 @@ const mix = [
   { label: 'Other', v: other, c: '#a9b4b8' },
 ];
 const islands = isAnchor ? locations.filter((x) => ['st-pete-beach', 'treasure-island', 'madeira-beach'].includes(x.slug)) : [];
+const image = getMedia(l.image);
+const fits = l.fits.map((f) => ({ ...f, s: services.find((s) => s.slug === f.service)! })).filter((f) => f.s && isLive(f.s.path));
+const nearby = l.nearby.map((n) => locations.find((x) => x.slug === n)!).filter((x) => x && isLive(x.path));
+const reading = l.guides.map((p) => guides.find((g) => g.path === p)!).filter((g) => g && isLive(g.path));
 ---
-<PageHero path={l.path} eyebrow={`${l.name}, Pinellas County, Florida`} h1={l.headline} lede={l.intro} />
+<PageHero path={l.path} eyebrow={`${l.name}, Pinellas County, Florida`} h1={l.h1} lede={l.intro} />
 <section class="section section--tight">
   <div class="wrap">
-    <Notice h="No local office">StageLiora works remotely and has no office, staff or storefront in {l.name}. This page is about listing photos in this market.</Notice>
+    <Notice h="No local office">StageLiora works remotely and has no office, staff or storefront in {l.name}. You share the listing photos online, and the edited images come back the same way.</Notice>
     {isInternalReview && (
       <Notice h={`Publication decision: ${decisionLabel[l.decision]}`} kind="info">{l.decisionWhy}</Notice>
     )}
-    <h2 style="font-size:1.7rem;margin-bottom:14px">Housing mix</h2>
+  </div>
+</section>
+<section class="section section--tight" aria-labelledby="loc-staging">
+  <div class="wrap two-col two-col--media">
+    <div>
+      <p class="eyebrow">{l.staging.eyebrow}</p>
+      <h2 id="loc-staging">{l.staging.h}</h2>
+      {l.staging.p.map((p) => <p>{p}</p>)}
+      {fits.length > 0 && (
+        <ul class="tick loc-fits">
+          {fits.map((f) => <li><a class="textlink" href={url(f.s.path)}>{f.s.name}</a>: {f.why}</li>)}
+        </ul>
+      )}
+      {isLive('/pricing/') && <LinkButton href="/pricing/" label="See per-photo pricing" />}
+    </div>
+    <figure class="loc-figure">
+      <MediaImage media={image} sizes="(max-width: 880px) 100vw, 560px" />
+      <figcaption class="small muted">{l.imageNote}</figcaption>
+    </figure>
+  </div>
+</section>
+<section class="section section--tight" aria-labelledby="loc-mix">
+  <div class="wrap">
+    <h2 id="loc-mix" style="font-size:1.7rem;margin-bottom:14px">{l.name} housing mix</h2>
     <div class="stats">
       <div class="stat"><b>{l.units.toLocaleString('en-US')}</b><span>total housing units</span></div>
       <div class="stat"><b>{l.detached}%</b><span>single detached homes</span></div>
@@ -41,20 +79,20 @@ const islands = isAnchor ? locations.filter((x) => ['st-pete-beach', 'treasure-i
     <p class="small muted" style="margin-top:12px">U.S. Census Bureau, American Community Survey 2020–2024 5-year estimates, table B25024. Percentages rounded, margins of error omitted. These describe building types and are not a measure of condominium ownership.</p>
   </div>
 </section>
-<section class="section section--wall">
+<section class="section section--wall" aria-labelledby="loc-points">
   <div class="wrap two-col">
     <div>
       <p class="eyebrow">What this means for photos</p>
-      <h2>Local points to keep in mind</h2>
+      <h2 id="loc-points">{l.pointsH}</h2>
     </div>
     <div class="grid">
       {l.localAngle.map((a) => <div class="card"><h3>{a.h}</h3><p>{a.b}</p></div>)}
     </div>
   </div>
 </section>
-<section class="section section--tight">
+<section class="section section--tight" aria-labelledby="loc-data">
   <div class="wrap">
-    <h2 style="font-size:1.7rem;margin-bottom:14px">Listing data: {l.listing.label}</h2>
+    <h2 id="loc-data" style="font-size:1.7rem;margin-bottom:14px">Listing data: {l.listing.label}</h2>
     {isAnchor ? (
       <div class="table-wrap" tabindex="0" role="region" aria-label="October 2026 listing data by ZIP">
         <table>
@@ -75,39 +113,56 @@ const islands = isAnchor ? locations.filter((x) => ['st-pete-beach', 'treasure-i
   </div>
 </section>
 {isAnchor && (
-  <section class="section section--wall">
+  <section class="section section--wall" aria-labelledby="loc-islands">
     <div class="wrap two-col">
       <div>
         <p class="eyebrow">The beach cities</p>
-        <h2>Separate cities, reported under one name</h2>
-        <p class="lede" style="margin-top:16px">Listing data labeled Saint Petersburg includes ZIPs that also serve neighboring beach communities. If your listing is on the islands, keep these points in mind.</p>
+        <h2 id="loc-islands">Separate cities, reported under one name</h2>
+        <p class="lede" style="margin-top:16px">Listing data labeled Saint Petersburg includes ZIPs that also serve neighboring beach communities. Each of these cities has its own page, linked below.</p>
       </div>
       <div>
         <div class="table-wrap" tabindex="0" role="region" aria-label="Housing mix in three beach cities">
           <table>
             <caption>Census: ACS 2020–2024 5-year estimates. Building types, not ownership form.</caption>
             <thead><tr><th scope="col">City</th><th scope="col">Housing units</th><th scope="col">Detached</th><th scope="col">10+ units</th></tr></thead>
-            <tbody>{islands.map((x) => <tr><td>{x.name}</td><td>{x.units.toLocaleString('en-US')}</td><td>{x.detached}%</td><td>{x.tenPlus}%</td></tr>)}</tbody>
+            <tbody>{islands.map((x) => <tr><td>{isLive(x.path) ? <a href={url(x.path)}>{x.name}</a> : x.name}</td><td>{x.units.toLocaleString('en-US')}</td><td>{x.detached}%</td><td>{x.tenPlus}%</td></tr>)}</tbody>
           </table>
         </div>
-        <ul class="tick">
-          <li>Expect larger-building interiors as often as houses, so plan furniture scale for each.</li>
-          <li>Leave the view alone. Stellar names an edited-in Gulf or ocean view as prohibited.</li>
-          <li>Show current condition. St. Pete Beach alone assessed more than 3,000 damaged structures after the 2024 storms.</li>
-        </ul>
       </div>
     </div>
   </section>
 )}
-<section class="section section--tight">
+<section class="section section--tight" aria-labelledby="loc-faq">
   <div class="wrap narrow">
-    <h2 style="font-size:1.7rem;margin-bottom:14px">About {l.name}</h2>
+    <h2 id="loc-faq" style="font-size:1.7rem;margin-bottom:14px">{l.name} virtual staging questions</h2>
+    <Faq items={l.faq} />
+  </div>
+</section>
+<section class="section section--tight" aria-labelledby="loc-about">
+  <div class="wrap narrow">
+    <h2 id="loc-about" style="font-size:1.7rem;margin-bottom:14px">About {l.name}</h2>
     <p><strong>Status:</strong> {l.status}{l.officialNameVerified ? ` (${l.officialName})` : ''}, Pinellas County, Florida. {!isAnchor && <><strong>Location:</strong> {l.relationship}.</>}</p>
     <ul>
       {facts.map((f) => <li>{f.text} <a href={f.url} rel="noopener nofollow">{f.source}</a>{f.evidence === 'snippet' && <span class="muted"> (from a search summary; confirm before publication)</span>}</li>)}
     </ul>
-    <p class="small muted">Sources checked November 5, 2026. Official site: <a href={l.website} rel="noopener nofollow">{l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>. St. Pete Beach figure: <a href="https://www.stpetebeach.org/829/Substantial-Damage-Determination-Appeal-" rel="noopener nofollow">City of St. Pete Beach</a>.</p>
-    {isLive('/guides/virtual-staging-disclosure-florida/') && <p><a class="textlink" href={url('/guides/virtual-staging-disclosure-florida/')}>Florida disclosure guide</a></p>}
+    <p class="small muted">Sources checked {l.checked}. Official site: <a href={l.website} rel="noopener nofollow">{l.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>.</p>
+    {(nearby.length > 0 || reading.length > 0) && (
+      <div class="related-links loc-related">
+        {nearby.length > 0 && <><h3>Nearby cities</h3><ul>{nearby.map((x) => <li><a href={url(x.path)}>{x.linkLabel}</a></li>)}</ul></>}
+        {reading.length > 0 && <><h3>Before you order edits</h3><ul>{reading.map((g) => <li><a href={url(g.path)}>{g.h1}</a></li>)}</ul></>}
+        {isLive('/locations/') && <p class="small" style="margin:10px 0 0"><a href={url('/locations/')}>All Pinellas County city guides</a></p>}
+      </div>
+    )}
   </div>
 </section>
-<Cta h={`A listing in ${l.name}?`} p="Tell us about the property and where the images will be used. Remote work is the same wherever the home is." />
+<Cta h={l.cta.h} p={l.cta.p} />
+<style>
+  .loc-fits { margin-top: 18px; }
+  .loc-fits li { margin-bottom: 10px; }
+  .loc-figure { margin: 0; }
+  .loc-figure img { width: 100%; height: auto; border-radius: var(--radius); display: block; }
+  .loc-figure figcaption { margin-top: 10px; }
+  .loc-related h3 { font-size: 1.05rem; margin: 0 0 6px; }
+  .loc-related ul + h3 { margin-top: 14px; }
+  .loc-related ul { margin: 0; }
+</style>

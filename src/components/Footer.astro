@@ -18,7 +18,7 @@ const live = (xs: string[][]) => xs.filter(([p]) => isLive(p));
 const groups = [
   { h: 'Services', links: [...services.filter((s) => isLive(s.path)).map((s) => [s.path, s.name]), ...live([['/services/', 'All services']])] },
   { h: 'Company', links: live([['/about/', 'About StageLiora'], ['/about/devender-garg/', 'About Devender Garg'], ['/contact/', 'Contact'], ['/pricing/', 'Pricing'], ['/reviews/', 'Reviews']]) },
-  { h: 'Resources', links: live([['/guides/', 'Guides'], ['/how-it-works/', 'How It Works'], ['/portfolio/', 'Portfolio'], ['/faq/', 'FAQ'], ['/locations/', 'Local market notes']]) },
+  { h: 'Resources', links: live([['/guides/', 'Guides'], ['/how-it-works/', 'How It Works'], ['/portfolio/', 'Portfolio'], ['/faq/', 'FAQ'], ['/locations/', 'Pinellas County city guides']]) },
 ].filter((g) => g.links.length > 0);
 ---
 <footer class="site-footer">

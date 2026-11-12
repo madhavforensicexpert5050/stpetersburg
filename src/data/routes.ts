@@ -70,8 +70,8 @@ export const routes: RouteDef[] = [
   r('/guides/', 'Guides', 'Virtual Staging Guides for Agents | StageLiora', 'Plain guides on virtual staging: what it is, what it costs, how to prepare photos, and how to handle disclosure for Florida listings.', G.gd, 'guidesHub', 'IMPLEMENTED', 'Editorial approval', READY()),
   ...guides.map((g) => r(g.path, g.h1, g.title, g.description, G.gd, 'guide', 'IMPLEMENTED', 'Editorial approval; legal recheck every 90 days (Rule 6)', READY([], g.updated), g.slug)),
 
-  r('/locations/', 'Locations', 'St. Petersburg Area Market Notes | StageLiora', 'Housing-mix notes for St. Petersburg and nearby Pinellas County cities, for planning listing photos. StageLiora works remotely and has no local office.', G.loc, 'locationsHub', 'IMPLEMENTED AS INTERNAL DRAFT', 'DEC-033; owner approval', BLOCKED('A hub needs at least two published location pages. It is also a research table today.', ['twoLocations'])),
-  ...locations.map((l) => r(l.path, l.name, l.title, l.description, G.loc, 'location', l.slug === 'st-petersburg-fl' ? 'IMPLEMENTED' : 'IMPLEMENTED AS INTERNAL DRAFT', 'Eligibility rules 4 and 7: coverage approval and owner authorization', l.slug === 'st-petersburg-fl' ? READY([`coverage:${l.slug}`]) : BLOCKED(l.decisionWhy, [`coverage:${l.slug}`]), l.slug)),
+  r('/locations/', 'Locations', 'Virtual Staging in Pinellas County, FL: City Guides | StageLiora', 'Virtual staging notes for 12 Pinellas County cities, from St. Petersburg condos to Largo manufactured homes. Housing mix, listing data and photo rules for each.', G.loc, 'locationsHub', 'IMPLEMENTED', 'V23 owner approval of the location pages; at least two eligible location pages', READY(['twoLocations'])),
+  ...locations.map((l) => r(l.path, l.name, l.title, l.description, G.loc, 'location', l.decision === 'PUBLISH' ? 'IMPLEMENTED' : 'IMPLEMENTED AS INTERNAL DRAFT', 'Eligibility rules 4 and 7: coverage approval and owner authorization (V23), plus the editorial decision in locations.ts', l.decision === 'PUBLISH' ? READY([`coverage:${l.slug}`], l.updated) : BLOCKED(l.decisionWhy, [`coverage:${l.slug}`]), l.slug)),
 
   ...legalDocs.map((d) => r(d.path, d.h1, d.title, d.description, G.leg, 'legal', 'IMPLEMENTED AS INTERNAL DRAFT', 'DEC-005; DEC-006; DEC-018 attorney review', { ...BLOCKED('Unfilled items and no legal review. Needs entity, address, terms and sign-off.', [`legal:${d.slug}`]), indexing: 'NOINDEX_IF_PUBLISHED' }, d.slug)),
 
@@ -114,8 +114,8 @@ export function publicPreviewExclusion(x: RouteDef): string | null {
   if (x.template === 'founder' && !validRecord(approvals.founderStatements)) return 'First-person statements are awaiting approval from Devender Garg.';
   if (x.template === 'reviews') return 'No genuine reviews exist yet. An empty review page offers visitors nothing.';
   if (x.template === 'location') {
-    const decision = locations.find((l) => l.slug === x.ref)?.decision;
-    if (decision === 'CONSOLIDATE_OR_RESEARCH_ONLY' || decision === 'HOLD_OVERLAP_WITH_OTHER_PROPERTY') return 'Internal research record. Its own text says it is not intended for publication in this form.';
+    const l = locations.find((x2) => x2.slug === x.ref);
+    if (l?.decision !== 'PUBLISH') return `Not eligible for publication: ${l?.decisionWhy ?? 'unknown location'}`;
   }
   return null;
 }

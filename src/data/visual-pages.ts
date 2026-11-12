@@ -66,10 +66,17 @@ const story = (key: string, afterSrc: string, before: string, added: string, unc
 const pf = (room: string) => `virtual-staging-portfolio-${room}-after.webp`;
 
 export const portfolioPage = {
-  h1: 'Virtual staging portfolio: before and after, room designs and styles',
-  lede: 'See vacant rooms before and after virtual staging, then compare one room in eight styles. Furniture and decor are added. Walls, windows, floors and fixtures stay as photographed.',
+  // V28 editorial hero (owner brief 2026-11-12). The search phrase lives in the lede, the <title> and the meta description.
+  eyebrow: 'The StageLiora Portfolio',
+  h1: 'See the Potential in Every Space.',
+  lede: 'Our virtual staging portfolio shows rooms before and after staging, an occupied room restaged, and one room in eight design styles. Furniture and decor are added. Walls, windows, floors and fixtures stay as photographed.',
+  heroCta: { primary: 'Ask About Your Listing', secondary: 'Explore Transformations' },
+  /** Counts come from the data, never typed by hand. They describe examples on this page, not client work. */
+  stats: { pairs: 'before-and-after examples', styles: 'styles shown on one room', ideas: 'single design ideas' },
+  heroFigure: { kicker: 'One room, eight styles', label: 'Compare the styles', alt: 'transitional' },
+  tocLabel: 'On this page',
   /** Used only if the eight-style set cannot ship. */
-  ledeTextOnly: 'See vacant rooms before and after virtual staging, and find the style that suits your listing. Furniture and decor are added. Walls, windows, floors and fixtures stay as photographed.',
+  ledeTextOnly: 'Our virtual staging portfolio shows vacant rooms before and after staging, and helps you find the style that suits your listing. Furniture and decor are added. Walls, windows, floors and fixtures stay as photographed.',
   nav: { primary: 'Room Designs', secondary: 'Explore 8 Styles', faq: 'FAQ' },
   roomsHead: { eyebrow: 'Before and after', h: 'Room Designs: Before and After', p: 'Each pair shows the same photo of a vacant room before and after virtual staging. Drag the divider, or tap anywhere on the image, to compare. Choose a room type to see matching examples.' },
   /** Section-level note on where the images come from (no per-image labels; About #images has the detail). */
@@ -80,8 +87,19 @@ export const portfolioPage = {
   /** Narrow screens show this many pairs first (site.ts). */
   firstPairs: 4,
   changedLabel: 'What changed',
-  outdoor: { h: 'Outdoor Spaces', p: 'Patios, lanais, porches and decks are often photographed empty. Staging adds movable outdoor furniture, rugs and planters so buyers can see how the space can be used. It does not add landscaping, outdoor kitchens, pools or structures, and it never changes the view. Stellar MLS allows exterior staging only with unattached furniture or decor.' },
+  outdoor: {
+    eyebrow: 'Patios, lanais, porches and decks',
+    h: 'Outdoor Spaces',
+    p: 'Patios, lanais, porches and decks are often photographed empty. Staging adds movable outdoor furniture, rugs and planters so buyers can see how the space can be used.',
+    points: [
+      { k: 'Added', v: 'Movable outdoor furniture, rugs and planters.' },
+      { k: 'Never added', v: 'Landscaping, outdoor kitchens, pools or structures.' },
+      { k: 'The view', v: 'Never changed.' },
+    ],
+    mls: 'Stellar MLS allows exterior staging only with unattached furniture or decor.',
+  },
   occupied: {
+    eyebrow: 'Occupied rooms',
     h: 'Occupied Rooms: Furniture Removal and Staging',
     p: 'Not every listing is vacant. When a room is still furnished, the existing movable furniture and belongings are removed from the photo, and the room is then staged with new furniture and decor. This is part of the Furniture Removal & Staging service. It is not a separate decluttering or removal-only service.',
     rules: [
@@ -95,7 +113,9 @@ export const portfolioPage = {
     ask: 'Ask about an occupied room',
   },
   inlineCta: { h: 'Have a vacant listing? Ask us about your rooms.', p: 'Tell us which rooms are empty and what the house is like. We answer questions and style preferences by email.', note: 'Bookings are not open yet; questions are welcome.', label: 'Ask About Your Rooms' },
-  finalCta: { h: 'Ask About Your Listing Photos', p: 'Tell us which rooms need staging and the style you have in mind, or describe the house and ask what would suit it.', note: 'Project bookings are not open yet, so please don\'t send photos. Questions are welcome.', label: 'Ask About Your Rooms' },
+  /** Grid tile beside the pairs: the one rule every example follows. */
+  checkTile: { h: 'What never changes' },
+  finalCta: { eyebrow: 'Your listing', h: 'Ready to Reimagine Your Listing Photos?', p: 'Tell us which rooms need staging and the style you have in mind, or describe the house and ask what would suit it.', note: 'Project bookings are not open yet, so please don\'t send photos. Questions are welcome.', label: 'Ask About Your Rooms' },
   stories: [
     story('pf-living-room', pf('living-room'), 'An open living area with a whitewashed, beamed ceiling, a sea-glass front door, tall windows onto a porch and an open kitchen to one side.', 'A cream slipcovered sectional, two rattan armchairs, a whitewashed coffee table with woven baskets, a jute rug, rattan side tables, a table lamp and a potted palm.', 'The beams, door, windows, kitchen cabinets and oak floor. The seating sits clear of the front door and the kitchen opening.'),
     story('pf-primary-bedroom', pf('primary-bedroom'), 'A bedroom with walnut doors, an open en suite, recessed lights and a wide black-framed window looking onto trees.', 'A low charcoal upholstered bed, walnut nightstands with black lamps, a walnut dresser on a steel base, a large landscape print and a textured rug.', 'The doors, en suite, window, view and wood floor. The bed sits under the window, leaving the doorway open.'),
@@ -111,7 +131,17 @@ export const portfolioPage = {
     story('pf-patio', pf('patio'), 'A screened lanai with a white ceiling and two recessed lights, a sliding glass door, a screen door and travertine pavers, looking onto a lawn and palms.', 'A woven outdoor sofa and two armchairs with white and sea-glass cushions, whitewashed tables, a round dining table with woven chairs, an outdoor rug and two potted palms.', 'The screens, screen door, sliding door, ceiling lights, pavers and view. Nothing was planted or built, and the screen door stays clear.'),
     story('svc-furniture-removal', 'service-furniture-removal-after.webp', 'A furnished living room with a brown sofa, a floral armchair, a curio cabinet, side and coffee tables, a red patterned rug and personal items.', 'A greige sofa, two upholstered armchairs, a wood coffee table, two side tables with lamps, a pale rug and flowers.', 'The door, windows, crown molding and floor. In this example the curtains and the framed art were kept.', 'The sofa, armchair, curio cabinet, tables, rug, and the books, mug, photo frame and clock.'),
   ],
-  faqHead: { eyebrow: 'Questions', h: 'Common Questions' },
+  faqHead: { eyebrow: 'Questions', h: 'Common Questions', p: 'Short answers about these examples, the staging method and listing use.' },
+  /** Closing band: how a project is handled. Sentences follow the owner-confirmed workflow (content.ts process). */
+  trust: {
+    h: 'How a project is handled',
+    items: [
+      { k: 'One point of contact', v: 'Devender Garg, StageLiora’s founder, handles each project himself.' },
+      { k: 'Careful editing', v: 'AI-assisted editing, then refined by hand to the scale of the room.' },
+      { k: 'Agreed delivery', v: 'Finished images arrive as JPG or PNG files, through the workflow agreed with you.' },
+    ],
+    founderLink: 'About Devender Garg',
+  },
   faqs: [
     { q: 'How does virtual staging work?', a: 'You send a photo of an empty room, and furniture, rugs and decor are added to that photo digitally. Walls, windows, floors and fixtures stay exactly as photographed.' },
     { q: 'Can a room that still has furniture be staged?', a: 'Yes, through Furniture Removal & Staging. Movable furniture and belongings are taken out of the photo and the room is restaged. Permanent fixtures, anything that conveys with the sale and any damage stay visible.' },

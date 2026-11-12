@@ -1,27 +1,31 @@
 ---
 /**
- * /portfolio/ (V24): exactly five main sections, each marked with data-pf-section.
- *   1 Hero and navigation
- *   2 Room Designs: Before and After (#room-designs): vacant pairs (#before-after), Outdoor Spaces, Occupied Rooms,
- *     More Design Ideas (<details id="design-ideas" data-library>, the 48 single designs) and one inline CTA
+ * /portfolio/ (V28 editorial redesign; structure from V24): exactly five main sections, each marked with data-pf-section.
+ *   1 Hero: editorial introduction, two calls to action, the sample-image note, counts and the on-page links
+ *   2 Room Designs: Before and After (#room-designs): room filter, the vacant pairs (#before-after) in a 3/2/1-column
+ *     grid closed by two tiles (the rule every pair follows, and the inline CTA), the Outdoor Spaces feature, the
+ *     Occupied Rooms feature, and More Design Ideas (<details id="design-ideas" data-library>, the 48 single designs)
  *   3 Explore 8 Styles (#styles): one before, eight afters in a switcher (#compare-styles, #style-{id} panels)
  *   4 Common Questions (#faq)
- *   5 Ask About Your Listing Photos (CTA band)
+ *   5 Closing CTA band with how a project is handled
  * Copy: visual-pages.ts. Data: media.ts (galleryPairs, occupiedPairs, getStyleCompare). Behavior: site.ts
- * ([data-rooms] room chips and design-idea filters, [data-style-switch] style switcher).
+ * ([data-rooms] room chips, reset and design-idea filters, [data-style-switch] style switcher, [data-compare] sliders).
  * Every "Ask" link opens the existing inquiry form with ?ask=staging&style=&room=, which fills its "Asking about" field.
+ * Design tokens (ivory, stone, champagne, shadows, radii) live on :root in global.css.
  */
-import PageHero from '../components/PageHero.astro';
+import Crumbs from '../components/Crumbs.astro';
 import Compare from '../components/Compare.astro';
 import MediaImage from '../components/MediaImage.astro';
 import Lightbox from '../components/Lightbox.astro';
 import LinkButton from '../components/LinkButton.astro';
-import Cta from '../components/Cta.astro';
+import CallButton from '../components/CallButton.astro';
 import Faq from '../components/Faq.astro';
 import { anyIllustrations, getPair, library, zoomTitle, zoomLabel, galleryPairs, occupiedPairs, getStyleCompare, styleCompareReady } from '../data/media.ts';
 import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { business } from '../data/business.ts';
+import { founder } from '../data/founder.ts';
+import { approvals } from '../data/approvals.ts';
 import { styles, roomGroups, groupOfRoom } from '../data/taxonomy.ts';
 import { portfolioPage as c, roomDesigns as d, styleGuide as g } from '../data/visual-pages.ts';
 
@@ -35,6 +39,7 @@ const swatches = (id: string) => { const p = styleOf(id).palette; return [p.wall
 const showImageInfo = anyIllustrations() && isLive('/about/');
 // The existing inquiry form: the quote form once it is live, the contact form until then, email as a last resort.
 const inquiryPath = isLive('/request-quote/') ? '/request-quote/' : isLive('/contact/') ? '/contact/' : '';
+const quotesOpen = isLive('/request-quote/');
 /** Opens the inquiry form with the style (and room) filled in. Ids only; the form maps them to names. */
 const askUrl = (style?: string, room?: string) => {
   if (!inquiryPath) return business.emailHref;
@@ -48,80 +53,148 @@ const askUrl = (style?: string, room?: string) => {
 const vacant = galleryPairs.filter((p) => p.block === 'gallery');
 const outdoor = galleryPairs.filter((p) => p.block === 'outdoor');
 const chips = roomGroups.filter((gr) => galleryPairs.some((p) => p.group === gr.id));
+const groupCount = (id: string) => galleryPairs.filter((p) => p.group === id).length;
 const groupLabel = (id: string) => roomGroups.find((x) => x.id === id)!.label;
 const ideasLabel = (id: string) => (id === 'living-open-plan' ? 'living room' : groupLabel(id).toLowerCase());
 const ideasHref = (group: string) => url(`/portfolio/?room=${roomGroups.find((x) => x.id === group)!.rooms[0]}#design-ideas`);
 const libGroup = (room: Parameters<typeof groupOfRoom>[0]) => groupOfRoom(room) ?? '';
+// Real rendered widths: one column below 700px, two to 1100px, then three inside the 1320px frame.
+const cardSizes = '(max-width: 699px) calc(100vw - 32px), (max-width: 1099px) 46vw, 430px';
+const featureSizes = '(max-width: 959px) calc(100vw - 32px), 760px';
 
 // Section 3.
 const compare = styleCompareReady ? getStyleCompare() : null;
 const def = g.defaultStyle;
 const ordered = g.order.map((id) => ({ s: styleOf(id), e: g.entries.find((x) => x.id === id)! }));
 const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.responsive?.map((v) => `${url(v.src)} ${v.width}w`).join(', ') ?? '';
+
+// Hero counts, all derived from the data on this page.
+const exampleCount = galleryPairs.length + occupiedPairs.length;
+const founderLive = isLive(founder.path);
+const portrait = Boolean(approvals.founderPortrait);
 ---
-<div class="pf-hero" data-pf-section="1">
-  <PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1={c.h1} lede={styleCompareReady ? c.lede : c.ledeTextOnly}>
-    <nav class="pf-toc" aria-label="On this page">
-      <LinkButton href="#room-designs" label={c.nav.primary} variant="primary" icon="arrow" />
-      <LinkButton href="#styles" label={c.nav.secondary} variant="outline" icon="arrow" />
-      <a class="textlink pf-toc__faq" href="#faq">{c.nav.faq}</a>
-    </nav>
-  </PageHero>
-</div>
+<!-- 1. Hero -->
+<section class="pf-hero" data-pf-section="1" aria-labelledby="pf-h1">
+  <div class="wrap pf-hero__grid">
+    <div class="pf-hero__copy">
+      <Crumbs path="/portfolio/" />
+      <p class="pf-kicker">{c.eyebrow}</p>
+      <h1 id="pf-h1">{c.h1}</h1>
+      <p class="pf-hero__lede">{styleCompareReady ? c.lede : c.ledeTextOnly}</p>
+      <div class="pf-hero__actions">
+        <LinkButton href={askUrl()} label={c.heroCta.primary} variant="primary" icon="contact" />
+        <LinkButton href="#room-designs" label={c.heroCta.secondary} variant="outline" icon="arrow" />
+      </div>
+      <p class="pf-hero__note">{c.sampleNote.p}{isLive('/about/') && <> <a class="textlink" href={url('/about/#images')}>{c.sampleNote.link}</a></>}</p>
+    </div>
+    {compare && (
+      <figure class="pf-hero__art">
+        <div class="pf-hero__frame">
+          <MediaImage media={compare.afters[def]} eager sizes="(max-width: 959px) calc(100vw - 32px), 640px" />
+        </div>
+        <figcaption class="pf-hero__float">
+          <span class="pf-hero__float-k">{c.heroFigure.kicker}</span>
+          <a href="#styles">{c.heroFigure.label}<span aria-hidden="true"> →</span></a>
+        </figcaption>
+      </figure>
+    )}
+  </div>
+  <div class="wrap">
+    <div class="pf-hero__bar">
+      <dl class="pf-stats">
+        <div><dt>{exampleCount}</dt><dd>{c.stats.pairs}</dd></div>
+        {compare && <div><dt>{styles.length}</dt><dd>{c.stats.styles}</dd></div>}
+        <div><dt>{library.length}</dt><dd>{c.stats.ideas}</dd></div>
+      </dl>
+      <nav class="pf-toc" aria-label={c.tocLabel}>
+        <span class="pf-toc__label" aria-hidden="true">{c.tocLabel}</span>
+        <a href="#room-designs">{c.nav.primary}</a>
+        <a href="#styles">{c.nav.secondary}</a>
+        <a href="#faq">{c.nav.faq}</a>
+      </nav>
+    </div>
+  </div>
+</section>
 
 <!-- 2. Room Designs: Before and After -->
-<section class="section" id="room-designs" data-pf-section="2" aria-labelledby="rooms-h">
+<section class="section pf-rooms" id="room-designs" data-pf-section="2" aria-labelledby="rooms-h">
   <div class="wrap" data-rooms>
-    <div class="section-head section-head--split">
-      <div><p class="eyebrow">{c.roomsHead.eyebrow}</p><h2 id="rooms-h">{c.roomsHead.h}</h2></div>
-      <p class="lede">{c.roomsHead.p}</p>
+    <div class="pf-head">
+      <div><p class="pf-kicker">{c.roomsHead.eyebrow}</p><h2 id="rooms-h">{c.roomsHead.h}</h2></div>
+      <p class="pf-head__p">{c.roomsHead.p}</p>
     </div>
-    <p class="pf-sample">{c.sampleNote.p}{isLive('/about/') && <> <a class="textlink" href={url('/about/#images')}>{c.sampleNote.link}</a></>}</p>
-    <p class="pf-check">{c.check}</p>
 
-    <div class="chips pf-chips" role="group" aria-label={c.chipsLabel}>
-      <button type="button" class="chip" data-group-chip data-value="all" aria-pressed="true">{c.allRooms}</button>
-      {chips.map((gr) => <button type="button" class="chip" data-group-chip data-value={gr.id} data-label={gr.label} data-rooms={gr.rooms.join(' ')} aria-pressed="false">{gr.label}</button>)}
+    <div class="pf-toolbar">
+      <div class="chips pf-chips" role="group" aria-label={c.chipsLabel}>
+        <button type="button" class="chip" data-group-chip data-value="all" aria-pressed="true">{c.allRooms}<span class="pf-chip__n" aria-hidden="true">{galleryPairs.length}</span></button>
+        {chips.map((gr) => <button type="button" class="chip" data-group-chip data-value={gr.id} data-label={gr.label} data-rooms={gr.rooms.join(' ')} aria-pressed="false">{gr.label}<span class="pf-chip__n" aria-hidden="true">{groupCount(gr.id)}</span></button>)}
+      </div>
+      <div class="pf-toolbar__meta">
+        <p data-pair-count role="status" aria-live="polite">{galleryPairs.length} comparisons shown</p>
+        <button type="button" class="pf-reset" data-rooms-reset hidden>Reset filter</button>
+      </div>
     </div>
-    <div class="results-bar"><p data-pair-count role="status" aria-live="polite">{galleryPairs.length} comparisons shown</p></div>
 
-    <div id="before-after" class="grid grid--2 pf-pairs" data-pairs>
+    <div id="before-after" class="pf-grid pf-pairs" data-pairs>
       {vacant.map((p) => {
         const s = storyFor(p.key);
         const st = styleOf(p.style);
         return (
-          <article class="pf-pair" id={p.key.replace(/^pf-/, '')} data-pair data-group={p.group}>
-            <Compare pair={p.key} />
-            <h3 class="pf-pair__title">{p.title}</h3>
-            {s && (
-              <details class="pf-changed">
-                <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
-                <dl>
-                  <dt>Before</dt><dd>{s.before}</dd>
-                  <dt>Added</dt><dd>{s.added}</dd>
-                  <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
-                </dl>
-              </details>
-            )}
-            <p class="small pf-links">
-              <a class="textlink" href={ideasHref(p.group)} data-ideas-link={p.group}>More {ideasLabel(p.group)} design ideas</a>
-              <a class="textlink" href={askUrl(st.id, p.room)}>Ask about this room<span class="visually-hidden">: {p.title}</span></a>
-            </p>
+          <article class="pf-card pf-pair" id={p.key.replace(/^pf-/, '')} data-pair data-group={p.group}>
+            <Compare pair={p.key} sizes={cardSizes} />
+            <div class="pf-card__body">
+              <p class="pf-meta"><span>{groupLabel(p.group)}</span><span class="pf-meta__style"><span class="pf-dots" aria-hidden="true">{swatches(st.id).map((col) => <span style={`background:${col}`}></span>)}</span>{st.name}</span></p>
+              <h3 class="pf-pair__title">{p.title}</h3>
+              {s && (
+                <details class="pf-changed">
+                  <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
+                  <dl>
+                    <dt>Before</dt><dd>{s.before}</dd>
+                    <dt>Added</dt><dd>{s.added}</dd>
+                    <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
+                  </dl>
+                </details>
+              )}
+              <p class="pf-links">
+                <a href={ideasHref(p.group)} data-ideas-link={p.group}>More {ideasLabel(p.group)} design ideas</a>
+                <a href={askUrl(st.id, p.room)}>Ask about this room<span class="visually-hidden">: {p.title}</span></a>
+              </p>
+            </div>
           </article>
         );
       })}
+      <!-- Closing tiles: shown only while every pair is in view (no room filter, nothing held back). -->
+      <aside class="pf-tile pf-tile--rule" aria-labelledby="rule-h">
+        <span class="pf-tile__mark" aria-hidden="true"></span>
+        <h3 id="rule-h">{c.checkTile.h}</h3>
+        <p>{c.check}</p>
+      </aside>
+      <div class="pf-tile pf-cta">
+        <h3>{c.inlineCta.h}</h3>
+        <p>{c.inlineCta.p}</p>
+        {!quotesOpen && <p class="pf-cta__note">{c.inlineCta.note}</p>}
+        <LinkButton href={askUrl()} label={c.inlineCta.label} variant="primary" icon="contact" />
+      </div>
     </div>
+    <div class="gal-more" data-pairs-more-row hidden><button type="button" class="btn pf-btn-quiet" data-pairs-more data-first={c.firstPairs}>Show all {galleryPairs.length} comparisons</button></div>
 
     {outdoor.length > 0 && (
-      <div class="pf-block pf-outdoor" data-outdoor>
-        <h3 class="pf-h3">{c.outdoor.h}</h3>
-        <p class="pf-sub-p">{c.outdoor.p}</p>
-        <div class="grid grid--2 pf-pairs">
-          {outdoor.map((p) => {
-            const s = storyFor(p.key);
-            return (
-              <article class="pf-pair" id={p.key.replace(/^pf-/, '')} data-pair data-group={p.group}>
-                <Compare pair={p.key} />
+      <div class="pf-feature pf-outdoor" data-outdoor>
+        <div class="pf-feature__text">
+          <p class="pf-kicker">{c.outdoor.eyebrow}</p>
+          <h3 class="pf-h3">{c.outdoor.h}</h3>
+          <p class="pf-feature__p">{c.outdoor.p}</p>
+          <dl class="pf-points">{c.outdoor.points.map((x) => <div><dt>{x.k}</dt><dd>{x.v}</dd></div>)}</dl>
+          <p class="pf-fine">{c.outdoor.mls}</p>
+        </div>
+        {outdoor.map((p) => {
+          const s = storyFor(p.key);
+          const st = styleOf(p.style);
+          return (
+            <article class="pf-feature__media pf-pair" id={p.key.replace(/^pf-/, '')} data-pair data-group={p.group}>
+              <Compare pair={p.key} sizes={featureSizes} />
+              <div class="pf-card__body">
+                <p class="pf-meta"><span>{groupLabel(p.group)}</span><span class="pf-meta__style"><span class="pf-dots" aria-hidden="true">{swatches(st.id).map((col) => <span style={`background:${col}`}></span>)}</span>{st.name}</span></p>
                 <h4 class="pf-pair__title">{p.title}</h4>
                 {s && (
                   <details class="pf-changed">
@@ -133,66 +206,73 @@ const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.res
                     </dl>
                   </details>
                 )}
-                <p class="small pf-links">
-                  <a class="textlink" href={ideasHref(p.group)} data-ideas-link={p.group}>More {ideasLabel(p.group)} design ideas</a>
-                  <a class="textlink" href={askUrl(p.style, p.room)}>Ask about this room<span class="visually-hidden">: {p.title}</span></a>
+                <p class="pf-links">
+                  <a href={ideasHref(p.group)} data-ideas-link={p.group}>More {ideasLabel(p.group)} design ideas</a>
+                  <a href={askUrl(p.style, p.room)}>Ask about this room<span class="visually-hidden">: {p.title}</span></a>
                 </p>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-    )}
-    <div class="gal-more" data-pairs-more-row hidden><button type="button" class="btn" data-pairs-more data-first={c.firstPairs}>Show all {galleryPairs.length} comparisons</button></div>
-
-    {occupiedPairs.length > 0 && (
-      <div class="pf-block pf-occupied">
-        <h3 class="pf-h3">{c.occupied.h}</h3>
-        <p class="pf-sub-p">{c.occupied.p}</p>
-        <dl class="pf-rules">{c.occupied.rules.map((r) => <div><dt>{r.k}:</dt> <dd>{r.v}</dd></div>)}</dl>
-        <p class="pf-sub-p">{c.occupied.mls}</p>
-        {occupiedPairs.map((p) => {
-          const s = storyFor(p.key);
-          return (
-            <article class="pf-pair pf-pair--wide" id="occupied-living-room">
-              <p class="pf-pair__label">{c.occupied.cardLabel}</p>
-              <h4 class="pf-pair__title">{p.title}</h4>
-              <Compare pair={p.key} />
-              {s && (
-                <details class="pf-changed">
-                  <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
-                  <dl>
-                    <dt>Before</dt><dd>{s.before}</dd>
-                    {s.removed && <><dt>Removed</dt><dd>{s.removed}</dd></>}
-                    <dt>Added</dt><dd>{s.added}</dd>
-                    <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
-                  </dl>
-                </details>
-              )}
-              <p class="small pf-links">
-                {isLive('/services/furniture-removal-and-staging/') && <a class="textlink" href={url('/services/furniture-removal-and-staging/')}>{c.occupied.service}</a>}
-                <a class="textlink" href={askUrl(p.style, p.room)}>{c.occupied.ask}</a>
-              </p>
+              </div>
             </article>
           );
         })}
       </div>
     )}
 
-    <details class="pf-block pf-ideas" id="design-ideas" data-library>
-      <summary><span data-ideas-summary>{d.summaryAll(library.length)}</span></summary>
+    {occupiedPairs.length > 0 && (
+      <div class="pf-feature pf-feature--ink on-ink pf-occupied">
+        {occupiedPairs.map((p) => {
+          const s = storyFor(p.key);
+          return (
+            <article class="pf-feature__media pf-pair" id="occupied-living-room">
+              <Compare pair={p.key} sizes={featureSizes} />
+              <div class="pf-card__body">
+                <p class="pf-meta"><span>{c.occupied.cardLabel}</span></p>
+                <h4 class="pf-pair__title">{p.title}</h4>
+                {s && (
+                  <details class="pf-changed">
+                    <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
+                    <dl>
+                      <dt>Before</dt><dd>{s.before}</dd>
+                      {s.removed && <><dt>Removed</dt><dd>{s.removed}</dd></>}
+                      <dt>Added</dt><dd>{s.added}</dd>
+                      <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
+                    </dl>
+                  </details>
+                )}
+              </div>
+            </article>
+          );
+        })}
+        <div class="pf-feature__text">
+          <p class="pf-kicker">{c.occupied.eyebrow}</p>
+          <h3 class="pf-h3">{c.occupied.h}</h3>
+          <p class="pf-feature__p">{c.occupied.p}</p>
+          <dl class="pf-rules">{c.occupied.rules.map((r, i) => <div class={`pf-rules__row pf-rules__row--${i}`}><dt>{r.k}</dt><dd>{r.v.charAt(0).toUpperCase() + r.v.slice(1)}</dd></div>)}</dl>
+          <p class="pf-fine">{c.occupied.mls}</p>
+          <p class="pf-links pf-links--lg">
+            {isLive('/services/furniture-removal-and-staging/') && <a href={url('/services/furniture-removal-and-staging/')}>{c.occupied.service}</a>}
+            {occupiedPairs.map((p) => <a href={askUrl(p.style, p.room)}>{c.occupied.ask}</a>)}
+          </p>
+        </div>
+      </div>
+    )}
+
+    <details class="pf-ideas" id="design-ideas" data-library>
+      <summary>
+        <span class="pf-ideas__lead"><span class="pf-ideas__k">{d.h}</span><span class="pf-ideas__t" data-ideas-summary>{d.summaryAll(library.length)}</span></span>
+        <span class="pf-ideas__icon" aria-hidden="true"></span>
+      </summary>
       <div class="pf-ideas__body">
-        <h3 class="pf-h3">{d.h}</h3>
-        <p class="pf-sub-p">{d.p}</p>
-        <div class="chips pf-chips" role="group" aria-label="Style">
+        <h3 class="pf-h3 visually-hidden">{d.h}</h3>
+        <p class="pf-ideas__p">{d.p}</p>
+        <div class="chips pf-chips pf-chips--style" role="group" aria-label="Style">
           <button type="button" class="chip" data-filter="style" data-value="all" aria-pressed="true">All styles</button>
-          {styles.map((s) => <button type="button" class="chip" data-filter="style" data-value={s.id} aria-pressed="false">{s.name}</button>)}
+          {styles.map((s) => <button type="button" class="chip" data-filter="style" data-value={s.id} aria-pressed="false"><span class="pf-dots" aria-hidden="true">{swatches(s.id).slice(0, 3).map((col) => <span style={`background:${col}`}></span>)}</span>{s.name}</button>)}
         </div>
-        <div class="results-bar">
+        <div class="pf-toolbar__meta pf-ideas__meta">
           <p data-count role="status" aria-live="polite">{library.length} designs shown</p>
-          <button type="button" class="mini-btn" data-clear hidden>Clear filters</button>
+          <button type="button" class="pf-reset" data-clear hidden>Clear filters</button>
         </div>
-        <div class="gal">
+        <div class="gal pf-gal">
           {library.map((it) => {
             const st = styleOf(it.style);
             // A checked description of this exact image when one exists; otherwise the style's materials.
@@ -200,46 +280,37 @@ const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.res
             return (
               <figure class="gal__item" data-item data-style={it.style} data-room={it.room} data-group={libGroup(it.room)}>
                 <button type="button" class="gal__btn" data-ask={askUrl(it.style, it.room)} data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={info} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
-                  <MediaImage media={it} />
+                  <MediaImage media={it} sizes={cardSizes} />
                 </button>
                 <figcaption><h4>{it.styleName} {it.roomName}</h4><p class="gal__meta">{it.description ?? st.materials}</p></figcaption>
               </figure>
             );
           })}
         </div>
-        <div class="gal-more" data-more-row hidden><button type="button" class="btn" data-more data-first={d.firstBatch}>Show all designs</button></div>
+        <div class="gal-more" data-more-row hidden><button type="button" class="btn pf-btn-quiet" data-more data-first={d.firstBatch}>Show all designs</button></div>
         <div class="empty" data-empty hidden>
           <h4>No designs for this combination yet</h4>
           <p>Try a different room or style. Some combinations have not been planned.</p>
-          <button type="button" class="btn" data-clear-2>Clear filters</button>
+          <button type="button" class="btn pf-btn-quiet" data-clear-2>Clear filters</button>
         </div>
         {showImageInfo && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
       </div>
     </details>
     <Lightbox />
-
-    <div class="pf-cta">
-      <div>
-        <h3>{c.inlineCta.h}</h3>
-        <p>{c.inlineCta.p}</p>
-        {!isLive('/request-quote/') && <p class="small pf-cta__note">{c.inlineCta.note}</p>}
-      </div>
-      <LinkButton href={askUrl()} label={c.inlineCta.label} variant="primary" icon="contact" />
-    </div>
   </div>
 </section>
 
 <!-- 3. Explore 8 Styles: one room, before and after -->
-<section class="section section--wall" id="styles" data-pf-section="3" aria-labelledby="styles-h">
+<section class="section pf-styles-sec" id="styles" data-pf-section="3" aria-labelledby="styles-h">
   <div class="wrap">
-    <div class="section-head section-head--split">
-      <div><p class="eyebrow">{g.head.eyebrow}</p><h2 id="styles-h">{compare ? g.head.h : g.fallbackHead.h}</h2></div>
-      <p class="lede">{compare ? g.head.p : g.fallbackHead.p}</p>
+    <div class="pf-head">
+      <div><p class="pf-kicker">{g.head.eyebrow}</p><h2 id="styles-h">{compare ? g.head.h : g.fallbackHead.h}</h2></div>
+      <p class="pf-head__p">{compare ? g.head.p : g.fallbackHead.p}</p>
     </div>
     {compare ? (
       <div class="pf-switch" id="compare-styles" data-style-switch data-default={def}>
         <div class="pf-switch__stage">
-          <Compare before={compare.before} after={compare.afters[def]} label={g.sliderLabel(styleOf(def).name)} />
+          <Compare before={compare.before} after={compare.afters[def]} label={g.sliderLabel(styleOf(def).name)} sizes="(max-width: 1023px) calc(100vw - 32px), 800px" />
         </div>
         <div class="pf-switch__side">
           <p class="pf-switch__label" id="style-switch-label">{g.switchLabel}</p>
@@ -250,7 +321,7 @@ const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.res
                 <button type="button" class="pf-swbtn" data-style-btn data-style={s.id} data-name={s.name} data-src={url(a.src)} data-srcset={srcsetOf(a)} data-alt={a.alt} aria-pressed={s.id === def ? 'true' : 'false'}>
                   <span class="pf-swbtn__dots" aria-hidden="true">{swatches(s.id).map((col) => <span style={`background:${col}`}></span>)}</span>
                   <span class="pf-swbtn__name">{s.name}</span>
-                  <span class="pf-swbtn__check" aria-hidden="true">✓</span>
+                  <span class="pf-swbtn__check" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 8.5l3.2 3L13 4.5" /></svg></span>
                 </button>
               );
             })}
@@ -260,14 +331,14 @@ const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.res
             <article class="pf-panel" id={`style-${s.id}`} data-style-panel={s.id}>
               <noscript><img class="pf-panel__img" src={url(compare.afters[s.id].src)} srcset={srcsetOf(compare.afters[s.id])} sizes="(max-width: 767px) 100vw, 480px" alt={compare.afters[s.id].alt} width="1500" height="1000" loading="lazy" decoding="async" /></noscript>
               <h3 class="pf-panel__name">{s.name}</h3>
-              <p>{e.description}</p>
+              <p class="pf-panel__desc">{e.description}</p>
               <dl class="pf-facts">
-                <dt>Best fit:</dt><dd>{e.bestFit}</dd>
-                <dt>Use with care:</dt><dd>{e.care}</dd>
+                <div><dt>Best fit:</dt><dd>{e.bestFit}</dd></div>
+                <div><dt>Use with care:</dt><dd>{e.care}</dd></div>
               </dl>
               <div class="pf-panel__actions">
                 <a class="btn pf-ask" href={askUrl(s.id, 'living-room')}>Ask About This Style<span class="visually-hidden">: {s.name}</span></a>
-                <a class="textlink small" href={url(`/portfolio/?style=${s.id}#room-designs`)}>See {s.name} in other rooms</a>
+                <a class="pf-arrowlink" href={url(`/portfolio/?style=${s.id}#room-designs`)}>See {s.name} in other rooms</a>
               </div>
             </article>
           ))}
@@ -279,24 +350,24 @@ const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.res
           <article class="card pf-panel" id={`style-${s.id}`}>
             <h3 class="pf-panel__name">{s.name}</h3>
             <p>{e.description}</p>
-            <dl class="pf-facts"><dt>Best fit:</dt><dd>{e.bestFit}</dd><dt>Use with care:</dt><dd>{e.care}</dd></dl>
+            <dl class="pf-facts"><div><dt>Best fit:</dt><dd>{e.bestFit}</dd></div><div><dt>Use with care:</dt><dd>{e.care}</dd></div></dl>
             <div class="pf-panel__actions">
               <a class="btn pf-ask" href={askUrl(s.id, 'living-room')}>Ask About This Style<span class="visually-hidden">: {s.name}</span></a>
-              <a class="textlink small" href={url(`/portfolio/?style=${s.id}#room-designs`)}>See {s.name} in other rooms</a>
+              <a class="pf-arrowlink" href={url(`/portfolio/?style=${s.id}#room-designs`)}>See {s.name} in other rooms</a>
             </div>
           </article>
         ))}
       </div>
     )}
 
-    <details class="pf-block pf-start">
-      <summary>{g.situationsHead.h}</summary>
-      <p class="pf-sub-p">{g.situationsHead.p}</p>
-      <div class="grid grid--3">
+    <details class="pf-start">
+      <summary><span>{g.situationsHead.h}</span><span class="pf-start__icon" aria-hidden="true"></span></summary>
+      <p class="pf-start__p">{g.situationsHead.p}</p>
+      <div class="pf-start__grid">
         {g.situations.map((x) => (
-          <div class="card card--flat">
+          <div class="pf-start__item">
             <h4>{x.photo}</h4>
-            <p class="gal__meta">Consider: {x.styles.map((id, i) => <>{i > 0 && ', '}<a class="textlink" href={`#style-${id}`} data-pick-style={id}>{styleOf(id).name}</a></>)}</p>
+            <p class="pf-start__consider">Consider: {x.styles.map((id, i) => <>{i > 0 && ', '}<a class="textlink" href={`#style-${id}`} data-pick-style={id}>{styleOf(id).name}</a></>)}</p>
             <p>{x.why}</p>
           </div>
         ))}
@@ -306,95 +377,355 @@ const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.res
 </section>
 
 <!-- 4. Common Questions -->
-<section class="section" id="faq" data-pf-section="4" aria-labelledby="faq-h">
-  <div class="wrap narrow">
-    <div class="section-head"><p class="eyebrow">{c.faqHead.eyebrow}</p><h2 id="faq-h">{c.faqHead.h}</h2></div>
+<section class="section pf-faq" id="faq" data-pf-section="4" aria-labelledby="faq-h">
+  <div class="wrap pf-faq__grid">
+    <div class="pf-faq__head">
+      <p class="pf-kicker">{c.faqHead.eyebrow}</p>
+      <h2 id="faq-h">{c.faqHead.h}</h2>
+      <p>{c.faqHead.p}</p>
+    </div>
     <Faq items={c.faqs} />
   </div>
 </section>
 
-<!-- 5. Ask About Your Listing Photos -->
-<Cta h={c.finalCta.h} p={c.finalCta.p} label={c.finalCta.label} href={askUrl()} note={c.finalCta.note} section="5" />
+<!-- 5. Closing call to action (keeps the shared cta-band class and its bookings note) -->
+<section class="cta-band" data-pf-section="5" aria-labelledby="pf-final-h">
+  <div class="wrap pf-final">
+    <div class="pf-final__copy">
+      <p class="eyebrow">{c.finalCta.eyebrow}</p>
+      <h2 id="pf-final-h">{c.finalCta.h}</h2>
+      <p>{c.finalCta.p}</p>
+      <div class="btn-row pf-final__btns">
+        <a class="btn btn--primary btn--cta" href={askUrl()}>{c.finalCta.label}</a>
+        <CallButton class="pf-call" />
+      </div>
+      {!quotesOpen && <p class="cta-band__note">{c.finalCta.note}</p>}
+    </div>
+    <aside class="pf-final__trust" aria-labelledby="pf-trust-h">
+      <div class="pf-final__who">
+        {portrait && <img class="pf-final__face" src={url(founder.portrait.headshot)} srcset={`${url(founder.portrait.headshotSmall)} 200w, ${url(founder.portrait.headshot)} 400w`} sizes="64px" width="400" height="400" alt="" loading="lazy" decoding="async" />}
+        <h3 id="pf-trust-h">{c.trust.h}</h3>
+      </div>
+      <dl class="pf-final__list">
+        {c.trust.items.map((x) => <div><dt>{x.k}</dt><dd>{x.v}</dd></div>)}
+      </dl>
+      {founderLive && <a class="pf-final__link" href={url(founder.path)}>{c.trust.founderLink}<span aria-hidden="true"> →</span></a>}
+    </aside>
+  </div>
+</section>
 
 <style>
-  .pf-toc { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
-  .pf-toc__faq { font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
-  .pf-sub-p { margin: 0 0 18px; max-width: 72ch; }
-  .pf-block { margin-top: clamp(40px, 5vw, 64px); }
-  .pf-h3 { font-size: clamp(1.4rem, 2.4vw, 1.8rem); margin: 0 0 10px; }
-  .pf-sample { margin: 0 0 14px; padding: 12px 16px; max-width: 80ch; border-left: 3px solid var(--sun); background: #fff; }
-  .pf-check { margin: 0 0 20px; max-width: 80ch; }
-  /* Chips: one horizontal row that scrolls on narrow screens; the selected chip shows a check, not color alone. */
-  .pf-chips { margin-bottom: 12px; }
-  .pf-chips .chip[aria-pressed='true']::before { content: '✓ '; }
+  /* ---------- Shared editorial pieces ---------- */
+  .pf-kicker { display: inline-flex; align-items: center; gap: 12px; margin: 0 0 16px; font: 650 .74rem/1.2 var(--text); letter-spacing: .18em; text-transform: uppercase; color: var(--champagne-ink); }
+  .pf-kicker::before { content: ''; width: 28px; height: 1px; background: var(--champagne); }
+  .on-ink .pf-kicker { color: var(--sun); }
+  .on-ink .pf-kicker::before { background: var(--sun); }
+  .pf-head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px 72px; align-items: end; margin-bottom: clamp(28px, 4vw, 48px); }
+  .pf-head h2 { font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.03em; }
+  .pf-head__p { margin: 0; max-width: 54ch; font-size: clamp(1.02rem, 1.2vw, 1.12rem); line-height: 1.6; color: var(--body); }
+  @media (max-width: 860px) { .pf-head { grid-template-columns: minmax(0, 1fr); } }
+  .pf-h3 { font-size: clamp(1.6rem, 2.8vw, 2.3rem); letter-spacing: -.025em; margin: 0 0 14px; }
+  .pf-fine { margin: 0; font-size: .9rem; line-height: 1.55; color: var(--muted); }
+  .on-ink .pf-fine { color: var(--on-ink-muted); }
+  .pf-dots { display: inline-flex; flex: 0 0 auto; }
+  .pf-dots span { width: 10px; height: 10px; border-radius: 50%; margin-right: -3px; box-shadow: 0 0 0 1.5px #fff, 0 0 0 2.5px rgba(14, 34, 51, .14); }
+  .pf-btn-quiet { border-width: 1px; border-radius: 999px; padding-inline: 26px; }
+
+  /* ---------- 1. Hero ---------- */
+  .pf-hero { position: relative; background: var(--ivory); border-bottom: 1px solid var(--stone-line); overflow: hidden; }
+  .pf-hero::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 34%; background: var(--stone); z-index: 0; }
+  .pf-hero > .wrap { position: relative; z-index: 1; }
+  .pf-hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: center; padding-block: clamp(28px, 4vw, 56px) clamp(36px, 4.5vw, 64px); }
+  .pf-hero__copy :global(.crumbs) { margin-bottom: clamp(20px, 3vw, 36px); }
+  .pf-hero h1 { font-size: clamp(2.6rem, 5.6vw, 5rem); line-height: .98; letter-spacing: -.04em; max-width: 12ch; }
+  .pf-hero__lede { margin: 22px 0 0; max-width: 52ch; font-size: clamp(1.08rem, 1.4vw, 1.25rem); line-height: 1.55; color: var(--body); }
+  .pf-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .pf-hero__note { margin: 24px 0 0; max-width: 56ch; padding-left: 14px; border-left: 2px solid var(--champagne); font-size: .92rem; line-height: 1.55; color: var(--muted); }
+  .pf-hero__art { position: relative; margin: 0; }
+  .pf-hero__frame { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); background: var(--mist); aspect-ratio: 3 / 2; }
+  .pf-hero__frame :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .pf-hero__float { position: absolute; left: clamp(-28px, -2vw, -12px); bottom: clamp(-24px, -2vw, -14px); display: grid; gap: 2px; padding: 14px 20px; background: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+  .pf-hero__float-k { font: 650 .7rem/1.2 var(--text); letter-spacing: .16em; text-transform: uppercase; color: var(--champagne-ink); }
+  .pf-hero__float a { font: 650 1.02rem/1.3 var(--display); color: var(--ink); text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; }
+  .pf-hero__float a:hover { color: var(--bay); }
+  .pf-hero__float a span { margin-left: .35em; }
+  .pf-hero__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 40px; padding: 22px 0 26px; border-top: 1px solid var(--stone-line); }
+  .pf-stats { display: flex; flex-wrap: wrap; gap: 14px 44px; margin: 0; }
+  .pf-stats div { display: flex; align-items: baseline; gap: 10px; }
+  .pf-stats dt { font: 700 clamp(1.6rem, 2.4vw, 2.1rem)/1 var(--display); color: var(--ink); letter-spacing: -.03em; }
+  .pf-stats dd { margin: 0; font-size: .92rem; color: var(--muted); max-width: 16ch; line-height: 1.3; }
+  .pf-toc { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 22px; }
+  .pf-toc__label { font: 650 .7rem/1 var(--text); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .pf-toc a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 600; color: var(--ink); text-decoration: none; background: linear-gradient(var(--champagne), var(--champagne)) left calc(100% - 10px) / 0 1.5px no-repeat; transition: background-size .25s var(--ease); }
+  .pf-toc a:hover { background-size: 100% 1.5px; color: var(--ink); }
+  @media (max-width: 959px) {
+    .pf-hero::after { display: none; }
+    .pf-hero__grid { grid-template-columns: minmax(0, 1fr); }
+    .pf-hero h1 { max-width: 14ch; }
+    .pf-hero__art { margin-bottom: 18px; }
+    .pf-hero__float { left: 12px; bottom: -18px; }
+  }
+  @media (max-width: 600px) {
+    .pf-hero__actions :global(.btn) { flex: 1 1 100%; }
+    .pf-hero__bar { padding-top: 26px; }
+    .pf-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 16px; width: 100%; }
+    .pf-stats div { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .pf-stats dd { font-size: .84rem; }
+    .pf-toc { width: 100%; gap: 0 20px; }
+    .pf-toc__label { flex-basis: 100%; margin-bottom: 2px; }
+  }
+
+  /* ---------- 2. Room designs ---------- */
+  .pf-rooms { background: #fff; }
+  .pf-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; margin-bottom: clamp(22px, 3vw, 34px); padding-bottom: 18px; border-bottom: 1px solid var(--stone-line); }
+  .pf-chips { gap: 8px; margin: 0; }
+  .pf-chips .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; border: 1px solid var(--stone-line); border-radius: 999px; background: #fff; color: var(--ink); font: 550 .93rem/1 var(--text); transition: border-color .15s, background-color .15s, color .15s; }
+  .pf-chips .chip:hover { border-color: var(--ink); }
+  .pf-chips .chip[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  /* The selected chip shows a gold mark as well as the fill, so the state never rests on color alone. */
+  .pf-chips .chip[aria-pressed='true']::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--sun); }
+  .pf-chip__n { font-size: .78rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .chip[aria-pressed='true'] .pf-chip__n { color: var(--on-ink-muted); }
+  .pf-chips .chip:focus-visible { outline: 3px solid var(--sun-deep); outline-offset: 2px; }
   @media (max-width: 720px) {
-    .pf-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+    .pf-chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(var(--gutter) * -1); padding: 2px var(--gutter) 8px; scrollbar-width: none; scroll-padding-inline: var(--gutter); }
+    .pf-chips::-webkit-scrollbar { display: none; }
     .pf-chips .chip { flex: 0 0 auto; }
   }
-  .pf-pairs > [hidden] { display: none; }
-  .pf-pair { min-width: 0; }
-  .pf-pair__title { font-size: 1.25rem; margin: 6px 0 4px; }
-  .pf-pair__label { font: 600 .78rem/1.3 var(--text); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; }
-  .pf-changed { margin: 4px 0 0; }
-  .pf-changed summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
-  /* Summaries are flex boxes, which drops the native marker; show an explicit open/closed sign instead. */
-  .pf-changed summary::after, .pf-start > summary::after, .pf-ideas > summary::after { content: '+'; margin-left: 10px; font-weight: 700; }
-  .pf-changed[open] summary::after, .pf-start[open] > summary::after, .pf-ideas[open] > summary::after { content: '−'; }
-  .pf-changed summary::-webkit-details-marker, .pf-start > summary::-webkit-details-marker, .pf-ideas > summary::-webkit-details-marker { display: none; }
-  .pf-changed dl { margin: 0 0 4px; font-size: .95rem; }
-  .pf-changed dt { font-weight: 650; color: var(--ink); }
-  .pf-changed dd { margin: 0 0 8px; }
-  .pf-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0; }
-  .pf-outdoor[hidden] { display: none; }
-  .pf-occupied { padding: clamp(20px, 3vw, 32px); border: 1px solid var(--line); border-radius: var(--radius); background: var(--wall); }
-  .pf-pair--wide { max-width: 900px; }
-  .pf-rules { margin: 0 0 14px; }
-  .pf-rules div { margin: 0 0 6px; }
-  .pf-rules dt { display: inline; font-weight: 650; color: var(--ink); }
-  .pf-rules dd { display: inline; margin: 0; }
-  .pf-ideas > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 48px; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 24px; background: #fff; font-weight: 600; }
-  .pf-ideas[open] > summary { margin-bottom: 18px; }
-  .gal-more { display: flex; justify-content: center; margin-top: 18px; }
+  .pf-toolbar__meta { display: flex; align-items: center; gap: 14px; }
+  .pf-toolbar__meta p { margin: 0; font-size: .9rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pf-reset { min-height: 40px; padding: 6px 4px; border: 0; background: none; color: var(--ink); font: 600 .9rem var(--text); text-decoration: underline; text-decoration-color: var(--champagne); text-decoration-thickness: 2px; text-underline-offset: .25em; cursor: pointer; }
+  .pf-reset[hidden] { display: none; }
+  .pf-reset:hover { color: var(--bay); }
+
+  /* Pair grid: 3 / 2 / 1 columns, every image the same 3:2 frame. */
+  .pf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 2.2vw, 32px); align-items: stretch; }
+  @media (max-width: 1099px) { .pf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 699px) { .pf-grid { grid-template-columns: minmax(0, 1fr); } }
+  .pf-grid[hidden], .pf-pairs > [hidden] { display: none; }
+  /* The two closing tiles complete the last row only while every pair shows. */
+  .pf-grid:has(> [data-pair][hidden]) > .pf-tile { display: none; }
+  .pf-card { min-width: 0; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--stone-line); border-radius: var(--radius-lg); overflow: hidden; transition: box-shadow .25s var(--ease), border-color .25s; }
+  .pf-card:hover, .pf-card:focus-within { box-shadow: var(--shadow-md); border-color: #cfc5b2; }
+  .pf-card__body { flex: 1 1 auto; display: flex; flex-direction: column; padding: 18px 20px 16px; }
+  /* Links sit on the card's bottom edge, so every card in a row lines up whatever its title or links wrap to. */
+  .pf-card .pf-links { margin-top: auto; }
+  .pf-card .pf-changed { margin-bottom: 8px; }
+  .pf-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 8px; font: 650 .72rem/1.3 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--champagne-ink); }
+  .pf-meta__style { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); }
+  .on-ink .pf-meta, .on-ink .pf-meta__style { color: var(--sun); }
+  .pf-pair__title { font-size: clamp(1.2rem, 1.6vw, 1.38rem); line-height: 1.2; letter-spacing: -.015em; margin: 0 0 6px; }
+
+  /* Slider inside cards and features: the frame meets the card edge, the Side by side control floats on the photo. */
+  .pf-pair :global(.compare-wrap) { position: relative; }
+  .pf-pair :global(.compare-wrap figcaption) { position: absolute; right: 12px; bottom: 12px; z-index: 5; margin: 0; }
+  .pf-pair :global(.compare-wrap figcaption .mini-btn) { min-height: 40px; padding: 6px 14px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .94); color: var(--ink); font-size: .78rem; box-shadow: 0 4px 14px rgba(14, 34, 51, .22); }
+  .pf-pair :global(.compare-wrap figcaption .mini-btn:hover) { background: #fff; }
+  .pf-pair :global(.compare-wrap.is-side figcaption) { position: static; display: flex; justify-content: flex-end; padding: 10px 12px 0; }
+  .pf-feature__media :global(.compare) { border-radius: var(--radius-lg); }
+
+  .pf-changed { margin: 2px 0 0; border-top: 1px solid var(--stone); }
+  .pf-changed summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 44px; font: 600 .92rem var(--text); color: var(--ink); }
+  .pf-changed summary::-webkit-details-marker { display: none; }
+  .pf-changed summary::after { content: ''; width: 9px; height: 9px; margin-right: 4px; border-right: 1.75px solid currentColor; border-bottom: 1.75px solid currentColor; transform: translateY(-3px) rotate(45deg); transition: transform .2s var(--ease); }
+  .pf-changed[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+  .pf-changed dl { margin: 0 0 6px; font-size: .92rem; line-height: 1.55; }
+  .pf-changed dt { font: 650 .7rem/1.3 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .pf-changed dd { margin: 2px 0 12px; }
+  .on-ink .pf-changed { border-top-color: rgba(255, 255, 255, .16); }
+  .on-ink .pf-changed summary { color: #fff; }
+  .on-ink .pf-changed dt { color: var(--on-ink-muted); }
+  .on-ink .pf-changed dd { color: var(--on-ink); }
+  .pf-links { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 4px 0 0; padding-top: 10px; border-top: 1px solid var(--stone); font-size: .88rem; }
+  .pf-links a { min-height: 36px; display: inline-flex; align-items: center; font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--champagne); text-decoration-thickness: 1.5px; text-underline-offset: .3em; }
+  .pf-links a:hover { color: var(--bay); }
+  .pf-links--lg { border-top: 0; padding-top: 18px; font-size: .98rem; gap: 6px 26px; }
+  .on-ink .pf-links a { color: #fff; text-decoration-color: var(--sun); }
+  .on-ink .pf-links a:hover { color: var(--sun); }
+
+  /* Closing tiles */
+  .pf-tile { min-width: 0; align-self: stretch; display: flex; flex-direction: column; gap: 12px; padding: clamp(24px, 2.6vw, 34px); border-radius: var(--radius-lg); }
+  .pf-tile h3 { font-size: clamp(1.3rem, 1.9vw, 1.6rem); letter-spacing: -.02em; margin: 0; }
+  .pf-tile p { margin: 0; line-height: 1.6; }
+  .pf-tile--rule { background: var(--ivory); border: 1px solid var(--stone-line); justify-content: flex-end; }
+  .pf-tile__mark { width: 44px; height: 44px; margin-bottom: auto; border-radius: 50%; border: 1.5px solid var(--champagne); background: linear-gradient(90deg, transparent calc(50% - .75px), var(--champagne) calc(50% - .75px), var(--champagne) calc(50% + .75px), transparent calc(50% + .75px)); }
+  .pf-cta { background: var(--ink); color: var(--on-ink); justify-content: flex-end; }
+  .pf-cta h3 { color: #fff; }
+  .pf-cta__note { font-size: .88rem; color: var(--on-ink-muted); }
+  .pf-cta :global(.btn) { align-self: flex-start; margin-top: 8px; }
+  .pf-cta :global(.btn--primary:hover) { background: #fff; border-color: #fff; color: var(--ink); }
+  .pf-cta :global(.btn:focus-visible) { outline-color: var(--sun); }
+  .gal-more { display: flex; justify-content: center; margin-top: 26px; }
   .gal-more[hidden] { display: none; }
-  .pf-cta { margin-top: clamp(28px, 4vw, 44px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: clamp(20px, 3vw, 28px); border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
-  .pf-cta h3 { font-size: 1.3rem; margin: 0 0 4px; }
-  .pf-cta p { margin: 0; max-width: 60ch; }
-  .pf-cta__note { margin-top: 6px !important; color: var(--muted); }
-  /* Section 3: the slider beside the switcher on wide screens, stacked below 960px. */
-  .pf-switch { display: grid; gap: clamp(20px, 3vw, 36px); grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
-  @media (max-width: 960px) { .pf-switch { grid-template-columns: minmax(0, 1fr); } }
-  .pf-switch__label { font: 600 .8rem var(--text); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+
+  /* Features: Outdoor Spaces (light) and Occupied Rooms (ink). */
+  .pf-feature { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4.5vw, 72px); align-items: center; margin-top: clamp(64px, 8vw, 112px); }
+  .pf-feature[hidden] { display: none; }
+  .pf-feature__text { min-width: 0; }
+  .pf-feature__p { margin: 0 0 22px; max-width: 52ch; font-size: 1.05rem; line-height: 1.65; }
+  .pf-feature__media { min-width: 0; }
+  .pf-feature__media .pf-card__body { padding: 16px 2px 0; }
+  .pf-points { display: grid; margin: 0 0 20px; border-top: 1px solid var(--stone-line); }
+  .pf-points div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 4px 18px; padding: 12px 0; border-bottom: 1px solid var(--stone-line); }
+  .pf-points dt { font: 650 .74rem/1.5 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+  .pf-points dd { margin: 0; }
+  .pf-occupied { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); padding: clamp(24px, 4vw, 56px); border-radius: calc(var(--radius-lg) + 4px); background: var(--ink); color: var(--on-ink); box-shadow: var(--shadow-lg); }
+  .pf-occupied .pf-h3 { color: #fff; }
+  .pf-occupied .pf-feature__p { color: var(--on-ink); font-size: 1rem; }
+  .pf-occupied .pf-pair__title { color: #fff; }
+  .pf-rules { display: grid; gap: 0; margin: 0 0 18px; border-top: 1px solid rgba(255, 255, 255, .16); }
+  .pf-rules__row { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 2px 14px; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, .16); }
+  .pf-rules__row::before { content: ''; grid-row: span 2; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; }
+  .pf-rules__row--0::before { border: 2px solid var(--on-ink-muted); }
+  .pf-rules__row--1::before { background: var(--sun); }
+  .pf-rules__row--2::before { background: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, .25); }
+  .pf-rules dt { font: 650 .74rem/1.5 var(--text); letter-spacing: .12em; text-transform: uppercase; color: #fff; }
+  .pf-rules dd { margin: 0; color: var(--on-ink); font-size: .95rem; line-height: 1.55; }
+  @media (max-width: 959px) {
+    .pf-feature, .pf-occupied { grid-template-columns: minmax(0, 1fr); }
+    /* Stacked: heading, then the photo, then the details. */
+    .pf-outdoor { row-gap: 0; }
+    .pf-outdoor .pf-feature__text { display: contents; }
+    .pf-outdoor > .pf-feature__media { order: 1; margin: 4px 0 28px; }
+    .pf-outdoor .pf-points, .pf-outdoor .pf-fine { order: 2; }
+  }
+  @media (max-width: 520px) {
+    .pf-points div { grid-template-columns: minmax(0, 1fr); }
+    .pf-occupied { margin-inline: calc(var(--gutter) * -1); border-radius: 0; padding-inline: var(--gutter); }
+  }
+
+  /* More Design Ideas */
+  .pf-ideas { margin-top: clamp(56px, 7vw, 96px); border-block: 1px solid var(--stone-line); }
+  .pf-ideas > summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 88px; padding: 18px 0; }
+  .pf-ideas > summary::-webkit-details-marker { display: none; }
+  .pf-ideas__lead { display: grid; gap: 4px; }
+  .pf-ideas__k { font: 650 .72rem/1.2 var(--text); letter-spacing: .16em; text-transform: uppercase; color: var(--champagne-ink); }
+  .pf-ideas__t { font: 700 clamp(1.25rem, 2.2vw, 1.7rem)/1.15 var(--display); letter-spacing: -.02em; color: var(--ink); }
+  .pf-ideas__icon { position: relative; flex: none; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--ink); transition: background-color .2s, transform .25s var(--ease); }
+  .pf-ideas__icon::before, .pf-ideas__icon::after { content: ''; position: absolute; left: 50%; top: 50%; width: 16px; height: 1.75px; margin: -.875px 0 0 -8px; background: var(--ink); transition: transform .25s var(--ease), background-color .2s; }
+  .pf-ideas__icon::after { transform: rotate(90deg); }
+  .pf-ideas > summary:hover .pf-ideas__icon { background: var(--ink); }
+  .pf-ideas > summary:hover .pf-ideas__icon::before, .pf-ideas > summary:hover .pf-ideas__icon::after { background: #fff; }
+  .pf-ideas[open] .pf-ideas__icon::after { transform: rotate(0deg); }
+  .pf-ideas > summary:focus-visible { outline: 3px solid var(--sun-deep); outline-offset: 4px; }
+  .pf-ideas__body { padding: 8px 0 clamp(28px, 4vw, 48px); }
+  .pf-ideas__p { margin: 0 0 20px; max-width: 70ch; color: var(--muted); }
+  .pf-chips--style { margin-bottom: 14px; }
+  .pf-chips--style .chip { gap: 10px; }
+  .pf-ideas__meta { justify-content: space-between; margin-bottom: 18px; }
+  .pf-gal { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 2vw, 28px); }
+  @media (max-width: 1099px) { .pf-gal { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 699px) { .pf-gal { grid-template-columns: minmax(0, 1fr); } }
+  .pf-gal :global(.gal__btn) { border-radius: var(--radius-lg); }
+  .pf-gal :global(.gal__btn:focus-visible) { outline: 3px solid var(--sun-deep); outline-offset: 3px; }
+  .pf-gal :global(figcaption) { padding-top: 12px; }
+  .pf-gal :global(h4) { font-size: 1.08rem; letter-spacing: -.01em; }
+  .pf-gal :global(.gal__meta) { font-size: .88rem; line-height: 1.5; }
+
+  /* ---------- 3. Explore 8 styles ---------- */
+  .pf-styles-sec { background: var(--ivory); border-block: 1px solid var(--stone-line); }
+  .pf-switch { display: grid; gap: clamp(24px, 3.5vw, 56px); grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 1023px) { .pf-switch { grid-template-columns: minmax(0, 1fr); } }
+  .pf-switch__stage { min-width: 0; position: sticky; top: 96px; }
+  @media (max-width: 1023px) { .pf-switch__stage { position: static; } }
+  .pf-switch__stage :global(.compare) { border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+  .pf-switch__stage :global(.compare-wrap figcaption) { margin-top: 12px; }
+  .pf-switch__stage :global(.mini-btn) { border-color: var(--stone-line); border-radius: 999px; background: #fff; padding-inline: 16px; }
+  .pf-switch__side { min-width: 0; }
+  .pf-switch__label { font: 650 .72rem/1.2 var(--text); letter-spacing: .16em; text-transform: uppercase; color: var(--champagne-ink); margin: 0 0 12px; }
   .pf-switch__btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  @media (max-width: 960px) and (min-width: 560px) { .pf-switch__btns { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-  .pf-swbtn { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font: 500 .95rem var(--text); text-align: left; cursor: pointer; }
+  @media (max-width: 1023px) and (min-width: 600px) { .pf-switch__btns { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .pf-swbtn { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 52px; padding: 8px 14px; border: 1px solid var(--stone-line); border-radius: var(--radius-md); background: #fff; color: var(--ink); font: 550 .95rem/1.2 var(--text); text-align: left; cursor: pointer; transition: border-color .15s, box-shadow .2s var(--ease), background-color .15s; }
   .pf-swbtn:hover { border-color: var(--ink); }
-  .pf-swbtn:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
-  .pf-swbtn[aria-pressed='true'] { border-color: var(--ink); background: var(--wall); font-weight: 650; }
+  .pf-swbtn:focus-visible { outline: 3px solid var(--sun-deep); outline-offset: 2px; }
+  .pf-swbtn[aria-pressed='true'] { border-color: var(--ink); background: var(--ink); color: #fff; font-weight: 650; box-shadow: var(--shadow-md); }
   .pf-swbtn__dots { display: inline-flex; flex: 0 0 auto; }
-  .pf-swbtn__dots span { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); margin-right: -3px; }
-  .pf-swbtn { min-width: 0; }
+  .pf-swbtn__dots span { width: 12px; height: 12px; border-radius: 50%; margin-right: -3px; box-shadow: 0 0 0 1.5px #fff; }
+  .pf-swbtn[aria-pressed='true'] .pf-swbtn__dots span { box-shadow: 0 0 0 1.5px var(--ink); }
   .pf-swbtn__name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+  .pf-swbtn__check { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--sun); color: var(--ink); visibility: hidden; }
+  .pf-swbtn[aria-pressed='true'] .pf-swbtn__check { visibility: visible; }
   @media (max-width: 400px) {
-    .pf-swbtn { padding: 8px; gap: 6px; font-size: .9rem; }
+    .pf-swbtn { padding: 8px 10px; gap: 6px; font-size: .9rem; }
     .pf-swbtn__dots { display: none; }
   }
-  .pf-swbtn__check { visibility: hidden; font-weight: 700; }
-  .pf-swbtn[aria-pressed='true'] .pf-swbtn__check { visibility: visible; }
-  .pf-switch__status { margin: 12px 0; font-weight: 600; color: var(--ink); }
-  .pf-panel { padding: 18px 0 0; border-top: 1px solid var(--line); min-width: 0; }
+  .pf-switch__status { margin: 16px 0 0; font-size: .85rem; font-weight: 600; color: var(--muted); }
+  .pf-panel { margin-top: 16px; padding: 24px; min-width: 0; background: #fff; border: 1px solid var(--stone-line); border-radius: var(--radius-lg); }
   .pf-panel[hidden] { display: none; }
-  .pf-panel + .pf-panel { margin-top: 24px; }
-  .pf-panel__img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; margin-bottom: 12px; border-radius: var(--radius); }
-  .pf-panel__name { font-size: 1.4rem; margin: 0 0 6px; }
-  .pf-panel p { margin: 0 0 8px; }
-  .pf-facts { margin: 4px 0 12px; font-size: .95rem; }
-  .pf-facts dt { font-weight: 650; color: var(--ink); }
-  .pf-facts dd { margin: 0 0 8px; }
-  .pf-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
-  .pf-ask { min-height: 44px; padding: 8px 16px; font-size: .92rem; }
+  .pf-panel:not([hidden]) { animation: pf-in .35s var(--ease) both; }
+  @keyframes pf-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .pf-panel__img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; margin-bottom: 14px; border-radius: var(--radius-md); }
+  .pf-panel__name { font-size: clamp(1.5rem, 2.4vw, 1.9rem); letter-spacing: -.025em; margin: 0 0 8px; }
+  .pf-panel__desc { margin: 0 0 16px; line-height: 1.6; }
+  .pf-facts { display: grid; gap: 0; margin: 0 0 18px; border-top: 1px solid var(--stone); }
+  .pf-facts div { padding: 10px 0; border-bottom: 1px solid var(--stone); }
+  .pf-facts dt { font: 650 .72rem/1.4 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--champagne-ink); }
+  .pf-facts dd { margin: 3px 0 0; font-size: .95rem; line-height: 1.55; }
+  .pf-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+  .pf-ask { min-height: 44px; padding: 8px 18px; font-size: .92rem; border-width: 1px; border-radius: 999px; }
+  .pf-arrowlink { min-height: 44px; display: inline-flex; align-items: center; font-size: .9rem; font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--champagne); text-decoration-thickness: 1.5px; text-underline-offset: .3em; }
+  .pf-arrowlink:hover { color: var(--bay); }
   .pf-styles { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
-  .pf-styles .pf-panel { border-top: 0; padding: 20px; }
-  .pf-start > summary { cursor: pointer; font: 650 1.2rem/1.3 var(--display, inherit); min-height: 44px; display: flex; align-items: center; }
-  .pf-start[open] > summary { margin-bottom: 8px; }
-  .pf-start h4 { font-size: 1.1rem; }
+  .pf-start { margin-top: clamp(40px, 5vw, 64px); border-top: 1px solid var(--stone-line); }
+  .pf-start > summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; font: 700 clamp(1.15rem, 1.8vw, 1.4rem)/1.2 var(--display); color: var(--ink); letter-spacing: -.015em; }
+  .pf-start > summary::-webkit-details-marker { display: none; }
+  .pf-start > summary:focus-visible { outline: 3px solid var(--sun-deep); outline-offset: 4px; }
+  .pf-start__icon { position: relative; flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--ink); }
+  .pf-start__icon::before, .pf-start__icon::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 1.75px; margin: -.875px 0 0 -7px; background: var(--ink); transition: transform .25s var(--ease); }
+  .pf-start__icon::after { transform: rotate(90deg); }
+  .pf-start[open] .pf-start__icon::after { transform: rotate(0deg); }
+  .pf-start__p { margin: 0 0 22px; color: var(--muted); }
+  .pf-start__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 32px; }
+  @media (max-width: 1023px) { .pf-start__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .pf-start__grid { grid-template-columns: minmax(0, 1fr); } }
+  .pf-start__item { padding: 18px 0 22px; border-top: 1px solid var(--stone-line); }
+  .pf-start__item h4 { font-size: 1.08rem; line-height: 1.3; margin: 0 0 8px; }
+  .pf-start__item p { margin: 0 0 6px; font-size: .95rem; }
+  .pf-start__consider { font-size: .88rem !important; color: var(--muted); }
+
+  /* ---------- 4. FAQ ---------- */
+  .pf-faq { background: #fff; }
+  .pf-faq__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); gap: clamp(28px, 6vw, 96px); align-items: start; }
+  @media (max-width: 899px) { .pf-faq__grid { grid-template-columns: minmax(0, 1fr); } }
+  .pf-faq__head { position: sticky; top: 104px; }
+  @media (max-width: 899px) { .pf-faq__head { position: static; } }
+  .pf-faq__head h2 { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -.03em; margin: 0 0 14px; }
+  .pf-faq__head p:last-child { margin: 0; max-width: 36ch; color: var(--muted); }
+  .pf-faq :global(.faq details) { border-top: 1px solid var(--stone-line); }
+  .pf-faq :global(.faq details:last-child) { border-bottom: 1px solid var(--stone-line); }
+  .pf-faq :global(.faq summary) { align-items: center; padding: 22px 0; min-height: 64px; font: 650 clamp(1.05rem, 1.4vw, 1.2rem)/1.35 var(--display); letter-spacing: -.01em; }
+  .pf-faq :global(.faq summary:hover) { color: var(--bay); }
+  .pf-faq :global(.faq summary:focus-visible) { outline: 3px solid var(--sun-deep); outline-offset: 4px; }
+  .pf-faq :global(.faq summary::after) { content: '+'; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--stone-line); border-radius: 50%; font: 400 1.25rem/1 var(--text); color: var(--ink); transition: background-color .2s, border-color .2s, color .2s; }
+  .pf-faq :global(.faq details[open] summary::after) { content: '\2212'; background: var(--ink); border-color: var(--ink); color: #fff; }
+  .pf-faq :global(.faq .a) { padding: 0 52px 24px 0; line-height: 1.7; color: var(--body); }
+  .pf-faq :global(.faq .a ul) { margin: 10px 0; padding-left: 1.2em; }
+  .pf-faq :global(.faq .a p + p) { margin-top: 10px; }
+
+  /* ---------- 5. Closing band ---------- */
+  .cta-band .pf-final { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px clamp(40px, 6vw, 96px); align-items: center; padding-block: clamp(56px, 7vw, 104px); }
+  @media (max-width: 899px) { .cta-band .pf-final { grid-template-columns: minmax(0, 1fr); } }
+  .pf-final .eyebrow { color: var(--sun); }
+  .pf-final__link span { margin-left: .35em; }
+  .pf-final h2 { font-size: clamp(2.1rem, 4.4vw, 3.6rem); letter-spacing: -.035em; max-width: 16ch; }
+  .pf-final__copy > p:not(.eyebrow):not(.cta-band__note) { margin: 16px 0 0; max-width: 52ch; color: var(--on-ink); font-size: 1.08rem; }
+  .pf-final__btns { margin-top: 28px; align-items: stretch; }
+  .pf-final__btns > .btn--cta { min-height: 56px; padding-inline: 28px; }
+  .pf-final :global(.pf-call) { background: transparent; border-color: rgba(255, 255, 255, .45); color: #fff; }
+  .pf-final :global(.pf-call:hover) { background: #fff; border-color: #fff; color: var(--ink); }
+  .pf-final .cta-band__note { margin-top: 14px; }
+  .pf-final__trust { padding: clamp(22px, 3vw, 34px); border: 1px solid rgba(255, 255, 255, .14); border-radius: var(--radius-lg); background: rgba(255, 255, 255, .04); }
+  .pf-final__who { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .pf-final__face { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--sun); }
+  .pf-final__trust h3 { color: #fff; font-size: 1.3rem; margin: 0; }
+  .pf-final__list { margin: 0; }
+  .pf-final__list div { padding: 12px 0; border-top: 1px solid rgba(255, 255, 255, .12); }
+  .pf-final__list dt { font: 650 .72rem/1.4 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--sun); }
+  .pf-final__list dd { margin: 3px 0 0; color: var(--on-ink); font-size: .96rem; line-height: 1.55; }
+  .pf-final__link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; font-weight: 600; color: #fff !important; text-decoration: underline; text-decoration-color: var(--sun); text-decoration-thickness: 1.5px; text-underline-offset: .3em; }
+  @media (max-width: 480px) { .pf-final__btns > * { flex: 1 1 100%; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pf-card, .pf-panel:not([hidden]), .pf-ideas__icon, .pf-ideas__icon::before, .pf-ideas__icon::after, .pf-toc a { transition: none; animation: none; }
+  }
 </style>

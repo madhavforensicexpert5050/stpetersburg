@@ -26,6 +26,41 @@ document.querySelectorAll<HTMLElement>('[data-compare]').forEach((wrap) => {
     input.setAttribute('aria-valuetext', `${input.value} percent`);
   };
   input.addEventListener('input', () => { box.style.animation = 'none'; set(); });
+  // Pointer drag anywhere on the photo (mouse, touch and pen) maps straight to the divider, so a tap or drag behaves
+  // the same in every engine (WebKit's native range only moves from its thumb). Vertical swipes still scroll the page
+  // (touch-action: pan-y). Keyboard and screen readers keep using the native range input.
+  // Touch waits for intent: a tap or a horizontal drag moves the divider, while a vertical swipe that starts on the
+  // photo only scrolls (the browser then sends pointercancel).
+  let pressed = false, dragging = false, sx = 0, sy = 0;
+  const moveTo = (x: number) => {
+    const r = box.getBoundingClientRect();
+    if (!r.width) return;
+    const v = String(Math.round(Math.min(100, Math.max(0, ((x - r.left) / r.width) * 100))));
+    if (v !== input.value) { input.value = v; input.dispatchEvent(new Event('input', { bubbles: true })); }
+  };
+  const start = (e: PointerEvent) => {
+    dragging = true;
+    box.classList.add('is-dragging');
+    try { box.setPointerCapture(e.pointerId); } catch { /* pointer already released */ }
+    input.focus({ preventScroll: true });
+    moveTo(e.clientX);
+  };
+  box.addEventListener('pointerdown', (e) => {
+    if (wrap.classList.contains('is-side') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    pressed = true; sx = e.clientX; sy = e.clientY;
+    if (e.pointerType !== 'touch') { e.preventDefault(); start(e); }
+  });
+  box.addEventListener('pointermove', (e) => {
+    if (dragging) { moveTo(e.clientX); return; }
+    if (pressed && e.pointerType === 'touch' && Math.abs(e.clientX - sx) > 6 && Math.abs(e.clientX - sx) > Math.abs(e.clientY - sy)) start(e);
+  });
+  const end = () => { pressed = false; dragging = false; box.classList.remove('is-dragging'); };
+  box.addEventListener('pointerup', (e) => {
+    if (pressed && !dragging && e.pointerType === 'touch' && Math.hypot(e.clientX - sx, e.clientY - sy) < 10) { input.focus({ preventScroll: true }); moveTo(e.clientX); }
+    end();
+  });
+  box.addEventListener('pointercancel', end);
+  box.addEventListener('lostpointercapture', () => { dragging = false; box.classList.remove('is-dragging'); });
   const toggle = wrap.querySelector<HTMLButtonElement>('[data-compare-toggle]');
   toggle?.addEventListener('click', () => {
     const side = wrap.classList.toggle('is-side');
@@ -76,6 +111,7 @@ if (roomsRoot) {
   const outdoorBlock = roomsRoot.querySelector<HTMLElement>('[data-outdoor]');
   const pairsMoreRow = roomsRoot.querySelector<HTMLElement>('[data-pairs-more-row]');
   const pairsMore = roomsRoot.querySelector<HTMLButtonElement>('[data-pairs-more]');
+  const roomsReset = roomsRoot.querySelector<HTMLButtonElement>('[data-rooms-reset]');
   const firstPairs = Number(pairsMore?.dataset.first || 0);
   const ideas = roomsRoot.querySelector<HTMLDetailsElement>('[data-library]');
   const items = ideas ? [...ideas.querySelectorAll<HTMLElement>('[data-item]')] : [];
@@ -105,6 +141,7 @@ if (roomsRoot) {
     if (pairCount) pairCount.textContent = shown < n ? `Showing ${shown} of ${n} comparisons` : `${n} ${n === 1 ? 'comparison' : 'comparisons'} shown`;
     if (pairsMoreRow && pairsMore) { pairsMoreRow.hidden = shown >= n; pairsMore.textContent = `Show all ${n} comparisons`; }
     groupChips.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === state.group)));
+    if (roomsReset) roomsReset.hidden = state.group === 'all';
     // Design ideas
     if (!ideas) return;
     let m = 0, mShown = 0;
@@ -127,6 +164,11 @@ if (roomsRoot) {
     const t = e.target as HTMLElement;
     const chip = t.closest<HTMLButtonElement>('[data-group-chip]');
     if (chip) { state.group = chip.dataset.value!; pairsExpanded = false; ideasExpanded = false; apply(); return; }
+    if (t.closest('[data-rooms-reset]')) {
+      state.group = 'all'; pairsExpanded = false; ideasExpanded = false; apply();
+      groupChips.find((b) => b.dataset.value === 'all')?.focus();
+      return;
+    }
     const f = t.closest<HTMLButtonElement>('[data-filter=style]');
     if (f) { state.style = f.dataset.value!; ideasExpanded = false; apply(); return; }
     if (t.closest('[data-clear], [data-clear-2]')) { state.style = 'all'; state.group = 'all'; ideasExpanded = false; apply(); return; }

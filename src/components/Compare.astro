@@ -5,8 +5,10 @@ import { getPair, isIllustration, type MediaItem } from '../data/media.ts';
  * Before/after slider. Pass `pair` (resolved with getPair), or `before` and `after` directly (Portfolio Section 3,
  * where site.ts swaps the after image through [data-compare-after]). `label` replaces the slider's accessible name.
  */
-interface Props { pair?: string; before?: MediaItem; after?: MediaItem; label?: string; eager?: boolean; animate?: boolean; hideCaption?: boolean }
+interface Props { pair?: string; before?: MediaItem; after?: MediaItem; label?: string; eager?: boolean; animate?: boolean; hideCaption?: boolean; sizes?: string }
 const { pair, eager = false, animate = false, label } = Astro.props;
+// `sizes` lets a layout state how wide the slider really is, so the browser picks the right file.
+const sizes = Astro.props.sizes ?? (eager ? '(max-width: 767px) 100vw, 1200px' : undefined);
 const { before, after } = Astro.props.before && Astro.props.after ? { before: Astro.props.before, after: Astro.props.after } : getPair(pair!);
 const illustrative = isIllustration(before) || isIllustration(after);
 const synthetic = before.rights === 'ai-generated' && after.rights === 'ai-generated';
@@ -14,12 +16,12 @@ const swappable = Boolean(Astro.props.after);
 ---
 <figure class:list={['compare-wrap', { 'anim-reveal': animate }]} data-compare>
   <div class="compare">
-    <MediaImage media={before} eager={eager} sizes={eager ? '(max-width: 767px) 100vw, 1200px' : undefined} />
-    <MediaImage media={after} class="compare__after" eager={eager} sizes={eager ? '(max-width: 767px) 100vw, 1200px' : undefined} compareAfter={swappable} />
+    <MediaImage media={before} eager={eager} sizes={sizes} />
+    <MediaImage media={after} class="compare__after" eager={eager} sizes={sizes} compareAfter={swappable} />
     <span class="compare__tag compare__tag--b">Before{illustrative && !synthetic && <span class="compare__tag-x"> · Illustrative room</span>}</span>
     <span class="compare__tag compare__tag--a">After{illustrative && !synthetic && <span class="compare__tag-x"> · Design concept</span>}</span>
     <span class="compare__line" aria-hidden="true"></span>
-    <span class="compare__knob" aria-hidden="true">↔</span>
+    <span class="compare__knob" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5" /></svg></span>
     <input type="range" min="0" max="100" value="50" step="1" aria-label={label ?? (synthetic ? `Compare the original room and the AI-created visualization: ${before.label} and ${after.label}` : `Compare before and after: ${before.label} and ${after.label}`)} aria-valuetext="50 percent" />
   </div>
   <figcaption>

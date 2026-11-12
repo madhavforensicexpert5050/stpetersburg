@@ -25,6 +25,18 @@
   --gutter: clamp(16px, 4vw, 56px);
   --max: 1320px;
   --radius: 3px;
+  /* V28 editorial layer (Portfolio first): warm surfaces, a muted champagne accent, soft depth. */
+  --ivory: #f8f5ef;
+  --stone: #efe9df;
+  --stone-line: #ddd4c4;
+  --champagne: #c9a45a;
+  --champagne-ink: #75561a;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(14, 34, 51, .06), 0 2px 6px -2px rgba(14, 34, 51, .06);
+  --shadow-md: 0 14px 34px -16px rgba(14, 34, 51, .28);
+  --shadow-lg: 0 34px 70px -30px rgba(14, 34, 51, .45);
+  --ease: cubic-bezier(.2, .7, .2, 1);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 88px; scroll-padding-bottom: 76px; }
@@ -141,11 +153,18 @@ li { margin-bottom: .4em; }
 .compare { position: relative; --pos: 50%; background: var(--mist); overflow: hidden; aspect-ratio: 3 / 2; touch-action: pan-y; isolation: isolate; }
 .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; pointer-events: none; }
 .compare__after { clip-path: inset(0 0 0 var(--pos)); }
-.compare__line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 3px; margin-left: -1.5px; background: var(--sun); box-shadow: 0 0 0 1px rgba(14,34,51,.3); z-index: 2; pointer-events: none; }
-.compare__knob { position: absolute; top: 50%; left: var(--pos); width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: var(--sun); border: 3px solid var(--ink); z-index: 3; pointer-events: none; display: grid; place-items: center; color: var(--ink); font-size: 15px; font-weight: 700; }
-.compare input[type='range'] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; z-index: 4; }
-.compare:has(input:focus-visible) .compare__knob { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 7px var(--dusk); }
-.compare__tag { position: absolute; top: 12px; z-index: 2; padding: 5px 10px; background: var(--ink); color: #fff; font: 600 .76rem/1.1 var(--text); letter-spacing: .04em; border-radius: 2px; pointer-events: none; }
+.compare__line { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: var(--sun); box-shadow: 0 0 0 1px rgba(14,34,51,.18), 0 0 14px rgba(14,34,51,.28); z-index: 2; pointer-events: none; }
+/* The handle stays fully inside the frame at 0% and 100%; the line itself still reaches the edge. */
+.compare__knob { position: absolute; top: 50%; left: clamp(28px, var(--pos), calc(100% - 28px)); width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 0 0 3px var(--sun), 0 8px 22px rgba(14,34,51,.38); z-index: 3; pointer-events: none; display: grid; place-items: center; color: var(--ink); transition: transform .18s var(--ease, ease), box-shadow .18s; }
+.compare__knob svg { width: 26px; height: 26px; }
+.compare:hover .compare__knob, .compare.is-dragging .compare__knob { transform: scale(1.06); }
+/* The invisible range input is the keyboard and screen-reader control. Pointers are handled on the frame (site.ts),
+   so mouse, touch and pen place the divider exactly where they are, in every engine. */
+.compare input[type='range'] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; z-index: 4; pointer-events: none; }
+.compare { cursor: ew-resize; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.compare:has(input:focus-visible) .compare__knob { outline: 3px solid #fff; outline-offset: 3px; box-shadow: 0 0 0 3px var(--sun), 0 0 0 8px var(--dusk); }
+.compare.is-dragging { cursor: ew-resize; }
+.compare__tag { position: absolute; top: 12px; z-index: 2; padding: 6px 11px; background: rgba(14,34,51,.86); color: #fff; font: 650 .7rem/1.1 var(--text); letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; pointer-events: none; }
 .compare__tag--b { left: 12px; }
 .compare__tag--a { right: 12px; background: var(--sun); color: var(--ink); }
 .compare-wrap { container-type: inline-size; }

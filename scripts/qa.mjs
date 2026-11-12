@@ -271,7 +271,8 @@ check('Brand images are owner-licensed, owner-approved and present on disk', bra
 const textFiles = walk('dist').filter((f) => /\.(html|js|css|txt|xml)$/.test(f));
 const secretHit = textFiles.filter((f) => /sk_live|sk_test|api[_-]?key\s*[:=]|BEGIN (RSA|PRIVATE)/i.test(fs.readFileSync(f, 'utf8')));
 check('No secrets in built files', !secretHit.length, secretHit);
-const third = textFiles.filter((f) => f.endsWith('.html')).filter((f) => /<(script|link|img)\b[^>]*(src|href)="https?:\/\/(?!st\.petersburg\.stageliora\.com)/i.test(fs.readFileSync(f, 'utf8')));
+// Any absolute script, stylesheet, link or image URL must be on the production host (business.siteUrl).
+const third = textFiles.filter((f) => f.endsWith('.html')).filter((f) => [...fs.readFileSync(f, 'utf8').matchAll(/<(?:script|link|img)\b[^>]*(?:src|href)="(https?:\/\/[^"/]+)/gi)].some((m) => m[1] !== business.siteUrl));
 check('No third-party scripts, styles or images', !third.length, third);
 check('No cookies or storage set by site scripts', !textFiles.filter((f) => f.endsWith('.js')).some((f) => /document\.cookie|localStorage|sessionStorage/.test(fs.readFileSync(f, 'utf8'))));
 
@@ -362,7 +363,7 @@ if (V.exists) {
   check('Valid fixture: lastmod only where known', /<lastmod>2026-11-05<\/lastmod>/.test(gsm) && /<loc>[^<]*\/locations\/st-petersburg-fl\/<\/loc>\s*<lastmod>2026-11-12<\/lastmod>/.test(gsm) && (gsm.match(/<lastmod>/g) || []).length === 3);
   check('Valid fixture: published but not index-approved pages carry noindex', /noindex/.test(fs.readFileSync(path.join(G, 'faq/index.html'), 'utf8')) && /noindex/.test(fs.readFileSync(path.join(G, 'request-quote/index.html'), 'utf8')));
   check('Valid fixture: approved pages are indexable and draft wording is gone', /content="index,follow/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')) && !gh.some(([, h]) => /class="ribbon"|Not yet offered|Bookings not yet open|Draft: not reviewed/.test(h)));
-  check('Valid fixture: robots.txt allows crawling and names the sitemap', /Allow: \//.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')) && /Sitemap: https:\/\/st\.petersburg\.stageliora\.com\/sitemap\.xml/.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')));
+  check('Valid fixture: robots.txt allows crawling and names the sitemap', /Allow: \//.test(fs.readFileSync(path.join(G, 'robots.txt'), 'utf8')) && fs.readFileSync(path.join(G, 'robots.txt'), 'utf8').includes(`Sitemap: ${business.siteUrl}/sitemap.xml`));
   check('Valid fixture: no global noindex header overriding approved pages', !/X-Robots-Tag/.test(fs.readFileSync(path.join(G, '_headers'), 'utf8')));
   check('Valid fixture: homepage drops placeholder portfolio and style sections', !/Rooms in each design direction|Match the style to the house/.test(fs.readFileSync(path.join(G, 'index.html'), 'utf8')));
   check('Valid fixture: no empty footer column', !gh.some(([, h]) => /<h2>[^<]*<\/h2>\s*<ul>\s*<\/ul>/.test(h)));

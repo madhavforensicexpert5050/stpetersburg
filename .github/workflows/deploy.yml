@@ -6,7 +6,7 @@
 #   - leaves out disabled, legal-draft and quote routes,
 #   - validates the real output (links, assets, noindex, canonical host, no internal notes),
 #   - deletes the output and fails if any check fails.
-# Production releases for st.petersburg.stageliora.com still go through "npm run build:production".
+# Production releases (Cloudflare Pages, https://stpetersburg.pages.dev) go through "npm run build:production".
 #
 # Requires Settings > Pages > Build and deployment > Source = "GitHub Actions".
 name: Deploy preview to GitHub Pages

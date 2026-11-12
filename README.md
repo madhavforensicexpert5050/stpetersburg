@@ -1,6 +1,6 @@
 # StageLiora: St. Petersburg
 
-Source for the StageLiora website, a virtual staging and real estate photo editing business, written for the St. Petersburg, Florida market. Target address: `https://st.petersburg.stageliora.com/`.
+Source for the StageLiora website, a virtual staging and real estate photo editing business, written for the St. Petersburg, Florida market. Production host: `https://stpetersburg.pages.dev/` (temporary, owner-approved; set in `src/data/business.ts`). The planned custom domain `st.petersburg.stageliora.com` is not registered yet.
 
 **Status:** a noindex public preview is on GitHub Pages at https://madhavforensicexpert5050.github.io/stpetersburg/. The production site is not deployed. Production releases are held behind approval gates (see below). The 84 photorealistic images are original AI-generated demonstrations of fictional properties, not completed customer work.
 

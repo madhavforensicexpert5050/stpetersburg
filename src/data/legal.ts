@@ -15,7 +15,7 @@ const drafts: LegalDoc[] = [
     body: [
       { t: 'p', x: `This policy describes how StageLiora ("we") handles information through ${business.host}. The legal entity responsible for this site is ${ENTITY}, at ${ADDRESS}.` },
       { t: 'h2', x: 'What this website collects today' },
-      { t: 'ul', items: ['Information you choose to send us through email, a phone call or the quote form. This can include your name, email address, phone number, company, property location and project details.', 'Technical information your browser normally sends to a web host, such as IP address and pages requested. [Hosting provider and log retention: pending, because the site is not deployed.]'] },
+      { t: 'ul', items: ['Information you choose to send us through email, a phone call or the quote form. This can include your name, email address, phone number, company, property location and project details.', 'Technical information your browser normally sends to a web host, such as IP address and pages requested. The site is hosted on Cloudflare Pages. [Log retention period: pending, to be confirmed from the Cloudflare terms for this account.]'] },
       { t: 'p', x: 'While online form delivery is not connected, the quote form does not send information to us. If you use its email option, your own email app creates the message and you decide whether to send it.' },
       { t: 'h2', x: 'What this website does not do' },
       { t: 'ul', items: ['It does not use advertising trackers or analytics in this version. If that changes, this policy will be updated first.', 'It does not take payment information.', 'It does not accept photo uploads in this version.'] },
@@ -73,7 +73,7 @@ const drafts: LegalDoc[] = [
     description: 'Draft cookie policy for StageLiora. This version of the website sets no cookies and uses no analytics or advertising trackers. Fonts are self-hosted.',
     body: [
       { t: 'p', x: 'This version of the website does not set cookies, and does not use analytics or advertising trackers. Fonts and images are served from the site itself rather than from third parties.' },
-      { t: 'p', x: 'Your hosting provider may use its own technical cookies once the site is deployed. [Hosting provider: pending.] This page will be updated before any cookies or analytics are added, including any choices you have about them.' },
+      { t: 'p', x: 'The site is hosted on Cloudflare Pages, which may use its own technical cookies once the site is deployed. This page will be updated before any cookies or analytics are added, including any choices you have about them.' },
       { t: 'h2', x: 'Questions' },
       { t: 'p', x: `Email ${business.email}.` },
     ],

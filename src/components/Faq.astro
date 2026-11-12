@@ -1,12 +1,15 @@
 ---
-interface Props { items: { q: string; a: string }[]; open?: boolean }
+import { url } from '../lib/url.ts';
+import { isLive } from '../data/routes.ts';
+/** Native <details> questions. Optional per item: a bullet list, a closing paragraph and a link (shown only while its page is live). */
+interface Props { items: { q: string; a: string; list?: string[]; after?: string; link?: { href: string; label: string } }[]; open?: boolean }
 const { items, open = false } = Astro.props;
 ---
 <div class="faq">
   {items.map((f, i) => (
     <details open={open && i === 0}>
       <summary>{f.q}</summary>
-      <div class="a"><p>{f.a}</p></div>
+      <div class="a"><p>{f.a}</p>{f.list && <ul>{f.list.map((x) => <li>{x}</li>)}</ul>}{f.after && <p>{f.after}</p>}{f.link && isLive(f.link.href) && <p><a class="textlink" href={url(f.link.href)}>{f.link.label}</a></p>}</div>
     </details>
   ))}
 </div>

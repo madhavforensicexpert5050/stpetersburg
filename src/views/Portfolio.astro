@@ -1,11 +1,15 @@
 ---
 /**
- * /portfolio/ (V19, V21). One page for the visual work: before-and-after pairs, the filterable room designs (formerly
- * /design-library/) and Choose your style (formerly /design-styles/, its four style pages and the comparison table,
- * merged in V21). Copy: visual-pages.ts.
- * The style/room filter is driven by [data-library] in src/scripts/site.ts, including ?style= and ?room= presets.
- * "Ask About This Style" links open the existing inquiry form with ?ask=staging&style=&room=; the form fills its
- * visible, editable "Asking about" field from those ids (InquiryForm.astro, site.ts).
+ * /portfolio/ (V24): exactly five main sections, each marked with data-pf-section.
+ *   1 Hero and navigation
+ *   2 Room Designs: Before and After (#room-designs): vacant pairs (#before-after), Outdoor Spaces, Occupied Rooms,
+ *     More Design Ideas (<details id="design-ideas" data-library>, the 48 single designs) and one inline CTA
+ *   3 Explore 8 Styles (#styles): one before, eight afters in a switcher (#compare-styles, #style-{id} panels)
+ *   4 Common Questions (#faq)
+ *   5 Ask About Your Listing Photos (CTA band)
+ * Copy: visual-pages.ts. Data: media.ts (galleryPairs, occupiedPairs, getStyleCompare). Behavior: site.ts
+ * ([data-rooms] room chips and design-idea filters, [data-style-switch] style switcher).
+ * Every "Ask" link opens the existing inquiry form with ?ask=staging&style=&room=, which fills its "Asking about" field.
  */
 import PageHero from '../components/PageHero.astro';
 import Compare from '../components/Compare.astro';
@@ -14,11 +18,11 @@ import Lightbox from '../components/Lightbox.astro';
 import LinkButton from '../components/LinkButton.astro';
 import Cta from '../components/Cta.astro';
 import Faq from '../components/Faq.astro';
-import { portfolioPairs, anyIllustrations, getPair, library, zoomTitle, zoomLabel } from '../data/media.ts';
+import { anyIllustrations, getPair, library, zoomTitle, zoomLabel, galleryPairs, occupiedPairs, getStyleCompare, styleCompareReady } from '../data/media.ts';
 import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { business } from '../data/business.ts';
-import { rooms, styles } from '../data/taxonomy.ts';
+import { styles, roomGroups, groupOfRoom } from '../data/taxonomy.ts';
 import { portfolioPage as c, roomDesigns as d, styleGuide as g } from '../data/visual-pages.ts';
 
 // An explanation is shown only while the pair still shows the after image it was written from.
@@ -26,17 +30,11 @@ const storyFor = (key: string) => {
   const s = c.stories.find((x) => x.key === key);
   return s && getPair(key).after.src === s.afterSrc ? s : null;
 };
-const related = c.related.filter((r) => isLive(r.href));
-const coveredRooms = rooms.filter((r) => library.some((it) => it.room === r.id));
-const coverage = coveredRooms.map((r) => ({ room: r, styles: styles.filter((s) => library.some((it) => it.room === r.id && it.style === s.id)) }));
-const nameOf = (id: string) => styles.find((s) => s.id === id)!.name;
-/** Filtered view of the room designs on this page. */
-const roomsOf = (filter: string, id: string) => url(`/portfolio/?${filter}=${id}#room-designs`);
-const swatches = (id: string) => { const p = styles.find((s) => s.id === id)!.palette; return [p.wall, p.sofa, p.wood, p.accent, p.rug]; };
+const styleOf = (id: string) => styles.find((s) => s.id === id)!;
+const swatches = (id: string) => { const p = styleOf(id).palette; return [p.wall, p.sofa, p.wood, p.accent]; };
 const showImageInfo = anyIllustrations() && isLive('/about/');
 // The existing inquiry form: the quote form once it is live, the contact form until then, email as a last resort.
 const inquiryPath = isLive('/request-quote/') ? '/request-quote/' : isLive('/contact/') ? '/contact/' : '';
-const bookingsOpen = isLive('/request-quote/');
 /** Opens the inquiry form with the style (and room) filled in. Ids only; the form maps them to names. */
 const askUrl = (style?: string, room?: string) => {
   if (!inquiryPath) return business.emailHref;
@@ -45,265 +43,358 @@ const askUrl = (style?: string, room?: string) => {
   if (room) q.set('room', room);
   return url(`${inquiryPath}?${q}#inquiry`);
 };
----
-<PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1={c.h1} lede={c.lede(library.length)}>
-  <nav class="pf-toc" aria-label="On this page">
-    <p class="pf-toc__label">On this page</p>
-    <ul>{c.nav.map((x) => <li><a href={`#${x.id}`}>{x.label}</a></li>)}</ul>
-  </nav>
-</PageHero>
 
-<!-- 1. Before and after -->
-<section class="section section--tight" id="before-after" aria-labelledby="pairs-h">
-  <div class="wrap">
+// Section 2. Chips are exactly the room groups that have at least one integrated pair.
+const vacant = galleryPairs.filter((p) => p.block === 'gallery');
+const outdoor = galleryPairs.filter((p) => p.block === 'outdoor');
+const chips = roomGroups.filter((gr) => galleryPairs.some((p) => p.group === gr.id));
+const groupLabel = (id: string) => roomGroups.find((x) => x.id === id)!.label;
+const ideasLabel = (id: string) => (id === 'living-open-plan' ? 'living room' : groupLabel(id).toLowerCase());
+const ideasHref = (group: string) => url(`/portfolio/?room=${roomGroups.find((x) => x.id === group)!.rooms[0]}#design-ideas`);
+const libGroup = (room: Parameters<typeof groupOfRoom>[0]) => groupOfRoom(room) ?? '';
+
+// Section 3.
+const compare = styleCompareReady ? getStyleCompare() : null;
+const def = g.defaultStyle;
+const ordered = g.order.map((id) => ({ s: styleOf(id), e: g.entries.find((x) => x.id === id)! }));
+const srcsetOf = (m: { responsive?: { src: string; width: number }[] }) => m.responsive?.map((v) => `${url(v.src)} ${v.width}w`).join(', ') ?? '';
+---
+<div class="pf-hero" data-pf-section="1">
+  <PageHero path="/portfolio/" eyebrow="Virtual staging examples" h1={c.h1} lede={styleCompareReady ? c.lede : c.ledeTextOnly}>
+    <nav class="pf-toc" aria-label="On this page">
+      <LinkButton href="#room-designs" label={c.nav.primary} variant="primary" icon="arrow" />
+      <LinkButton href="#styles" label={c.nav.secondary} variant="outline" icon="arrow" />
+      <a class="textlink pf-toc__faq" href="#faq">{c.nav.faq}</a>
+    </nav>
+  </PageHero>
+</div>
+
+<!-- 2. Room Designs: Before and After -->
+<section class="section" id="room-designs" data-pf-section="2" aria-labelledby="rooms-h">
+  <div class="wrap" data-rooms>
     <div class="section-head section-head--split">
-      <div><p class="eyebrow">{c.pairsHead.eyebrow}</p><h2 id="pairs-h">{c.pairsHead.h}</h2></div>
-      <p class="lede">{c.pairsHead.p}</p>
+      <div><p class="eyebrow">{c.roomsHead.eyebrow}</p><h2 id="rooms-h">{c.roomsHead.h}</h2></div>
+      <p class="lede">{c.roomsHead.p}</p>
     </div>
     <p class="pf-sample">{c.sampleNote.p}{isLive('/about/') && <> <a class="textlink" href={url('/about/#images')}>{c.sampleNote.link}</a></>}</p>
-    <h3 class="pf-sub">{c.introHead.h}</h3>
-    <p class="pf-sub-p">{c.introHead.p}</p>
-    <div class="grid grid--4">
-      {c.checks.map((x) => <div class="card card--flat"><h4 style="font-size:1.05rem;margin:0 0 4px">{x.h}</h4><p style="margin:0">{x.b}</p></div>)}
-    </div>
-  </div>
-</section>
+    <p class="pf-check">{c.check}</p>
 
-<section class="section section--tight">
-  <div class="wrap">
-    <div class="grid grid--2">
-      {portfolioPairs.map((p) => {
-        const room = rooms.find((r) => r.id === p.room)!.name;
-        const style = styles.find((s) => s.id === p.style)!;
+    <div class="chips pf-chips" role="group" aria-label={c.chipsLabel}>
+      <button type="button" class="chip" data-group-chip data-value="all" aria-pressed="true">{c.allRooms}</button>
+      {chips.map((gr) => <button type="button" class="chip" data-group-chip data-value={gr.id} data-label={gr.label} data-rooms={gr.rooms.join(' ')} aria-pressed="false">{gr.label}</button>)}
+    </div>
+    <div class="results-bar"><p data-pair-count role="status" aria-live="polite">{galleryPairs.length} comparisons shown</p></div>
+
+    <div id="before-after" class="grid grid--2 pf-pairs" data-pairs>
+      {vacant.map((p) => {
         const s = storyFor(p.key);
+        const st = styleOf(p.style);
         return (
-          <article id={p.key.replace(/^pf-/, '')}>
+          <article class="pf-pair" id={p.key.replace(/^pf-/, '')} data-pair data-group={p.group}>
             <Compare pair={p.key} />
-            <h3 style="font-size:1.25rem;margin-top:6px">{style.name} {room.toLowerCase()}</h3>
-            {s ? (
-              <dl class="small" style="margin:0">
-                <dt><strong>Before</strong></dt><dd style="margin:0 0 8px">{s.before}</dd>
-                <dt><strong>Added</strong></dt><dd style="margin:0 0 8px">{s.added}</dd>
-                <dt><strong>Left as it was</strong></dt><dd style="margin:0">{s.unchanged}</dd>
-              </dl>
-            ) : <p class="gal__meta">{style.name} direction</p>}
-            <p class="small pf-links"><a class="textlink" href={roomsOf('style', style.id)}>More {style.name} room designs</a><a class="textlink" href={askUrl(style.id, p.room)}>Ask about this style<span class="visually-hidden">: {style.name} {room.toLowerCase()}</span></a></p>
+            <h3 class="pf-pair__title">{p.title}</h3>
+            {s && (
+              <details class="pf-changed">
+                <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
+                <dl>
+                  <dt>Before</dt><dd>{s.before}</dd>
+                  <dt>Added</dt><dd>{s.added}</dd>
+                  <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
+                </dl>
+              </details>
+            )}
+            <p class="small pf-links">
+              <a class="textlink" href={ideasHref(p.group)} data-ideas-link={p.group}>More {ideasLabel(p.group)} design ideas</a>
+              <a class="textlink" href={askUrl(st.id, p.room)}>Ask about this room<span class="visually-hidden">: {p.title}</span></a>
+            </p>
           </article>
         );
       })}
     </div>
-    <div class="pf-cta">
-      <div>
-        <h3>{c.pairsCta.h}</h3>
-        <p>{c.pairsCta.p}</p>
-        {!bookingsOpen && <p class="small pf-cta__note">Project bookings are not open yet. Questions are welcome.</p>}
-        <p class="small pf-cta__alt"><a class="textlink" href="#styles">{c.pairsCta.styles}</a></p>
-      </div>
-      <LinkButton href={askUrl()} label={c.pairsCta.label} variant="primary" icon="contact" />
-    </div>
-  </div>
-</section>
 
-<!-- 2. Choose your style (V21: the style guide and the comparison table, merged) -->
-<section class="section section--wall" id="styles" aria-labelledby="styles-h">
-  <div class="wrap">
-    <div class="section-head section-head--split">
-      <div><p class="eyebrow">{g.head.eyebrow}</p><h2 id="styles-h">{g.head.h}</h2></div>
-      <p class="lede">{g.head.p}</p>
-    </div>
-
-    <h3 class="pf-sub">{g.situationsHead.h}</h3>
-    <p class="pf-sub-p">{g.situationsHead.p}</p>
-    <div class="grid grid--3">
-      {g.situations.map((x) => (
-        <div class="card card--flat">
-          <h4 style="font-size:1.1rem">{x.photo}</h4>
-          <p class="gal__meta">Consider: {x.styles.map((id, i) => <>{i > 0 && ', '}<a class="textlink" href={`#style-${id}`}>{nameOf(id)}</a></>)}</p>
-          <p>{x.why}</p>
-          <p class="small pf-scn-rooms">Room designs: {x.styles.map((id, i) => <>{i > 0 && ' · '}<a class="textlink" href={roomsOf('style', id)}>{nameOf(id)}<span class="visually-hidden"> room designs</span></a></>)}</p>
+    {outdoor.length > 0 && (
+      <div class="pf-block pf-outdoor" data-outdoor>
+        <h3 class="pf-h3">{c.outdoor.h}</h3>
+        <p class="pf-sub-p">{c.outdoor.p}</p>
+        <div class="grid grid--2 pf-pairs">
+          {outdoor.map((p) => {
+            const s = storyFor(p.key);
+            return (
+              <article class="pf-pair" id={p.key.replace(/^pf-/, '')} data-pair data-group={p.group}>
+                <Compare pair={p.key} />
+                <h4 class="pf-pair__title">{p.title}</h4>
+                {s && (
+                  <details class="pf-changed">
+                    <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
+                    <dl>
+                      <dt>Before</dt><dd>{s.before}</dd>
+                      <dt>Added</dt><dd>{s.added}</dd>
+                      <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
+                    </dl>
+                  </details>
+                )}
+                <p class="small pf-links">
+                  <a class="textlink" href={ideasHref(p.group)} data-ideas-link={p.group}>More {ideasLabel(p.group)} design ideas</a>
+                  <a class="textlink" href={askUrl(p.style, p.room)}>Ask about this room<span class="visually-hidden">: {p.title}</span></a>
+                </p>
+              </article>
+            );
+          })}
         </div>
-      ))}
-    </div>
-
-    <div class="pf-block">
-      <p class="eyebrow">{g.cuesHead.eyebrow}</p><h3 class="pf-h3">{g.cuesHead.h}</h3><p class="pf-sub-p">{g.cuesHead.p}</p>
-      <div class="grid grid--4">
-        {g.cues.map((x) => <div class="card card--flat"><h4>{x.h}</h4><p>{x.b}</p></div>)}
       </div>
-    </div>
+    )}
+    <div class="gal-more" data-pairs-more-row hidden><button type="button" class="btn" data-pairs-more data-first={c.firstPairs}>Show all {galleryPairs.length} comparisons</button></div>
 
-    <div class="pf-block" id="compare-styles">
-      <p class="eyebrow">{g.entriesHead.eyebrow}</p><h3 class="pf-h3">{g.entriesHead.h}</h3><p class="pf-sub-p">{g.entriesHead.p}</p>
-      <div class="pf-styles">
-        {g.entries.map((e) => {
-          const s = styles.find((x) => x.id === e.id)!;
+    {occupiedPairs.length > 0 && (
+      <div class="pf-block pf-occupied">
+        <h3 class="pf-h3">{c.occupied.h}</h3>
+        <p class="pf-sub-p">{c.occupied.p}</p>
+        <dl class="pf-rules">{c.occupied.rules.map((r) => <div><dt>{r.k}:</dt> <dd>{r.v}</dd></div>)}</dl>
+        <p class="pf-sub-p">{c.occupied.mls}</p>
+        {occupiedPairs.map((p) => {
+          const s = storyFor(p.key);
           return (
-            <article class="card pf-style" id={`style-${s.id}`}>
-              <div class="pf-swatches" aria-hidden="true">{swatches(s.id).map((col) => <span style={`background:${col}`}></span>)}</div>
-              <h4 class="pf-style__name">{s.name}</h4>
-              <p class="pf-style__mood">{e.mood}</p>
-              <p>{e.summary}</p>
-              <dl class="pf-facts">
-                <dt>Look for</dt><dd>{e.lookFor}</dd>
-                <dt>Use with care when</dt><dd>{e.care}</dd>
-              </dl>
-              <div class="pf-style__actions">
-                <a class="textlink small" href={roomsOf('style', s.id)}>Show {s.name} room designs</a>
-                <a class="btn pf-ask" href={askUrl(s.id)}>Ask About This Style<span class="visually-hidden">: {s.name}</span></a>
-              </div>
+            <article class="pf-pair pf-pair--wide" id="occupied-living-room">
+              <p class="pf-pair__label">{c.occupied.cardLabel}</p>
+              <h4 class="pf-pair__title">{p.title}</h4>
+              <Compare pair={p.key} />
+              {s && (
+                <details class="pf-changed">
+                  <summary>{c.changedLabel}<span class="visually-hidden">: {p.title}</span></summary>
+                  <dl>
+                    <dt>Before</dt><dd>{s.before}</dd>
+                    {s.removed && <><dt>Removed</dt><dd>{s.removed}</dd></>}
+                    <dt>Added</dt><dd>{s.added}</dd>
+                    <dt>What stayed the same</dt><dd>{s.unchanged}</dd>
+                  </dl>
+                </details>
+              )}
+              <p class="small pf-links">
+                {isLive('/services/furniture-removal-and-staging/') && <a class="textlink" href={url('/services/furniture-removal-and-staging/')}>{c.occupied.service}</a>}
+                <a class="textlink" href={askUrl(p.style, p.room)}>{c.occupied.ask}</a>
+              </p>
             </article>
           );
         })}
       </div>
-    </div>
+    )}
 
-    <div class="pf-block">
-      <p class="eyebrow">{g.confusedHead.eyebrow}</p><h3 class="pf-h3">{g.confusedHead.h}</h3>
-      <div class="grid grid--2">
-        {g.confused.map((x) => <div class="card card--flat"><h4 style="font-size:1.15rem">{nameOf(x.a)} or {nameOf(x.b).toLowerCase()}?</h4><p>{x.body}</p></div>)}
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 3. Room designs (formerly the Design Library), after the style guide so a chosen style can be pictured room by room -->
-<section class="section" id="room-designs" aria-labelledby="designs-h">
-  <div class="wrap" data-library>
-    <div class="section-head section-head--split">
-      <div><p class="eyebrow">{d.head.eyebrow}</p><h2 id="designs-h">{d.head.h}</h2></div>
-      <p class="lede">{d.lede(library.length, coveredRooms.length)}</p>
-    </div>
-    <ol class="grid grid--3" style="list-style:none;padding:0;margin:0 0 18px" aria-label="How to use the room designs">
-      {d.howTo.map((x, i) => <li class="card card--flat"><h3 style="font-size:1.1rem;margin-bottom:4px">{i + 1}. {x.h}</h3><p style="margin:0">{x.b}</p></li>)}
-    </ol>
-    {showImageInfo && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
-    <div class="filters">
-      <fieldset class="filter-group">
-        <legend>Style</legend>
-        <div class="chips">
+    <details class="pf-block pf-ideas" id="design-ideas" data-library>
+      <summary><span data-ideas-summary>{d.summaryAll(library.length)}</span></summary>
+      <div class="pf-ideas__body">
+        <h3 class="pf-h3">{d.h}</h3>
+        <p class="pf-sub-p">{d.p}</p>
+        <div class="chips pf-chips" role="group" aria-label="Style">
           <button type="button" class="chip" data-filter="style" data-value="all" aria-pressed="true">All styles</button>
           {styles.map((s) => <button type="button" class="chip" data-filter="style" data-value={s.id} aria-pressed="false">{s.name}</button>)}
         </div>
-      </fieldset>
-      <fieldset class="filter-group">
-        <legend>Room</legend>
-        <div class="chips">
-          <button type="button" class="chip" data-filter="room" data-value="all" aria-pressed="true">All rooms</button>
-          {rooms.map((r) => <button type="button" class="chip" data-filter="room" data-value={r.id} aria-pressed="false">{r.name}</button>)}
+        <div class="results-bar">
+          <p data-count role="status" aria-live="polite">{library.length} designs shown</p>
+          <button type="button" class="mini-btn" data-clear hidden>Clear filters</button>
         </div>
-      </fieldset>
-    </div>
-    <div class="results-bar">
-      <p data-count role="status" aria-live="polite">{library.length} designs shown</p>
-      <button type="button" class="mini-btn" data-clear hidden>Clear filters</button>
-    </div>
-    <h3 class="visually-hidden">Designs</h3>
-    <div class="gal">
-      {library.map((it) => {
-        const st = styles.find((s) => s.id === it.style)!;
-        // A checked description of this exact image when one exists; otherwise the style's materials.
-        const info = it.description ?? `${st.note} Materials: ${st.materials}.`;
-        return (
-          <figure class="gal__item" data-item data-style={it.style} data-room={it.room}>
-            <button type="button" class="gal__btn" data-ask={askUrl(it.style, it.room)} data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={info} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
-              <MediaImage media={it} />
-            </button>
-            <figcaption><h4>{it.styleName} {it.roomName}</h4><p class="gal__meta">{it.description ?? st.materials}</p></figcaption>
-          </figure>
-        );
-      })}
-    </div>
-    <div class="gal-more" data-more-row hidden><button type="button" class="btn" data-more data-first={d.firstBatch}>Show all designs</button></div>
-    <div class="empty" data-empty hidden>
-      <h3>No designs for this combination yet</h3>
-      <p>Try a different room or style. Some combinations have not been planned.</p>
-      <button type="button" class="btn" data-clear-2>Clear filters</button>
-    </div>
+        <div class="gal">
+          {library.map((it) => {
+            const st = styleOf(it.style);
+            // A checked description of this exact image when one exists; otherwise the style's materials.
+            const info = it.description ?? `${st.note} Materials: ${st.materials}.`;
+            return (
+              <figure class="gal__item" data-item data-style={it.style} data-room={it.room} data-group={libGroup(it.room)}>
+                <button type="button" class="gal__btn" data-ask={askUrl(it.style, it.room)} data-zoom={url(it.src)} data-alt={it.alt} data-title={zoomTitle(it, `${it.styleName} ${it.roomName}`)} data-info={info} aria-label={zoomLabel(it, `${it.styleName} ${it.roomName}`)}>
+                  <MediaImage media={it} />
+                </button>
+                <figcaption><h4>{it.styleName} {it.roomName}</h4><p class="gal__meta">{it.description ?? st.materials}</p></figcaption>
+              </figure>
+            );
+          })}
+        </div>
+        <div class="gal-more" data-more-row hidden><button type="button" class="btn" data-more data-first={d.firstBatch}>Show all designs</button></div>
+        <div class="empty" data-empty hidden>
+          <h4>No designs for this combination yet</h4>
+          <p>Try a different room or style. Some combinations have not been planned.</p>
+          <button type="button" class="btn" data-clear-2>Clear filters</button>
+        </div>
+        {showImageInfo && <p class="media-info-link"><a href={url('/about/#images')}>About these images</a></p>}
+      </div>
+    </details>
     <Lightbox />
 
-    <div class="pf-block">
-      <p class="eyebrow">{d.readingHead.eyebrow}</p><h3 class="pf-h3">{d.readingHead.h}</h3>
-      <div class="grid grid--2">
-        <div class="card card--flat"><h4>It shows</h4><ul class="tick">{d.canTell.map((x) => <li>{x}</li>)}</ul></div>
-        <div class="card card--flat"><h4>It does not show</h4><ul>{d.cannotTell.map((x) => <li>{x}</li>)}</ul>
-          <p style="margin-bottom:0"><a class="textlink" href="#styles">How to match a style to the house</a></p>
+    <div class="pf-cta">
+      <div>
+        <h3>{c.inlineCta.h}</h3>
+        <p>{c.inlineCta.p}</p>
+        {!isLive('/request-quote/') && <p class="small pf-cta__note">{c.inlineCta.note}</p>}
+      </div>
+      <LinkButton href={askUrl()} label={c.inlineCta.label} variant="primary" icon="contact" />
+    </div>
+  </div>
+</section>
+
+<!-- 3. Explore 8 Styles: one room, before and after -->
+<section class="section section--wall" id="styles" data-pf-section="3" aria-labelledby="styles-h">
+  <div class="wrap">
+    <div class="section-head section-head--split">
+      <div><p class="eyebrow">{g.head.eyebrow}</p><h2 id="styles-h">{compare ? g.head.h : g.fallbackHead.h}</h2></div>
+      <p class="lede">{compare ? g.head.p : g.fallbackHead.p}</p>
+    </div>
+    {compare ? (
+      <div class="pf-switch" id="compare-styles" data-style-switch data-default={def}>
+        <div class="pf-switch__stage">
+          <Compare before={compare.before} after={compare.afters[def]} label={g.sliderLabel(styleOf(def).name)} />
+        </div>
+        <div class="pf-switch__side">
+          <p class="pf-switch__label" id="style-switch-label">{g.switchLabel}</p>
+          <div class="pf-switch__btns" role="group" aria-labelledby="style-switch-label">
+            {ordered.map(({ s }) => {
+              const a = compare.afters[s.id];
+              return (
+                <button type="button" class="pf-swbtn" data-style-btn data-style={s.id} data-name={s.name} data-src={url(a.src)} data-srcset={srcsetOf(a)} data-alt={a.alt} aria-pressed={s.id === def ? 'true' : 'false'}>
+                  <span class="pf-swbtn__dots" aria-hidden="true">{swatches(s.id).map((col) => <span style={`background:${col}`}></span>)}</span>
+                  <span class="pf-swbtn__name">{s.name}</span>
+                  <span class="pf-swbtn__check" aria-hidden="true">✓</span>
+                </button>
+              );
+            })}
+          </div>
+          <p class="pf-switch__status" role="status" aria-live="polite" data-style-status>{g.status(styleOf(def).name)}</p>
+          {ordered.map(({ s, e }) => (
+            <article class="pf-panel" id={`style-${s.id}`} data-style-panel={s.id}>
+              <noscript><img class="pf-panel__img" src={url(compare.afters[s.id].src)} srcset={srcsetOf(compare.afters[s.id])} sizes="(max-width: 767px) 100vw, 480px" alt={compare.afters[s.id].alt} width="1500" height="1000" loading="lazy" decoding="async" /></noscript>
+              <h3 class="pf-panel__name">{s.name}</h3>
+              <p>{e.description}</p>
+              <dl class="pf-facts">
+                <dt>Best fit:</dt><dd>{e.bestFit}</dd>
+                <dt>Use with care:</dt><dd>{e.care}</dd>
+              </dl>
+              <div class="pf-panel__actions">
+                <a class="btn pf-ask" href={askUrl(s.id, 'living-room')}>Ask About This Style<span class="visually-hidden">: {s.name}</span></a>
+                <a class="textlink small" href={url(`/portfolio/?style=${s.id}#room-designs`)}>See {s.name} in other rooms</a>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
-    </div>
-
-    <div class="pf-block">
-      <p class="eyebrow">{d.coverageHead.eyebrow}</p><h3 class="pf-h3">{d.coverageHead.h}</h3><p>{d.coverageHead.p}</p>
-      <div class="table-wrap" tabindex="0" role="region" aria-label="Room design coverage by room">
-        <table>
-          <caption>Styles shown for each room type ({library.length} designs)</caption>
-          <thead><tr><th scope="col">Room</th><th scope="col">Styles shown</th></tr></thead>
-          <tbody>
-            {coverage.map(({ room, styles: ss }) => (
-              <tr><th scope="row"><a class="textlink" href={roomsOf('room', room.id)}>{room.name}</a></th><td>{ss.length === styles.length ? `All eight styles` : ss.map((s) => s.name).join(', ')}</td></tr>
-            ))}
-          </tbody>
-        </table>
+    ) : (
+      <div class="pf-styles" id="compare-styles">
+        {ordered.map(({ s, e }) => (
+          <article class="card pf-panel" id={`style-${s.id}`}>
+            <h3 class="pf-panel__name">{s.name}</h3>
+            <p>{e.description}</p>
+            <dl class="pf-facts"><dt>Best fit:</dt><dd>{e.bestFit}</dd><dt>Use with care:</dt><dd>{e.care}</dd></dl>
+            <div class="pf-panel__actions">
+              <a class="btn pf-ask" href={askUrl(s.id, 'living-room')}>Ask About This Style<span class="visually-hidden">: {s.name}</span></a>
+              <a class="textlink small" href={url(`/portfolio/?style=${s.id}#room-designs`)}>See {s.name} in other rooms</a>
+            </div>
+          </article>
+        ))}
       </div>
-    </div>
+    )}
+
+    <details class="pf-block pf-start">
+      <summary>{g.situationsHead.h}</summary>
+      <p class="pf-sub-p">{g.situationsHead.p}</p>
+      <div class="grid grid--3">
+        {g.situations.map((x) => (
+          <div class="card card--flat">
+            <h4>{x.photo}</h4>
+            <p class="gal__meta">Consider: {x.styles.map((id, i) => <>{i > 0 && ', '}<a class="textlink" href={`#style-${id}`} data-pick-style={id}>{styleOf(id).name}</a></>)}</p>
+            <p>{x.why}</p>
+          </div>
+        ))}
+      </div>
+    </details>
   </div>
 </section>
 
-<!-- 4. Questions -->
-<section class="section section--wall" id="faq" aria-labelledby="faq-h">
+<!-- 4. Common Questions -->
+<section class="section" id="faq" data-pf-section="4" aria-labelledby="faq-h">
   <div class="wrap narrow">
-    <div class="section-head"><p class="eyebrow">Questions</p><h2 id="faq-h">Portfolio, room designs and styles: common questions</h2></div>
-    <h3 class="pf-faq-h">{c.faqGroups.pairs}</h3>
+    <div class="section-head"><p class="eyebrow">{c.faqHead.eyebrow}</p><h2 id="faq-h">{c.faqHead.h}</h2></div>
     <Faq items={c.faqs} />
-    <h3 class="pf-faq-h">{c.faqGroups.designs}</h3>
-    <Faq items={d.faqs} />
-    <h3 class="pf-faq-h">{c.faqGroups.styles}</h3>
-    <Faq items={g.faqs} />
-    {related.length > 0 && (
-      <nav class="related-links" aria-label="Related pages">
-        <h2 style="font-size:1.15rem;margin:0 0 8px">Keep exploring</h2>
-        <ul>{related.map((r) => <li><a class="textlink" href={url(r.href)}>{r.label}</a></li>)}</ul>
-      </nav>
-    )}
   </div>
 </section>
-<Cta h={c.finalCta.h} p={c.finalCta.p} />
+
+<!-- 5. Ask About Your Listing Photos -->
+<Cta h={c.finalCta.h} p={c.finalCta.p} label={c.finalCta.label} href={askUrl()} note={c.finalCta.note} section="5" />
 
 <style>
-  .pf-toc { margin-top: 24px; }
-  .pf-toc__label { font: 600 .74rem/1.2 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
-  .pf-toc ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-  .pf-toc li { margin: 0; }
-  .pf-toc a { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-size: .9rem; text-decoration: none; }
-  .pf-toc a:hover { border-color: var(--ink); }
-  .pf-sub { font-size: 1.25rem; margin: 0 0 4px; }
+  .pf-toc { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .pf-toc__faq { font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
   .pf-sub-p { margin: 0 0 18px; max-width: 72ch; }
   .pf-block { margin-top: clamp(40px, 5vw, 64px); }
   .pf-h3 { font-size: clamp(1.4rem, 2.4vw, 1.8rem); margin: 0 0 10px; }
-  /* Eight cards: 4, 2 or 1 per row, so no row is ever left half empty. */
-  .pf-styles { display: grid; gap: 20px; align-items: stretch; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  @media (max-width: 1100px) { .pf-styles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 640px) { .pf-styles { grid-template-columns: minmax(0, 1fr); } }
-  .pf-style { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .pf-style p { margin: 0 0 8px; }
-  .pf-style__name { font-size: 1.35rem; margin: 6px 0 4px; }
-  .pf-swatches { display: flex; gap: 6px; }
-  .pf-swatches span { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .12); }
-  .pf-style__mood { font: 600 .78rem/1.3 var(--text); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .pf-facts { margin: 4px 0 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: .95rem; }
-  .pf-facts dt { font-weight: 650; color: var(--ink); }
-  .pf-facts dd { margin: 0 0 8px; }
-  /* Actions sit at the foot of each card, so the eight buttons line up within a row. */
-  .pf-style__actions { margin-top: auto; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .pf-ask { min-height: 44px; padding: 8px 16px; font-size: .92rem; }
+  .pf-sample { margin: 0 0 14px; padding: 12px 16px; max-width: 80ch; border-left: 3px solid var(--sun); background: #fff; }
+  .pf-check { margin: 0 0 20px; max-width: 80ch; }
+  /* Chips: one horizontal row that scrolls on narrow screens; the selected chip shows a check, not color alone. */
+  .pf-chips { margin-bottom: 12px; }
+  .pf-chips .chip[aria-pressed='true']::before { content: '✓ '; }
+  @media (max-width: 720px) {
+    .pf-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+    .pf-chips .chip { flex: 0 0 auto; }
+  }
+  .pf-pairs > [hidden] { display: none; }
+  .pf-pair { min-width: 0; }
+  .pf-pair__title { font-size: 1.25rem; margin: 6px 0 4px; }
+  .pf-pair__label { font: 600 .78rem/1.3 var(--text); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; }
+  .pf-changed { margin: 4px 0 0; }
+  .pf-changed summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+  /* Summaries are flex boxes, which drops the native marker; show an explicit open/closed sign instead. */
+  .pf-changed summary::after, .pf-start > summary::after, .pf-ideas > summary::after { content: '+'; margin-left: 10px; font-weight: 700; }
+  .pf-changed[open] summary::after, .pf-start[open] > summary::after, .pf-ideas[open] > summary::after { content: '−'; }
+  .pf-changed summary::-webkit-details-marker, .pf-start > summary::-webkit-details-marker, .pf-ideas > summary::-webkit-details-marker { display: none; }
+  .pf-changed dl { margin: 0 0 4px; font-size: .95rem; }
+  .pf-changed dt { font-weight: 650; color: var(--ink); }
+  .pf-changed dd { margin: 0 0 8px; }
   .pf-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0; }
+  .pf-outdoor[hidden] { display: none; }
+  .pf-occupied { padding: clamp(20px, 3vw, 32px); border: 1px solid var(--line); border-radius: var(--radius); background: var(--wall); }
+  .pf-pair--wide { max-width: 900px; }
+  .pf-rules { margin: 0 0 14px; }
+  .pf-rules div { margin: 0 0 6px; }
+  .pf-rules dt { display: inline; font-weight: 650; color: var(--ink); }
+  .pf-rules dd { display: inline; margin: 0; }
+  .pf-ideas > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 48px; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 24px; background: #fff; font-weight: 600; }
+  .pf-ideas[open] > summary { margin-bottom: 18px; }
+  .gal-more { display: flex; justify-content: center; margin-top: 18px; }
+  .gal-more[hidden] { display: none; }
   .pf-cta { margin-top: clamp(28px, 4vw, 44px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: clamp(20px, 3vw, 28px); border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
   .pf-cta h3 { font-size: 1.3rem; margin: 0 0 4px; }
   .pf-cta p { margin: 0; max-width: 60ch; }
   .pf-cta__note { margin-top: 6px !important; color: var(--muted); }
-  .pf-cta__alt { margin-top: 10px !important; }
-  .pf-sample { margin: 0 0 22px; padding: 12px 16px; max-width: 80ch; border-left: 3px solid var(--sun); background: #fff; }
-  .pf-scn-rooms { margin-top: auto; color: var(--muted); }
-  .gal-more { display: flex; justify-content: center; margin-top: 18px; }
-  .gal-more[hidden] { display: none; }
-  .pf-faq-h { font-size: 1.15rem; margin: 26px 0 8px; }
+  /* Section 3: the slider beside the switcher on wide screens, stacked below 960px. */
+  .pf-switch { display: grid; gap: clamp(20px, 3vw, 36px); grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+  @media (max-width: 960px) { .pf-switch { grid-template-columns: minmax(0, 1fr); } }
+  .pf-switch__label { font: 600 .8rem var(--text); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .pf-switch__btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 960px) and (min-width: 560px) { .pf-switch__btns { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .pf-swbtn { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font: 500 .95rem var(--text); text-align: left; cursor: pointer; }
+  .pf-swbtn:hover { border-color: var(--ink); }
+  .pf-swbtn:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+  .pf-swbtn[aria-pressed='true'] { border-color: var(--ink); background: var(--wall); font-weight: 650; }
+  .pf-swbtn__dots { display: inline-flex; flex: 0 0 auto; }
+  .pf-swbtn__dots span { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); margin-right: -3px; }
+  .pf-swbtn { min-width: 0; }
+  .pf-swbtn__name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+  @media (max-width: 400px) {
+    .pf-swbtn { padding: 8px; gap: 6px; font-size: .9rem; }
+    .pf-swbtn__dots { display: none; }
+  }
+  .pf-swbtn__check { visibility: hidden; font-weight: 700; }
+  .pf-swbtn[aria-pressed='true'] .pf-swbtn__check { visibility: visible; }
+  .pf-switch__status { margin: 12px 0; font-weight: 600; color: var(--ink); }
+  .pf-panel { padding: 18px 0 0; border-top: 1px solid var(--line); min-width: 0; }
+  .pf-panel[hidden] { display: none; }
+  .pf-panel + .pf-panel { margin-top: 24px; }
+  .pf-panel__img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; margin-bottom: 12px; border-radius: var(--radius); }
+  .pf-panel__name { font-size: 1.4rem; margin: 0 0 6px; }
+  .pf-panel p { margin: 0 0 8px; }
+  .pf-facts { margin: 4px 0 12px; font-size: .95rem; }
+  .pf-facts dt { font-weight: 650; color: var(--ink); }
+  .pf-facts dd { margin: 0 0 8px; }
+  .pf-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .pf-ask { min-height: 44px; padding: 8px 16px; font-size: .92rem; }
+  .pf-styles { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+  .pf-styles .pf-panel { border-top: 0; padding: 20px; }
+  .pf-start > summary { cursor: pointer; font: 650 1.2rem/1.3 var(--display, inherit); min-height: 44px; display: flex; align-items: center; }
+  .pf-start[open] > summary { margin-bottom: 8px; }
+  .pf-start h4 { font-size: 1.1rem; }
 </style>

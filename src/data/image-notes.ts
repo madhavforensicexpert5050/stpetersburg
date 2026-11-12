@@ -75,6 +75,10 @@ export const libraryNotes: Record<string, ImageNote> = Object.fromEntries([
 const pf = (room: RoomId, role: 'before' | 'after', text: string): [string, ImageNote] =>
   [`pf-${room}-${role}`, { src: `/media/generated/virtual-staging-portfolio-${room}-${role}.webp`, text }];
 
+/** Portfolio Section 3: one living room, before and in each of the eight styles. */
+const ors = (key: 'before' | StyleId, text: string): [string, ImageNote] =>
+  [`ors-living-room-${key}`, { src: `/media/generated/virtual-staging-style-compare-living-room-${key}.webp`, text }];
+
 /** Portfolio: alt-text descriptions of each before and after frame. */
 export const portfolioNotes: Record<string, ImageNote> = Object.fromEntries([
   pf('living-room', 'before', 'an empty open living room with a whitewashed beamed ceiling, a sea-glass front door and tall windows facing a porch.'),
@@ -89,6 +93,20 @@ export const portfolioNotes: Record<string, ImageNote> = Object.fromEntries([
   pf('home-office', 'after', 'the same loft room with a wood and steel desk, cognac leather chairs, a metal cabinet and a tripod floor lamp.'),
   pf('kitchen', 'before', 'an empty kitchen and dining space with pale oak cabinets, a built-in oven and two oak-framed garden windows.'),
   pf('kitchen', 'after', 'the same kitchen with an oak dining table and chairs on a cream rug and three oak stools at the counter.'),
+  // V24 P1, written from the approved files on 2026-11-12.
+  pf('sunroom', 'before', 'an empty sunroom with two walls of windows onto a fenced garden, a white plank ceiling with a fan, French doors and a stone-look tile floor.'),
+  pf('sunroom', 'after', 'the same sunroom with a greige sofa, two linen armchairs, an oak coffee table on a neutral rug, a round oak table with two chairs and two potted plants.'),
+  pf('patio', 'before', 'an empty screened lanai with a white ceiling and two recessed lights, a sliding glass door, a screen door and travertine pavers, facing a lawn and palms.'),
+  pf('patio', 'after', 'the same lanai with a woven outdoor sofa and armchairs with white and sea-glass cushions, whitewashed tables, a round dining table with woven chairs and two potted palms.'),
+  ors('before', 'an empty living room with greige walls, two tall windows onto a fenced garden, French doors to a covered patio, a hallway opening and an oak floor.'),
+  ors('modern', 'the same living room in the modern style: a charcoal sofa, a black-framed leather lounge chair, a walnut coffee table and a low walnut console.'),
+  ors('contemporary', 'the same living room in the contemporary style: a curved cream bouclé sofa, two rounded swivel chairs, a round glass coffee table and a brass arc lamp.'),
+  ors('coastal', 'the same living room in the coastal style: a white slipcovered sofa, two rattan armchairs with sea-glass cushions, a whitewashed table on a jute rug and a potted palm.'),
+  ors('scandinavian', 'the same living room in the Scandinavian style: an oatmeal sofa on pale wood legs, an oak lounge chair, a round oak table and a paper floor lantern.'),
+  ors('farmhouse', 'the same living room in the farmhouse style: a linen slipcovered sofa and armchair, a reclaimed-look wood table, an iron floor lamp and a faded patterned rug.'),
+  ors('traditional', 'the same living room in the traditional style: a navy rolled-arm sofa, two patterned armchairs, a cherry coffee table, paired brass lamps and a red patterned rug.'),
+  ors('industrial', 'the same living room in the industrial style: a cognac leather sofa and armchair, a dark wood table, an open metal shelf, a tripod floor lamp and a dark rug.'),
+  ors('transitional', 'the same living room in the transitional style: a greige sofa, a linen armchair, an oak coffee table, a side table with a lamp and a framed landscape.'),
 ]);
 
 /**

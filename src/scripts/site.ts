@@ -62,56 +62,162 @@ if (lb) {
   lb.addEventListener('close', () => opener?.focus());
 }
 
-// Design Library filters ---------------------------------------------------
-const libRoot = document.querySelector<HTMLElement>('[data-library]');
-if (libRoot) {
-  const items = [...libRoot.querySelectorAll<HTMLElement>('[data-item]')];
-  const count = libRoot.querySelector('[data-count]')!;
-  const empty = libRoot.querySelector<HTMLElement>('[data-empty]')!;
-  const clear = libRoot.querySelector<HTMLButtonElement>('[data-clear]')!;
-  const state: Record<string, string> = { style: 'all', room: 'all' };
-  // Narrow screens: show the first batch of matching designs, then a "Show all" button for the rest. Every filter
-  // change starts a new short list; wider screens and visitors without JavaScript always see every match.
-  const moreRow = libRoot.querySelector<HTMLElement>('[data-more-row]');
-  const more = libRoot.querySelector<HTMLButtonElement>('[data-more]');
-  const first = Number(more?.dataset.first || 0);
+// Portfolio Section 2: room chips and More Design Ideas -------------------------
+// One room-group chip state drives the before-and-after cards ([data-pair]) and the design ideas ([data-item]).
+// The design ideas also keep their own style chips. Narrow screens show a first batch of each, then "Show all".
+// Without JavaScript every card and design is visible, and the design ideas open as a normal <details>.
+const roomsRoot = document.querySelector<HTMLElement>('[data-rooms]');
+if (roomsRoot) {
   const narrow = window.matchMedia('(max-width: 720px)');
-  let expanded = false;
+  const groupChips = [...roomsRoot.querySelectorAll<HTMLButtonElement>('[data-group-chip]')];
+  const cards = [...roomsRoot.querySelectorAll<HTMLElement>('[data-pair]')];
+  const pairCount = roomsRoot.querySelector<HTMLElement>('[data-pair-count]');
+  const pairsGrid = roomsRoot.querySelector<HTMLElement>('[data-pairs]');
+  const outdoorBlock = roomsRoot.querySelector<HTMLElement>('[data-outdoor]');
+  const pairsMoreRow = roomsRoot.querySelector<HTMLElement>('[data-pairs-more-row]');
+  const pairsMore = roomsRoot.querySelector<HTMLButtonElement>('[data-pairs-more]');
+  const firstPairs = Number(pairsMore?.dataset.first || 0);
+  const ideas = roomsRoot.querySelector<HTMLDetailsElement>('[data-library]');
+  const items = ideas ? [...ideas.querySelectorAll<HTMLElement>('[data-item]')] : [];
+  const count = ideas?.querySelector<HTMLElement>('[data-count]');
+  const empty = ideas?.querySelector<HTMLElement>('[data-empty]');
+  const clear = ideas?.querySelector<HTMLButtonElement>('[data-clear]');
+  const summary = ideas?.querySelector<HTMLElement>('[data-ideas-summary]');
+  const moreRow = ideas?.querySelector<HTMLElement>('[data-more-row]');
+  const more = ideas?.querySelector<HTMLButtonElement>('[data-more]');
+  const first = Number(more?.dataset.first || 0);
+  const state = { group: 'all', style: 'all' };
+  let pairsExpanded = false, ideasExpanded = false;
+  const labelOf = (g: string) => groupChips.find((b) => b.dataset.value === g)?.dataset.label || '';
   const apply = () => {
+    // Before-and-after cards
     let n = 0, shown = 0;
-    const limit = more && first > 0 && narrow.matches && !expanded ? first : Infinity;
-    items.forEach((el) => {
-      const match = (state.style === 'all' || el.dataset.style === state.style) && (state.room === 'all' || el.dataset.room === state.room);
+    const limit = firstPairs > 0 && narrow.matches && !pairsExpanded ? firstPairs : Infinity;
+    cards.forEach((el) => {
+      const match = state.group === 'all' || el.dataset.group === state.group;
       if (match) n++;
       const show = match && n <= limit;
       el.hidden = !show;
       if (show) shown++;
     });
-    count.textContent = shown < n ? `Showing ${shown} of ${n} designs` : `${n} ${n === 1 ? 'design' : 'designs'} shown`;
-    if (moreRow && more) { moreRow.hidden = shown >= n; more.textContent = `Show all ${n} designs`; }
-    empty.hidden = n > 0;
-    clear.hidden = state.style === 'all' && state.room === 'all';
-    libRoot.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) => {
-      b.setAttribute('aria-pressed', String(state[b.dataset.filter!] === b.dataset.value));
+    if (pairsGrid) pairsGrid.hidden = !cards.some((el) => !el.hidden && pairsGrid.contains(el));
+    if (outdoorBlock) outdoorBlock.hidden = !cards.some((el) => !el.hidden && outdoorBlock.contains(el));
+    if (pairCount) pairCount.textContent = shown < n ? `Showing ${shown} of ${n} comparisons` : `${n} ${n === 1 ? 'comparison' : 'comparisons'} shown`;
+    if (pairsMoreRow && pairsMore) { pairsMoreRow.hidden = shown >= n; pairsMore.textContent = `Show all ${n} comparisons`; }
+    groupChips.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === state.group)));
+    // Design ideas
+    if (!ideas) return;
+    let m = 0, mShown = 0;
+    const mLimit = more && first > 0 && narrow.matches && !ideasExpanded ? first : Infinity;
+    items.forEach((el) => {
+      const match = (state.style === 'all' || el.dataset.style === state.style) && (state.group === 'all' || el.dataset.group === state.group);
+      if (match) m++;
+      const show = match && m <= mLimit;
+      el.hidden = !show;
+      if (show) mShown++;
     });
+    if (count) count.textContent = mShown < m ? `Showing ${mShown} of ${m} designs` : `${m} ${m === 1 ? 'design' : 'designs'} shown`;
+    if (moreRow && more) { moreRow.hidden = mShown >= m; more.textContent = `Show all ${m} designs`; }
+    if (empty) empty.hidden = m > 0;
+    if (clear) clear.hidden = state.style === 'all' && state.group === 'all';
+    if (summary) summary.textContent = state.group === 'all' ? `Show all ${m} design ideas` : `Show ${m} ${labelOf(state.group).toLowerCase()} design ideas`;
+    ideas.querySelectorAll<HTMLButtonElement>('[data-filter=style]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.value === state.style)));
   };
-  libRoot.addEventListener('click', (e) => {
-    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
-    if (b) { state[b.dataset.filter!] = b.dataset.value!; expanded = false; apply(); }
-    if ((e.target as HTMLElement).closest('[data-clear], [data-clear-2]')) { state.style = 'all'; state.room = 'all'; expanded = false; apply(); }
-    if ((e.target as HTMLElement).closest('[data-more]')) {
+  roomsRoot.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const chip = t.closest<HTMLButtonElement>('[data-group-chip]');
+    if (chip) { state.group = chip.dataset.value!; pairsExpanded = false; ideasExpanded = false; apply(); return; }
+    const f = t.closest<HTMLButtonElement>('[data-filter=style]');
+    if (f) { state.style = f.dataset.value!; ideasExpanded = false; apply(); return; }
+    if (t.closest('[data-clear], [data-clear-2]')) { state.style = 'all'; state.group = 'all'; ideasExpanded = false; apply(); return; }
+    if (t.closest('[data-pairs-more]')) {
+      const before = cards.filter((el) => !el.hidden).length;
+      pairsExpanded = true; apply();
+      cards.filter((el) => !el.hidden)[before]?.querySelector<HTMLElement>('input[type=range]')?.focus();
+      return;
+    }
+    if (t.closest('[data-more]')) {
       const before = items.filter((el) => !el.hidden).length;
-      expanded = true; apply();
+      ideasExpanded = true; apply();
       // Keyboard and screen reader users continue from the first design that was just revealed.
       items.filter((el) => !el.hidden)[before]?.querySelector<HTMLElement>('.gal__btn')?.focus();
+      return;
+    }
+    const link = t.closest<HTMLAnchorElement>('[data-ideas-link]');
+    if (link && ideas) {
+      e.preventDefault();
+      state.group = link.dataset.ideasLink!; state.style = 'all'; ideasExpanded = false; apply();
+      ideas.open = true;
+      ideas.scrollIntoView({ block: 'start' });
+      ideas.querySelector<HTMLElement>('summary')?.focus({ preventScroll: true });
     }
   });
   narrow.addEventListener('change', apply);
+  // Presets: ?room=<room id> selects the chip whose group holds that room; ?style=<style id> sets the design-idea
+  // style. Unknown values are ignored. Either one, arriving at #room-designs or #design-ideas, opens the design ideas.
   const q = new URLSearchParams(location.search);
-  const qs = q.get('style'); const qr = q.get('room');
-  if (qs && libRoot.querySelector(`[data-filter=style][data-value="${CSS.escape(qs)}"]`)) state.style = qs;
-  if (qr && libRoot.querySelector(`[data-filter=room][data-value="${CSS.escape(qr)}"]`)) state.room = qr;
+  const qr = q.get('room'); const qs = q.get('style');
+  const roomChip = qr ? groupChips.find((b) => (b.dataset.rooms || '').split(' ').includes(qr)) : undefined;
+  if (roomChip) state.group = roomChip.dataset.value!;
+  const styleOk = Boolean(qs && ideas?.querySelector(`[data-filter=style][data-value="${CSS.escape(qs)}"]`));
+  if (styleOk) state.style = qs!;
   apply();
+  if (ideas && (roomChip || styleOk) && /^#(room-designs|design-ideas)$/.test(location.hash)) {
+    ideas.open = true;
+    if (location.hash === '#design-ideas') ideas.scrollIntoView({ block: 'start' });
+  }
+}
+
+// Portfolio Section 3: one room in eight styles --------------------------------
+// Buttons swap the after image of a single slider and show that style's panel. Never rotates on its own.
+// #style-<id> or ?style=<id> selects a style on arrival; otherwise the default (Transitional).
+const styleSwitch = document.querySelector<HTMLElement>('[data-style-switch]');
+if (styleSwitch) {
+  const btns = [...styleSwitch.querySelectorAll<HTMLButtonElement>('[data-style-btn]')];
+  const afterImg = styleSwitch.querySelector<HTMLImageElement>('[data-compare-after]');
+  const range = styleSwitch.querySelector<HTMLInputElement>('input[type=range]');
+  const status = styleSwitch.querySelector<HTMLElement>('[data-style-status]');
+  const panels = [...styleSwitch.querySelectorAll<HTMLElement>('[data-style-panel]')];
+  const preload = (b: HTMLButtonElement) => {
+    if (b.dataset.loaded) return;
+    b.dataset.loaded = '1';
+    const i = new Image();
+    if (afterImg?.sizes) i.sizes = afterImg.sizes;
+    if (b.dataset.srcset) i.srcset = b.dataset.srcset;
+    i.src = b.dataset.src!;
+  };
+  const select = (id: string | null | undefined) => {
+    const b = btns.find((x) => x.dataset.style === id);
+    if (!b) return false;
+    btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    if (afterImg) {
+      if (b.dataset.srcset) afterImg.srcset = b.dataset.srcset;
+      afterImg.src = b.dataset.src!;
+      afterImg.alt = b.dataset.alt || '';
+    }
+    panels.forEach((p) => { p.hidden = p.dataset.stylePanel !== id; });
+    if (status) status.textContent = `Showing ${b.dataset.name}`;
+    range?.setAttribute('aria-label', `Compare the empty room with the ${b.dataset.name} version`);
+    return true;
+  };
+  btns.forEach((b) => {
+    b.addEventListener('click', () => select(b.dataset.style));
+    b.addEventListener('pointerenter', () => preload(b));
+    b.addEventListener('focus', () => preload(b));
+  });
+  const fromHash = () => { const m = /^#style-([a-z-]+)$/.exec(location.hash); return m ? m[1] : null; };
+  const show = (id: string | null) => {
+    if (!select(id)) return false;
+    styleSwitch.scrollIntoView({ block: 'start' });
+    return true;
+  };
+  document.querySelectorAll<HTMLAnchorElement>('[data-pick-style]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (show(a.dataset.pickStyle!)) btns.find((x) => x.dataset.style === a.dataset.pickStyle)?.focus({ preventScroll: true });
+  }));
+  window.addEventListener('hashchange', () => { show(fromHash()); });
+  const qs = new URLSearchParams(location.search).get('style');
+  if (!show(fromHash()) && !select(qs)) select(styleSwitch.dataset.default);
 }
 
 // Quote and contact forms --------------------------------------------------

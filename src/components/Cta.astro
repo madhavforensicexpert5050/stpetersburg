@@ -3,10 +3,15 @@ import { url } from '../lib/url.ts';
 import { isLive } from '../data/routes.ts';
 import { business } from '../data/business.ts';
 import CallButton from './CallButton.astro';
-interface Props { h?: string; p?: string }
-const { h = 'Have a property in mind?', p = 'Explore how virtual staging and careful image presentation can help communicate what a property offers.' } = Astro.props;
+/**
+ * Closing call to action. `label`, `href` and `note` are optional (V24, Portfolio); without them the band is
+ * exactly as before: Request a Quote once that page is live, otherwise Contact Us, plus the bookings note.
+ * `section` marks the band as a numbered main section (data-pf-section) on pages that count them.
+ */
+interface Props { h?: string; p?: string; label?: string; href?: string; note?: string; section?: string }
+const { h = 'Have a property in mind?', p = 'Explore how virtual staging and careful image presentation can help communicate what a property offers.', label, href, note, section } = Astro.props;
 ---
-<section class="cta-band">
+<section class="cta-band" data-pf-section={section}>
   <div class="wrap">
     <div>
       <h2>{h}</h2>
@@ -15,9 +20,9 @@ const { h = 'Have a property in mind?', p = 'Explore how virtual staging and car
     <div class="cta-band__actions">
       <div class="btn-row">
         <CallButton />
-        {isLive('/request-quote/') ? <a class="btn" href={url('/request-quote/')}>Request a Quote</a> : <a class="btn" href={isLive('/contact/') ? url('/contact/') : business.emailHref}>Contact Us</a>}
+        {label && href ? <a class="btn" href={href}>{label}</a> : isLive('/request-quote/') ? <a class="btn" href={url('/request-quote/')}>Request a Quote</a> : <a class="btn" href={isLive('/contact/') ? url('/contact/') : business.emailHref}>Contact Us</a>}
       </div>
-      {!isLive('/request-quote/') && <p class="cta-band__note">Project bookings are not open yet. Questions are welcome.</p>}
+      {!isLive('/request-quote/') && <p class="cta-band__note">{note ?? 'Project bookings are not open yet. Questions are welcome.'}</p>}
     </div>
   </div>
 </section>

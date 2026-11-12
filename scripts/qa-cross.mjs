@@ -19,9 +19,18 @@ for (const [name, type, opts] of [['Chrome', chromium, { channel: 'chrome' }], [
   r.sliderMoved = (await input.inputValue()) === '51';
   r.clipApplied = (await p.locator('.compare__after').first().evaluate((e) => getComputedStyle(e).clipPath)).includes('51');
   await p.goto(`${origin}/portfolio/`);
+  r.overflowPortfolio = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  const pairs = await p.locator('[data-pair]').count();
+  await p.locator('[data-group-chip][data-value=bedrooms]').click();
+  r.roomChipWorks = (await p.locator('[data-pair]:visible').count()) < pairs;
+  await p.locator('[data-group-chip][data-value=all]').click();
+  await p.locator('[data-style-btn][data-style=coastal]').click();
+  r.styleSwitchWorks = (await p.locator('[data-compare-after]').getAttribute('src')).endsWith('living-room-coastal.webp') && (await p.locator('#style-coastal').isVisible());
+  // The 48 design ideas are collapsed in V24; open them first.
+  await p.locator('#design-ideas summary').click();
   const all = await p.locator('[data-item]:visible').count();
   await p.locator('[data-filter=style][data-value=coastal]').click();
-  r.filterWorks = (await p.locator('[data-item]:visible').count()) < all;
+  r.filterWorks = all > 0 && (await p.locator('[data-item]:visible').count()) < all;
   await p.locator('[data-item]:visible .gal__btn').first().click();
   r.lightbox = await p.locator('dialog.lb').isVisible();
   await p.goto(`${origin}/request-quote/`);
@@ -29,7 +38,7 @@ for (const [name, type, opts] of [['Chrome', chromium, { channel: 'chrome' }], [
   r.formValidates = await p.locator('[data-err=email]').isVisible();
   r.overflowQuote = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   r.pageErrors = errors.length;
-  const pass = r.overflowHome <= 0 && r.overflowQuote <= 0 && r.sliderMoved && r.clipApplied && r.filterWorks && r.lightbox && r.formValidates && !r.pageErrors;
+  const pass = r.overflowHome <= 0 && r.overflowQuote <= 0 && r.overflowPortfolio <= 0 && r.sliderMoved && r.clipApplied && r.roomChipWorks && r.styleSwitchWorks && r.filterWorks && r.lightbox && r.formValidates && !r.pageErrors;
   out.push({ engine: name, version: b.version(), launched: true, pass, ...r });
   console.log(`${pass ? 'PASS' : 'FAIL'} ${name} ${b.version()} ${JSON.stringify(r)}`);
   await b.close();

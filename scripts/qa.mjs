@@ -191,16 +191,41 @@ const pfSentences = sentenceList(pages.find((x) => x.r.path === '/portfolio/').h
 const repeated = [...new Set(pfSentences.filter((s, i) => pfSentences.indexOf(s) !== i))];
 check('The merged Portfolio repeats no sentence of eight words or more', !repeated.length, repeated.slice(0, 8));
 const pfHtml = pages.find((x) => x.r.path === '/portfolio/').html;
-check('Portfolio holds the merged sections: before and after, filterable room designs, and the style guide', ['id="before-after"', 'id="room-designs"', 'data-library', 'id="styles"', 'id="compare-styles"', 'id="faq"'].every((s) => pfHtml.includes(s)) && (pfHtml.match(/class="card pf-style"/g) || []).length === 8);
-// V21: "Choosing a style" and "Styles compared" were merged. Each style is described once, on its card; the
-// comparison table and the four expandable style notes must not come back alongside the cards.
-check('Portfolio describes each style once: no second comparison table or style notes', !/<details class="pf-more"/.test(pfHtml) && !/Mood, materials and fit for the eight staging styles/.test(pfHtml) && (pfHtml.match(/<dt[^>]*>Look for<\/dt>/g) || []).length === 8);
-// V21 inquiry path: every Ask About This Style link opens the inquiry form with known ids only.
-const askHrefs = [...pfHtml.matchAll(/href="([^"]*\?ask=staging[^"]*)"/g)].map((m) => m[1].replace(/&amp;/g, '&'));
-const askData = [...pfHtml.matchAll(/data-ask="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&'));
+const { styles } = await import('../src/data/taxonomy.ts');
+check('Portfolio holds its anchors: room designs with the before-and-after gallery and design ideas, styles, style comparison and questions', ['id="before-after"', 'id="room-designs"', 'data-pairs', 'data-library', 'id="design-ideas"', 'id="styles"', 'id="compare-styles"', 'id="faq"'].every((s) => pfHtml.includes(s)) && styles.every((s) => pfHtml.includes(`id="style-${s.id}"`)));
+// V24: exactly five main sections, in order, and nothing else directly inside <main>.
+const pfMain = (pfHtml.match(/<main[^>]*>([\s\S]*)<\/main>/) || ['', ''])[1];
+const pfMarks = [...pfMain.matchAll(/data-pf-section="(\d)"/g)].map((m) => m[1]);
+const topLevel = (() => { const out = []; let depth = 0; for (const m of pfMain.matchAll(/<(\/?)(section|div|nav|aside|dialog)\b([^>]*)>/g)) { if (m[1]) depth--; else { if (depth === 0) out.push(`${m[2]}${/data-pf-section/.test(m[3]) ? '*' : ''}`); depth++; } } return out; })();
+check('Portfolio has exactly five main sections, in order, and no other top-level section', pfMarks.join('') === '12345' && topLevel.every((t) => t.endsWith('*')) && topLevel.length === 5, `${pfMarks.join(',')} | ${topLevel.join(',')}`);
+const { galleryPairs, occupiedPairs, styleCompareReady } = await import('../src/data/media.ts');
+const pfKeys = [...galleryPairs, ...occupiedPairs].map((p) => p.key);
+const EXCLUDED = ['hero-living', 'svc-interior-color', 'svc-flooring', 'svc-ceiling', 'svc-exterior-color', 'svc-landscaping', 'svc-day-to-dusk', 'svc-photo-enhancement'];
+const srcOfPf = (id) => media.find((m) => m.id === id).src;
+const roomsHtml = (pfMain.match(/id="room-designs"[\s\S]*?<\/section>/) || [''])[0];
+check('Portfolio pairs: each appears once, none excluded, no style-comparison image in Room Designs, no placeholder', new Set(pfKeys).size === pfKeys.length && !pfKeys.some((k) => EXCLUDED.includes(k) || k.startsWith('ors-')) && !EXCLUDED.some((k) => pfHtml.includes(srcOfPf(`${k}-after`)) || pfHtml.includes(srcOfPf(`${k}-before`))) && !/virtual-staging-style-compare-/.test(roomsHtml) && !pfHtml.includes('/media/placeholders/'));
+check('Portfolio pairs: every listed pair is two integrated images and appears in the page', [...galleryPairs, ...occupiedPairs].every((p) => ['before', 'after'].every((r) => media.find((m) => m.id === `${p.key}-${r}`).rights === 'ai-generated' && pfHtml.includes(srcOfPf(`${p.key}-${r}`)))));
+check('Portfolio: the sunroom and screened-lanai pairs and the Sunroom and Outdoor Spaces chips are shown', pfKeys.includes('pf-sunroom') && pfKeys.includes('pf-patio') && /data-value="sunroom"/.test(pfHtml) && /data-value="outdoor"/.test(pfHtml) && />Outdoor Spaces<\/h3>/.test(pfHtml));
+const chipIds = [...pfHtml.matchAll(/data-group-chip data-value="([^"]+)"/g)].map((m) => m[1]).filter((v) => v !== 'all');
+check('Portfolio: the room chips are exactly the groups with at least one pair', chipIds.length === new Set(chipIds).size && [...new Set(galleryPairs.map((p) => p.group))].sort().join(',') === [...chipIds].sort().join(','), chipIds);
+check('Portfolio Section 3: one shared before and eight style afters, all integrated', styleCompareReady && (pfHtml.match(/virtual-staging-style-compare-living-room-before\.webp"/g) || []).length === 1 && styles.every((s) => pfHtml.includes(`virtual-staging-style-compare-living-room-${s.id}.webp`)) && (pfHtml.match(/data-style-btn /g) || []).length === 8 && [...pfHtml.matchAll(/<button[^>]*data-style-btn[^>]*>/g)].filter((m) => /aria-pressed="true"/.test(m[0])).map((m) => /data-style="transitional"/.test(m[0])).join() === 'true');
+check('Portfolio: 7 questions, and the 48 single designs sit only inside More Design Ideas', (pfMain.match(/id="faq"[\s\S]*?<\/section>/) || [''])[0].split('<details').length - 1 === 7 && (pfHtml.match(/data-item /g) || []).length === 48 && ((pfHtml.match(/id="design-ideas"[\s\S]*?<\/details>\s*<dialog/) || [''])[0].match(/data-item /g) || []).length === 48 && /These are single design images, not before-and-after comparisons/.test(pfHtml));
+// V21/V24: each style is described once, in its Section 3 panel. No second comparison table, cards or style notes.
+check('Portfolio describes each style once: eight Best fit entries, no second comparison table or style notes', !/<details class="pf-more"/.test(pfHtml) && !/<table/.test(pfMain) && !/class="card pf-style"/.test(pfHtml) && (pfHtml.match(/<dt[^>]*>Best fit:<\/dt>/g) || []).length === 8 && !/<dt[^>]*>Look for<\/dt>/.test(pfHtml));
+check('Portfolio: occupied rooms copy stays within the Furniture Removal & Staging service and states what was kept', /Occupied Rooms: Furniture Removal and Staging/.test(pfHtml) && /not a separate decluttering or removal-only service/.test(pfHtml) && /the curtains and the framed art were kept/.test(pfHtml) && !/everything (was|is) removed/i.test(visible(pfMain)));
+const pfVisible = visible(pfMain);
+// The two booking notes show only while /request-quote/ is not live (the same rule as every CTA band).
+const notesWanted = routes.some((r) => r.path === '/request-quote/') && fs.existsSync(path.join('dist', 'request-quote', 'index.html')) ? 0 : 1;
+check(`Portfolio: booking notes shown ${notesWanted ? 'once each' : 'only while quotes are closed'}, and no Book, Upload, Order or Get started calls to action`, (pfVisible.match(/Project bookings are not open yet, so please don't send photos\./g) || []).length === notesWanted && (pfVisible.match(/Bookings are not open yet; questions are welcome\./g) || []).length === notesWanted &&![...pfMain.matchAll(/<(a|button)\b[^>]*>([\s\S]*?)<\/\1>/g)].some((m) => /\b(Book( Now)?|Upload|Order|Get started|Start Your Project)\b/i.test(visible(m[2]))));
+check('Portfolio: H1, title, meta description, canonical and robots are unchanged from V21', /<h1>Virtual staging portfolio: before and after, room designs and styles<\/h1>/.test(pfHtml) && (pfHtml.match(/<h1[\s>]/g) || []).length === 1 && pfHtml.includes('<title>Virtual Staging Portfolio: Before and After, Styles | StageLiora</title>') && pfHtml.includes('<meta name="description" content="Before-and-after virtual staging examples, room designs to filter by style and room, and a guide to choosing among eight staging styles for a listing.">') && pfHtml.includes(`<link rel="canonical" href="${business.siteUrl}/portfolio/">`) && pfHtml.includes('<meta name="robots" content="noindex,nofollow">'));
+// V21/V24 inquiry path: every Ask link opens the inquiry form with known ids only. Count from the data:
+// one per pair card, one for the occupied card, the inline CTA, one per style panel and the Section 5 band.
+const askHrefs = [...pfHtml.matchAll(/href="([^"]*\?ask=staging[^"]*)"/g)].map((m) => m[1].replace(/&amp;|&#38;/g, '&'));
+const askData = [...pfHtml.matchAll(/data-ask="([^"]+)"/g)].map((m) => m[1].replace(/&amp;|&#38;/g, '&'));
 const askAll = [...askHrefs, ...askData];
 const askTarget = (h) => h.split('?')[0];
-check('Portfolio: style cards, pairs, room designs and the pairs CTA link to the inquiry form with their context', askHrefs.length === 8 + 6 + 1 && askData.length === (pfHtml.match(/data-item /g) || []).length && askAll.every((h) => ['/contact/', '/request-quote/'].includes(askTarget(h)) && /#inquiry$/.test(h)), `${askHrefs.length} links, ${askData.length} designs`);
+const wantAsk = galleryPairs.length + occupiedPairs.length + 1 + 8 + 1;
+check('Portfolio: pairs, style panels, design ideas and both CTAs link to the inquiry form with their context', askHrefs.length === wantAsk && askData.length === (pfHtml.match(/data-item /g) || []).length && askAll.every((h) => ['/contact/', '/request-quote/'].includes(askTarget(h)) && /#inquiry$/.test(h)) && styles.every((s) => askHrefs.some((h) => h.includes(`style=${s.id}&room=living-room#`))), `${askHrefs.length}/${wantAsk} links, ${askData.length} designs`);
 const faqQs = (h) => [...((h.match(/<main[\s\S]*?<\/main>/) || [''])[0]).matchAll(/<summary>([\s\S]*?)<\/summary>/g)].map((m) => visible(m[1]).trim().toLowerCase());
 const faqDup = [];
 for (const p of VISUAL) for (const q of faqQs(pages.find((x) => x.r.path === p).html)) for (const o of pages) if (o.r.path !== p && faqQs(o.html).includes(q)) faqDup.push(`${p} & ${o.r.path}: ${q}`);

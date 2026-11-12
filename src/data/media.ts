@@ -4,7 +4,7 @@
  * set rights to 'owner-licensed', ownerApproved to true and publication to 'approved'.
  * Pages and components do not change.
  */
-import { rooms, styles, type RoomId, type StyleId } from './taxonomy.ts';
+import { rooms, styles, groupOfRoom, type RoomId, type StyleId, type RoomGroupId } from './taxonomy.ts';
 import { generatedMedia } from './generated-media.ts';
 import { noteFor } from './image-notes.ts';
 
@@ -101,6 +101,8 @@ const pairs: MediaItem[] = [
 const portfolioRooms: { room: RoomId; style: StyleId }[] = [
   { room: 'living-room', style: 'coastal' }, { room: 'primary-bedroom', style: 'modern' }, { room: 'guest-bedroom', style: 'traditional' },
   { room: 'dining-room', style: 'contemporary' }, { room: 'home-office', style: 'industrial' }, { room: 'kitchen', style: 'scandinavian' },
+  // V24 P1: owner-approved on 2026-11-12. The screened lanai is filed under the patio room type.
+  { room: 'sunroom', style: 'transitional' }, { room: 'patio', style: 'coastal' },
 ];
 /** Swaps in the checked, image-specific description when one matches the file this slot shows. */
 const withNote = <T extends MediaItem>(m: T, describe: (text: string) => string): T => {
@@ -137,7 +139,19 @@ export const library: LibraryItem[] = styles.flatMap((s) => libraryPlan[s.id].ma
   return { ...noted, style: s.id, room: roomId, styleName: s.name, roomName };
 }));
 
-export const media: MediaItem[] = [...pairs, ...portfolio, ...library];
+/**
+ * Portfolio Section 3 (V24): one empty living room staged in all eight styles. Every after is composited onto the
+ * same before, never chained from another style. The set ships all-or-nothing (styleCompareReady).
+ */
+const styleCompareSet: MediaItem[] = [
+  withNote(base('ors-living-room-before', '/portfolio/', 'Style comparison', 'Before — Empty Living Room', 'Illustration of an empty living room.',
+    { kind: 'interior', room: 'living-room', style: 'transitional', furnish: 'none' }, { pair: 'ors-living-room', role: 'before' }), (t) => `AI-created image of ${t}`),
+  ...styles.map((s) => withNote(base(`ors-living-room-${s.id}`, '/portfolio/', 'Style comparison', `After — ${s.name} Living Room`,
+    `Illustration of the same living room staged in the ${s.name.toLowerCase()} style.`,
+    { kind: 'interior', room: 'living-room', style: s.id, furnish: 'staged' }, { pair: 'ors-living-room', role: 'after' }), (t) => `AI-created image of ${t}`)),
+];
+
+export const media: MediaItem[] = [...pairs, ...portfolio, ...library, ...styleCompareSet];
 
 /**
  * Customer-facing wording for illustrative images. Every label below switches to genuine wording on its own
@@ -161,6 +175,39 @@ export function getPair(key: string): { before: MediaItem; after: MediaItem } {
   return { before: getMedia(`${key}-before`), after: getMedia(`${key}-after`) };
 }
 export const portfolioPairs = portfolioRooms.map(({ room, style }) => ({ key: `pf-${room}`, room, style }));
+
+/** A real, integrated image. Placeholders never appear in the Portfolio. */
+export const isApprovedMedia = (m: Pick<MediaItem, 'rights'>) => m.rights === 'ai-generated';
+const pairReady = (key: string) => { const p = getPair(key); return isApprovedMedia(p.before) && isApprovedMedia(p.after); };
+
+export interface GalleryPair { key: string; room: RoomId; group: RoomGroupId; style: StyleId; title: string; block: 'gallery' | 'outdoor' }
+/**
+ * Portfolio Section 2, in display order (living room, primary bedroom and kitchen first: the rooms buyers rate most
+ * important). Vacant staging pairs only: hero-living stays on the homepage, and the editing and concept pairs never
+ * appear in the Portfolio. A pair is listed only while both of its files are integrated images.
+ */
+const galleryPlan: Omit<GalleryPair, 'group'>[] = [
+  { key: 'pf-living-room', room: 'living-room', style: 'coastal', title: 'Coastal Living Room', block: 'gallery' },
+  { key: 'pf-primary-bedroom', room: 'primary-bedroom', style: 'modern', title: 'Modern Primary Bedroom', block: 'gallery' },
+  { key: 'pf-kitchen', room: 'kitchen', style: 'scandinavian', title: 'Scandinavian Kitchen and Dining Area', block: 'gallery' },
+  { key: 'pf-dining-room', room: 'dining-room', style: 'contemporary', title: 'Contemporary Dining Room', block: 'gallery' },
+  { key: 'svc-virtual-staging', room: 'living-room', style: 'modern', title: 'Modern Open-Plan Living Room', block: 'gallery' },
+  { key: 'showcase-bedroom', room: 'primary-bedroom', style: 'scandinavian', title: 'Scandinavian Primary Bedroom', block: 'gallery' },
+  { key: 'pf-guest-bedroom', room: 'guest-bedroom', style: 'traditional', title: 'Traditional Guest Bedroom', block: 'gallery' },
+  { key: 'showcase-dining', room: 'dining-room', style: 'farmhouse', title: 'Farmhouse Dining Room', block: 'gallery' },
+  { key: 'pf-home-office', room: 'home-office', style: 'industrial', title: 'Industrial Home Office', block: 'gallery' },
+  { key: 'pf-sunroom', room: 'sunroom', style: 'transitional', title: 'Transitional Sunroom', block: 'gallery' },
+  { key: 'pf-patio', room: 'patio', style: 'coastal', title: 'Coastal Screened Lanai', block: 'outdoor' },
+];
+export const galleryPairs: GalleryPair[] = galleryPlan.filter((p) => pairReady(p.key)).map((p) => ({ ...p, group: groupOfRoom(p.room)! }));
+/** Occupied rooms: furniture removed from the photo, then restaged. Not affected by the room chips. */
+export const occupiedPairs = [{ key: 'svc-furniture-removal', room: 'living-room' as RoomId, style: 'transitional' as StyleId, title: 'Occupied Living Room, Restaged in Transitional' }].filter((p) => pairReady(p.key));
+
+/** Section 3: the shared before and one after per style. */
+export function getStyleCompare(): { before: MediaItem; afters: Record<StyleId, MediaItem> } {
+  return { before: getMedia('ors-living-room-before'), afters: Object.fromEntries(styles.map((s) => [s.id, getMedia(`ors-living-room-${s.id}`)])) as Record<StyleId, MediaItem> };
+}
+export const styleCompareReady = [getMedia('ors-living-room-before'), ...styles.map((s) => getMedia(`ors-living-room-${s.id}`))].every(isApprovedMedia);
 
 /**
  * Brand and people images: owner-supplied photographs that are not property examples, so they sit outside

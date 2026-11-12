@@ -14,6 +14,18 @@ export const styles: StyleInfo[] = [
   { id: 'transitional', name: 'Transitional', hasPage: false, note: 'A quiet middle ground between classic and current.', materials: 'Greige fabric, mid-tone oak, pewter', palette: { wall: '#ECE9E3', sofa: '#8F8B84', wood: '#94714F', accent: '#5B6C7A', rug: '#CFC9BE', metal: '#6F7375', round: false } },
 ];
 
+/** Portfolio room chips (V24). Entryway and basement belong to no group. */
+export type RoomGroupId = 'living-open-plan' | 'bedrooms' | 'kitchen-dining' | 'home-office' | 'sunroom' | 'outdoor';
+export const roomGroups: { id: RoomGroupId; label: string; rooms: RoomId[] }[] = [
+  { id: 'living-open-plan', label: 'Living & Open-Plan', rooms: ['living-room'] },
+  { id: 'bedrooms', label: 'Bedrooms', rooms: ['primary-bedroom', 'guest-bedroom', 'childrens-bedroom'] },
+  { id: 'kitchen-dining', label: 'Kitchen & Dining', rooms: ['kitchen', 'dining-room'] },
+  { id: 'home-office', label: 'Home Office', rooms: ['home-office'] },
+  { id: 'sunroom', label: 'Sunroom', rooms: ['sunroom'] },
+  { id: 'outdoor', label: 'Outdoor Spaces', rooms: ['patio', 'porch', 'deck'] },
+];
+export const groupOfRoom = (room: RoomId): RoomGroupId | null => roomGroups.find((g) => g.rooms.includes(room))?.id ?? null;
+
 export const rooms: { id: RoomId; name: string; outdoor?: boolean }[] = [
   { id: 'living-room', name: 'Living Room' },
   { id: 'primary-bedroom', name: 'Primary Bedroom' },

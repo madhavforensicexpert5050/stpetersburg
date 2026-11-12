@@ -1,8 +1,8 @@
 ---
 import { url } from '../lib/url.ts';
 import type { MediaItem } from '../data/media.ts';
-interface Props { media: MediaItem; class?: string; alt?: string; eager?: boolean; sizes?: string }
-const { media: m, class: className, alt = m.alt, eager = false, sizes = '(max-width: 767px) 100vw, (max-width: 1200px) 50vw, 750px' } = Astro.props;
+interface Props { media: MediaItem; class?: string; alt?: string; eager?: boolean; sizes?: string; compareAfter?: boolean }
+const { media: m, class: className, alt = m.alt, eager = false, sizes = '(max-width: 767px) 100vw, (max-width: 1200px) 50vw, 750px', compareAfter = false } = Astro.props;
 const srcset = m.responsive?.map(v => `${url(v.src)} ${v.width}w`).join(', ');
 ---
-<img class={className} src={url(m.src)} srcset={srcset} sizes={srcset ? sizes : undefined} alt={alt} width={m.width} height={m.height} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+<img class={className} src={url(m.src)} srcset={srcset} sizes={srcset ? sizes : undefined} alt={alt} width={m.width} height={m.height} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" data-compare-after={compareAfter ? '' : undefined} />

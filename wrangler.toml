@@ -1,4 +1,11 @@
-# Prepared for Cloudflare Pages. Hosting has not been chosen, and this has never been deployed.
+# Cloudflare Pages project "stpetersburg" (created by the owner, connected to this repository's main branch).
+# Required project settings:
+#   Build command:          npm run build:production
+#   Build output directory: dist-production
+#   Environment variable:   NODE_VERSION = 24   (the build scripts import TypeScript directly)
+# build:production refuses to create dist-production until every release gate in src/data/release.ts passes,
+# so a failed Cloudflare build is expected, and correct, while approvals are missing.
+# Never point Cloudflare at "npm run build" or "dist": that is the internal review build with owner notes.
 name = "stageliora-st-petersburg"
 pages_build_output_dir = "dist-production"
 compatibility_date = "2026-10-01"

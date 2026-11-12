@@ -94,12 +94,22 @@ const LOCATION_COVERAGE: ApprovalRecord = {
   reference: 'V23: "All 12 StageLiora location pages are now owner-approved"; remote service coverage and page ownership for this site, subject to factual and editorial checks',
 };
 
+/** V23.1 route publication for the location pages and hub. Not a deployment or indexing approval. */
+const LOCATION_PUBLICATION: ApprovalRecord = {
+  by: 'Owner instruction in the Claude Code session (no named signer)',
+  date: '2026-11-12',
+  reference: 'V23.1: "The owner has approved all 12 location pages and Locations hub"; route publication only',
+};
+
 const OWNER_APPROVALS: OwnerApprovals = {
   websiteContent: OWNER_CONTENT_DESIGN,
   pageDesign: OWNER_CONTENT_DESIGN,
   publicDeployment: null,
   searchIndexing: null,
-  publication: {},
+  // V23.1: the owner approved publishing the 12 location pages and the Locations hub, and nothing else.
+  // This is route-level publication only. Public deployment of the site, search indexing, legal review and
+  // service approvals are separate decisions that have NOT been given, so the release stays gated.
+  publication: Object.fromEntries(['/locations/', ...['st-petersburg-fl', 'st-pete-beach', 'gulfport', 'treasure-island', 'south-pasadena', 'madeira-beach', 'pinellas-park', 'seminole', 'largo', 'clearwater', 'dunedin', 'safety-harbor'].map((s) => `/locations/${s}/`)].map((p) => [p, LOCATION_PUBLICATION])),
   indexing: {},
   services: {},
   prices: {},

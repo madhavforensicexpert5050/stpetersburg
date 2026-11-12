@@ -309,7 +309,7 @@ check(`Owner content and design approval is recorded for all ${60 - retired.leng
   check('Pricing: no reference-site prices, unapproved savings badges or Individuals/Teams tabs', !/\$35\b|\$28\b|\$24\.50|\$399|\$799|Save 20%|Save 30%|Most Popular|For Individuals|For Teams/.test(pricingHtml) && saveShown.every((s) => allowedSave.has(s)));
 }
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));
-check('Content approval did not create any other approval', Object.keys(approvals.publication).length === 0 && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
+check('Content approval did not create any other approval', Object.entries(approvals.publication).every(([p, a]) => p.startsWith('/locations/') && /^V23\.1: /.test(a.reference) && /no named signer/.test(a.by)) && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
 check('Service slugs were not changed by the hostname migration', routes.some((r) => r.path === '/locations/st-petersburg-fl/'));
 const oldHost = ['st-petersburg', 'stageliora', 'com'].join('.');
 const scan = walk('dist').filter((f) => /\.(html|txt|xml|js)$/.test(f)).filter((f) => fs.readFileSync(f, 'utf8').includes(oldHost));
@@ -329,7 +329,8 @@ const prod = (fixture) => {
   return { code: r.status, out, text: r.stdout + r.stderr, exists: fs.existsSync(out) };
 };
 const none = prod(null);
-check('No approvals: release is BLOCKED, exit 2, nothing built', none.code === 2 && !none.exists && /PRODUCTION RELEASE BLOCKED/.test(none.text), none.text);
+// Current real approvals (V23.1): location pages approved for publication, but no public deployment and no legal review.
+check('Current approvals: release is refused, nothing built, deployment and legal pages named', none.code !== 0 && !none.exists && /APPROVE PUBLIC DEPLOYMENT has not been recorded/.test(none.text) && /requires \/privacy-policy\//.test(none.text) && /requires \/terms-of-service\//.test(none.text), none.text);
 const raw = spawnSync('npx', ['astro', 'build'], { encoding: 'utf8', shell: true, env: { ...process.env, SITE_MODE: 'production', OUT_DIR: 'dist-qa/raw' } });
 check('Raw production build without the release script is refused', raw.status !== 0 && !fs.existsSync('dist-qa/raw/index.html'));
 const refuse = spawnSync('node', ['scripts/build-production.mjs'], { encoding: 'utf8', env: { ...process.env, QA_FIXTURE: 'valid', OUT_DIR: 'dist-production' } });

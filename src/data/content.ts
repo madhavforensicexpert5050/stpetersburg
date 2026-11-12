@@ -44,13 +44,13 @@ export const pricing = {
       : null,
   },
   faqs: [
-    { q: 'How is virtual staging pricing calculated?', a: 'By the image. The service, the number of photos and the work each room needs set the cost, and it is agreed before any work starts. Rates are not listed on the site yet, so ask about your listing directly.' },
+    { q: 'How is virtual staging pricing calculated?', a: `By the image. The service, the number of photos and the work each room needs set the cost, and it is agreed in a written quotation before any work starts.${anyPlanPriced() ? ' The current per-photo rates are shown on this page.' : ' Rates are not listed on the site yet, so ask about your listing directly.'}` },
     { q: 'What affects the cost of editing a property photo?', a: 'Mostly how much the room needs. An empty room needs furniture added; an occupied room needs belongings removed first. The quality of the source photo and the number of changes matter too.' },
     { q: 'When does a bundle make sense?', a: 'When you have a full listing, or several listings, to stage at once. One rate across a set keeps the cost predictable and the style consistent. Bundle sizes and terms are set out in writing before any payment.' },
     { q: 'What types of photographs are suitable?', a: 'Level, well-lit, high-resolution photos with the floor and corners visible. Dark, tilted or tightly cropped photos limit what can be done believably. The photo preparation guide covers the details.' },
-    { q: 'How are revisions handled?', a: 'Revision terms will be set out in writing before any work starts.' },
+    { q: 'How are revisions handled?', a: 'Each written quotation states the revision rounds included, the deadline for revision requests and the charge for any extra revisions. There is no standard free-revision promise.' },
     { q: 'Are design visualizations and listing-photo staging priced differently?', a: 'Yes. They are different jobs. Listing photo edits show a property as it is; concept visualizations of paint, flooring, ceilings or landscaping are for planning and are priced on their own.' },
-    { q: 'How do I pay?', a: 'There is no online checkout or prepayment on this site. Please do not send card details by email or through a form.' },
+    { q: 'How do I pay?', a: 'Your written quotation states the price, the accepted payment method, the due date and any payment conditions before work starts. There is no online checkout on this site, so please do not send card details by email or through a form.' },
   ],
 };
 
@@ -74,10 +74,11 @@ export const generalFaqs = [
     { q: 'Which edits are not allowed in Stellar listing photos?', a: 'Among others: exterior staging beyond unattached furniture or decor, changing permanent fixtures, adding views or lighting that could not exist, hiding defects, distorting room size, changing paint colors and adding landscape plantings.' },
   ] },
   { group: 'Working with us', items: [
-    { q: 'How long does an order take?', a: 'It depends on the service, the number of photos and the edits requested. No standard turnaround has been set, so ask about a specific listing.' },
-    { q: 'What file types should I send?', a: 'Keep your original files and send them unfiltered. Upload is not active yet, so please do not send photos until your quote confirms how to share them.' },
+    { q: 'How long does a project take?', a: 'It depends on the number of photos and the edits requested. The estimated turnaround for your project is stated in the written quotation before work begins. No fixed delivery time is promised.' },
+    { q: 'Who edits the photos?', a: 'Devender Garg, StageLiora’s founder, handles each project. Images are staged with AI-assisted editing and then refined by hand. StageLiora does not claim to own or have built the AI tools it uses.' },
+    { q: 'What file types should I send?', a: 'High-resolution JPG/JPEG or PNG files, unfiltered, with the room type and any preferred style. Photos are sent by email, because this site has no upload. Please wait until your written quotation is agreed before sending them.' },
     { q: 'Whose photos can I send?', a: 'Only photos you own or are licensed to have edited. Photographers often keep the copyright and license listing photos for listing use only, so ask for written permission that covers editing by a third party.' },
-    { q: 'What about revisions and refunds?', a: 'Revision and refund terms will be set out in writing before any work starts.' },
+    { q: 'What about refunds?', a: 'Refund terms will be set out in writing before any work starts. Revision terms are part of every written quotation.' },
   ] },
 ];
 
@@ -92,12 +93,15 @@ export const interiorDesign = {
   ],
 };
 
+/**
+ * The approved StageLiora workflow (V27 owner direction). Step 4 deliberately does not claim a personal final review:
+ * that is the owner's proposed wording and has not been verified as an operating fact.
+ */
 export const process = [
-  { n: '01', h: 'Share your property details', b: 'Tell us the room types, how the photos were taken and where the images will be used. The MLS matters, because the rules differ.' },
-  { n: '02', h: 'Discuss your project', b: 'We talk through which edits suit each room, what should stay unchanged and which service fits. Nothing starts until scope and cost are agreed.' },
-  { n: '03', h: 'Share your photos', b: 'Send only full-resolution photos you have the right to edit. There is no upload on this site, so the transfer method is agreed with you.' },
-  { n: '04', h: 'Review the visuals', b: 'Check each edited image against its original. Walls, windows, floors and fixtures should match before any image is used.' },
-  { n: '05', h: 'Prepare for listing use', b: 'Keep the original and complete the disclosure your MLS requires. In Stellar MLS that happens in the listing fields, not on the image.' },
+  { n: '01', h: 'Request virtual staging', b: 'Tell us about the property, the rooms you want staged and where the images will be used. Once a written quotation is agreed, you send high-resolution JPG or PNG photos by email, with the room type and any preferred style.' },
+  { n: '02', h: 'Personal project management', b: 'Devender Garg, StageLiora’s founder, handles each project himself. The written quotation sets the price, payment terms, estimated turnaround and revision terms before any work starts.' },
+  { n: '03', h: 'AI-assisted editing and manual refinement', b: 'Each image is staged with AI-assisted editing and then refined by hand, so furniture sits at the true scale of the room while walls, windows, floors and fixtures stay exactly as photographed.' },
+  { n: '04', h: 'Review and delivery', b: 'The finished images are checked against their originals and delivered as JPG or PNG files, at the original pixel dimensions where possible. Keep your originals and complete the disclosure your MLS requires.' },
 ];
 
 /**

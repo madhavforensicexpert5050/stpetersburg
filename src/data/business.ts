@@ -12,8 +12,10 @@ export const business = {
   phoneHref: 'tel:+918890929329',
   targetArea: 'St. Petersburg, Florida',
   /** Launch dependencies. Null means unknown; never substitute a guess. */
-  legalEntity: null as string | null,
-  postalAddress: null as string | null,
+  /** V27 owner statement. Florida fictitious-name (DBA) registration NOT verified (Sunbiz blocks automated search). */
+  legalEntity: 'Devender Garg, doing business as StageLiora' as string | null,
+  /** V27 owner-supplied MAILING address. Not an office, storefront or place to visit. Shown on the legal pages only. */
+  postalAddress: '4110 32nd St N, St. Petersburg, FL 33714, USA' as string | null,
   supportHours: null as string | null,
   turnaround: null as string | null,
 } as const;

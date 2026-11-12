@@ -114,7 +114,20 @@ const OWNER_APPROVALS: OwnerApprovals = {
   // service approvals are separate decisions that have NOT been given, so the release stays gated.
   publication: Object.fromEntries(['/locations/', ...['st-petersburg-fl', 'st-pete-beach', 'gulfport', 'treasure-island', 'south-pasadena', 'madeira-beach', 'pinellas-park', 'seminole', 'largo', 'clearwater', 'dunedin', 'safety-harbor'].map((s) => `/locations/${s}/`)].map((p) => [p, LOCATION_PUBLICATION])),
   indexing: {},
-  services: {},
+  // V27: owner answers S1-S6 for Virtual Staging. S7 (the owner's own review of Stellar MLS Article 04.04) is NOT
+  // confirmed, so disclosureRestrictionsReviewed stays false and the service, homepage and service pages stay gated.
+  services: {
+    'virtual-staging': {
+      by: 'Owner instruction in the Claude Code session (no named signer)', date: '2026-11-12', reference: 'V27: Virtual Staging policies S1-S6 confirmed; S7 pending',
+      performedBy: 'Devender Garg, using AI-assisted editing combined with manual refinement (no proprietary AI claimed)',
+      customerFiles: 'High-resolution JPG/JPEG or PNG photos sent by Google email, with the room type and an optional style; no website upload',
+      output: 'Edited JPG/JPEG or PNG images as agreed, at the original pixel dimensions where feasible; originals kept unaltered and separate for the retention period',
+      limitations: 'No misleading structural changes, hidden defects, changed views, misrepresented permanent fixtures, staged rooms presented as furnished, or other edits prohibited by listing or advertising rules',
+      turnaround: 'Estimated per project in the written quotation; no fixed 24/48/72-hour promise',
+      revisions: 'Included rounds, request deadline and extra-revision charges stated in each written quotation; no fixed free-revision promise',
+      disclosureRestrictionsReviewed: false,
+    },
+  },
   prices: {},
   planPricing: {
     'pay-as-you-go': { by: 'Devender Garg, Founder & Owner (confirmed in the Claude Code session)', date: '2026-11-06', reference: 'V12 pricing: $18 per photo approved for publication as a net price (no comparison or savings claim)', currency: 'USD', pricePerPhotoCents: 1800 },

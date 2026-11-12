@@ -1,60 +1,88 @@
-/** Legal drafts. Not lawyer-reviewed. Bracketed items are launch dependencies recorded in the approval register. */
+/**
+ * Legal drafts (V27). Not lawyer-reviewed and not signed off. Owner decisions L1-L8, L15 and L17 are written in as
+ * plain text; everything still unverified or unapproved is a bracketed "pending" item. A bracketed item blocks the
+ * production build (build-production.mjs), so these pages cannot go live until each one is resolved and
+ * approvals.legalReview holds Devender Garg's actual sign-off.
+ */
 import type { Block } from './guides.ts';
 import { business } from './business.ts';
 import { qaFixtureName } from './approvals.ts';
 
 export interface LegalDoc { slug: string; path: string; title: string; h1: string; description: string; body: Block[] }
 
-const ENTITY = '[Legal entity name: pending from owner]';
-const ADDRESS = '[Business postal address: pending from owner]';
+const ENTITY = `${business.legalEntity} [Florida fictitious-name registration for "StageLiora": pending verification]`;
+const ADDRESS = `${business.postalAddress}. This is a mailing address only, not an office or a place to visit`;
+const DRAFT_NOTE = 'This draft is awaiting final review and sign-off by Devender Garg, and the governing law and liability wording awaits attorney review. It is not yet in force. Items in square brackets are still being verified.';
 
 const drafts: LegalDoc[] = [
   {
     slug: 'privacy-policy', path: '/privacy-policy/', title: 'Privacy Policy (Draft) | StageLiora', h1: 'Privacy Policy',
-    description: 'Draft privacy policy for the StageLiora St. Petersburg website: what the site collects, how quote requests are handled, and what is still to be decided.',
+    description: 'Draft privacy policy for StageLiora: what the website and a virtual staging project collect, who processes it, how long it is kept and how to ask about it.',
     body: [
-      { t: 'p', x: `This policy describes how StageLiora ("we") handles information through ${business.host}. The legal entity responsible for this site is ${ENTITY}, at ${ADDRESS}.` },
-      { t: 'h2', x: 'What this website collects today' },
-      { t: 'ul', items: ['Information you choose to send us through email, a phone call or the quote form. This can include your name, email address, phone number, company, property location and project details.', 'Technical information your browser normally sends to a web host, such as IP address and pages requested. The site is hosted on Cloudflare Pages. [Log retention period: pending, to be confirmed from the Cloudflare terms for this account.]'] },
-      { t: 'p', x: 'While online form delivery is not connected, the quote form does not send information to us. If you use its email option, your own email app creates the message and you decide whether to send it.' },
-      { t: 'h2', x: 'What this website does not do' },
-      { t: 'ul', items: ['It does not use advertising trackers or analytics in this version. If that changes, this policy will be updated first.', 'It does not take payment information.', 'It does not accept photo uploads in this version.'] },
+      { t: 'callout', h: 'Draft, not yet in force', x: DRAFT_NOTE },
+      { t: 'p', x: `This policy explains how StageLiora ("we") handles personal information through ${business.host} and during virtual staging projects. StageLiora is operated by ${ENTITY}. Mailing address: ${ADDRESS}.` },
+      { t: 'h2', x: 'What we collect' },
+      { t: 'ul', items: [
+        'Information you choose to send us by email, phone or the quote form: for example your name, email address, phone number, company, property location and project details.',
+        'For a project: your property photos, the room types and any preferred staging style. Photos are sent to us by email. This website does not accept uploads.',
+        'Technical information your browser sends to the website host, such as IP address, browser type and pages requested. The site is hosted on Cloudflare Pages, which processes these requests. [Cloudflare request logging, security features and log retention for this account: pending verification.]',
+      ] },
+      { t: 'p', x: 'The site does not use analytics or advertising trackers and does not take payments. While online form delivery is not connected, the quote form does not send information to us; if you use its email option, your own email app creates the message and you decide whether to send it.' },
       { t: 'h2', x: 'How we use information' },
-      { t: 'p', x: 'To respond to your request, prepare a quote, and keep a record of our correspondence. We do not sell your information.' },
-      { t: 'h2', x: 'Property photos' },
-      { t: 'p', x: 'Photos can show personal items, documents or addresses. Please remove these where you can. Secure upload, storage, access controls and the deletion schedule will be described here before upload is enabled. [Retention period: pending, DEC-030.]' },
-      { t: 'h2', x: 'Service providers and retention' },
-      { t: 'p', x: '[List of email, hosting, form and storage providers: pending.] [How long inquiries are kept: pending.]' },
-      { t: 'h2', x: 'Your choices' },
-      { t: 'p', x: `You can ask us to access, correct or delete information you have given us by writing to ${business.email}. Depending on where you live, you may have additional rights under law.` },
+      { t: 'p', x: 'To answer your inquiry, prepare a written quotation, carry out and deliver a project you have agreed to, and keep a record of our correspondence. We do not sell personal information, and we do not share it with third parties for their own marketing without your permission.' },
+      { t: 'h2', x: 'Who processes it for us' },
+      { t: 'ul', items: [
+        'Google: our email service, which receives your messages and photos, and Google Drive, where project files are stored. [Drive sharing and access settings: pending verification.]',
+        'Cloudflare: hosting for this website.',
+        'AI-assisted editing tools used to stage your photos. [Which providers are used, whether photos are uploaded to them, and their retention, deletion and data-sharing terms: pending verification.]',
+      ] },
+      { t: 'p', x: '[Use of customer photos to train or improve AI models: policy pending owner approval after the providers above are reviewed.]' },
+      { t: 'h2', x: 'How long we keep it' },
+      { t: 'ul', items: [
+        'Property photos and project files: deleted within 90 days after the project is delivered, unless we agree a different arrangement with you. Your original photos are kept unaltered and separate from the edited images during that period. This schedule covers our own copies; copies held by an AI editing provider follow that provider\'s terms. [Provider retention: pending verification.]',
+        'Inquiries and correspondence: kept for up to 24 months and then deleted, unless the law requires a longer period.',
+      ] },
+      { t: 'h2', x: 'Security' },
+      { t: 'p', x: 'Access to customer photos and project files is limited to Devender Garg and anyone he authorizes for a specific project. [Account security measures, such as two-factor authentication and access removal: pending verification before they are described here.]' },
+      { t: 'h2', x: 'Your requests' },
+      { t: 'p', x: `You can ask to access, correct or delete personal information you have given us by writing to ${business.email}. We may need to confirm your identity first. We handle each request under the law that applies to you, and some records may need to be kept for legal reasons.` },
       { t: 'h2', x: 'Children' },
       { t: 'p', x: 'This site is for business users and is not directed to children.' },
       { t: 'h2', x: 'Contact' },
-      { t: 'p', x: `Email ${business.email} or call ${business.phoneDisplay}.` },
+      { t: 'p', x: `Email ${business.email} or call ${business.phoneDisplay}. Mail: ${business.postalAddress}.` },
     ],
   },
   {
     slug: 'terms-of-service', path: '/terms-of-service/', title: 'Terms of Service (Draft) | StageLiora', h1: 'Terms of Service',
-    description: 'Draft terms for using the StageLiora website and requesting image-editing services, including photo rights, MLS responsibility and open items.',
+    description: 'Draft terms for the StageLiora website and virtual staging projects: quotations, photos, editing limits, MLS responsibility, image rights and payment.',
     body: [
-      { t: 'p', x: `These draft terms apply to ${business.host}, operated by ${ENTITY}. They will be finalized before any services are sold.` },
+      { t: 'callout', h: 'Draft, not yet in force', x: DRAFT_NOTE },
+      { t: 'p', x: `These terms apply to ${business.host} and to virtual staging projects provided by StageLiora, operated by ${ENTITY}. Mailing address: ${ADDRESS}. Project bookings are not open yet.` },
       { t: 'h2', x: 'Information on this site' },
-      { t: 'p', x: 'The information here is general, and is not legal advice. MLS and legal summaries reflect our reading on the dates shown, and may be out of date. Images marked as placeholders are illustrations, and are not examples of completed work.' },
-      { t: 'h2', x: 'Quotes' },
-      { t: 'p', x: 'A quote request does not create an order. Work starts only after we have both agreed in writing on scope, price and timing.' },
+      { t: 'p', x: 'The information here is general, and is not legal advice. MLS and legal summaries reflect our reading on the dates shown, and may be out of date. Example images on this site are AI-created illustrations of fictional rooms, not completed client work.' },
+      { t: 'h2', x: 'Written quotations' },
+      { t: 'p', x: 'A request does not create an order. Before any work starts, a written quotation sets out the scope, the price, the accepted payment method, the payment due date and any payment conditions, the estimated turnaround, the revision rounds included, the deadline for revision requests and the charge for any additional revisions. Work starts only after we have both agreed to it.' },
+      { t: 'h2', x: 'How the work is done' },
+      { t: 'p', x: 'Devender Garg handles each project. Images are edited with AI-assisted tools and refined by hand. StageLiora does not claim to own or have developed the AI tools it uses.' },
       { t: 'h2', x: 'Your photos' },
-      { t: 'p', x: 'You must own the photos you send us or have permission to have them edited. You remain responsible for that permission. We will ask you to confirm it before work starts.' },
-      { t: 'h2', x: 'How edited images may be used' },
-      { t: 'p', x: 'You are responsible for how you use any image, including following the rules of your MLS, your broker and applicable law, and making any required disclosure. We do not promise that an image will be accepted by any MLS or will comply with any rule.' },
-      { t: 'p', x: 'We may decline any edit that would hide a defect, misrepresent a property or its surroundings, or that we believe would mislead a buyer.' },
+      { t: 'p', x: 'Send high-resolution JPG/JPEG or PNG photos by email, with the room type and any preferred style. You must own the photos or have permission to have them edited, and you remain responsible for that permission. You keep all rights you hold in your original photos.' },
+      { t: 'h2', x: 'What you receive' },
+      { t: 'p', x: 'Edited images in JPG/JPEG or PNG, as agreed in the quotation, at the original pixel dimensions where that is technically feasible. Your original photos are kept unaltered and separately for the retention period in our Privacy Policy.' },
+      { t: 'h2', x: 'Editing limits' },
+      { t: 'p', x: 'We will not make an edit that misrepresents a property, including misleading structural changes, hiding existing defects, changing the actual view, misrepresenting permanent fixtures, presenting a virtually staged room as actually furnished, or any other change prohibited by the listing or advertising rules that apply.' },
+      { t: 'h2', x: 'MLS rules and disclosure' },
+      { t: 'p', x: 'We aim to produce images consistent with Stellar MLS requirements for virtually staged photos. StageLiora is not certified, endorsed or partnered by Stellar MLS, is not a brokerage and does not upload listings. Uploading images and making every required disclosure remain the responsibility of the listing agent or broker. We do not promise that an image will be accepted by any MLS.' },
+      { t: 'h2', x: 'Use of edited images' },
+      { t: 'p', x: 'After full payment, StageLiora grants you a non-exclusive, perpetual license to use the delivered edited images for the property\'s listings, applicable MLS use and real estate marketing, limited to the rights StageLiora can lawfully grant. Copyright is not transferred unless agreed in writing.' },
+      { t: 'p', x: 'We will not publish or reuse your original or edited photos in a portfolio, advertisement, social media or any other marketing without your explicit prior written permission.' },
       { t: 'h2', x: 'Concept images' },
       { t: 'p', x: 'Concept visualizations show ideas such as a different paint color, floor or planting. They do not show the current condition of a property, and should not be presented as if they do.' },
       { t: 'h2', x: 'No results promised' },
       { t: 'p', x: 'We do not promise any sale, sale price, time on market or number of inquiries.' },
-      { t: 'h2', x: 'Items to be completed' },
-      { t: 'ul', items: ['[Ownership and license of finished images: pending.]', '[Any right to show your images in our marketing: pending. None is assumed.]', '[Payment terms: pending.]', '[Limitation of liability and governing law: pending attorney review.]'] },
+      { t: 'h2', x: 'Governing law and liability' },
+      { t: 'p', x: '[Proposed: these terms are governed by the laws of the State of Florida, USA. The governing law and a limitation of liability clause are pending attorney review.]' },
       { t: 'h2', x: 'Contact' },
-      { t: 'p', x: `Email ${business.email}.` },
+      { t: 'p', x: `Email ${business.email}. Mail: ${business.postalAddress}.` },
     ],
   },
   {
@@ -63,7 +91,7 @@ const drafts: LegalDoc[] = [
     body: [
       { t: 'callout', h: 'Terms not yet set', x: 'StageLiora has not finalized its refund and revision terms, and is not currently taking paid orders. This page does not offer any guarantee. Any terms for a specific job will be confirmed in writing with your quote.' },
       { t: 'h2', x: 'What this policy will cover' },
-      { t: 'ul', items: ['[Number of revision rounds: pending, DEC-011.]', '[How long you have to request a revision: pending, DEC-011.]', '[What counts as a revision and what counts as new work: pending, DEC-011.]', '[When a refund is available, how to ask for it and how it is paid: pending, DEC-012.]', '[Effect of publishing an image to an MLS or other marketing before raising an issue: pending, DEC-012.]'] },
+      { t: 'ul', items: ['Revisions: each written quotation states the revision rounds included, the deadline for revision requests and the charge for any additional revisions.', '[What counts as a revision and what counts as new work: pending, DEC-011.]', '[When a refund is available, how to ask for it and how it is paid: pending, DEC-012.]', '[Effect of publishing an image to an MLS or other marketing before raising an issue: pending, DEC-012.]'] },
       { t: 'h2', x: 'Questions' },
       { t: 'p', x: `Email ${business.email}.` },
     ],

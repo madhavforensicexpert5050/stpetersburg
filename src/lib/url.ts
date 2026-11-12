@@ -7,8 +7,9 @@
  *
  * Astro sets BASE_URL and SITE from astro.config.mjs, which picks them from DEPLOY_TARGET.
  */
+import { business } from '../data/business.ts';
 const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, ''); // '' at the root, '/stpetersburg' on GitHub Pages
-const origin = (import.meta.env.SITE || 'https://st.petersburg.stageliora.com').replace(/\/+$/, '');
+const origin = (import.meta.env.SITE || business.siteUrl).replace(/\/+$/, '');
 
 /**
  * Prefixes a root-relative path with the base path. Anything else (https:, mailto:, tel:, #hash,

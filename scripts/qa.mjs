@@ -309,14 +309,14 @@ check(`Owner content and design approval is recorded for all ${60 - retired.leng
   check('Pricing: no reference-site prices, unapproved savings badges or Individuals/Teams tabs', !/\$35\b|\$28\b|\$24\.50|\$399|\$799|Save 20%|Save 30%|Most Popular|For Individuals|For Teams/.test(pricingHtml) && saveShown.every((s) => allowedSave.has(s)));
 }
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));
-check('Content approval did not create any other approval', Object.entries(approvals.publication).every(([p, a]) => p.startsWith('/locations/') && /^V23\.1: /.test(a.reference) && /no named signer/.test(a.by)) && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && !approvals.publicDeployment && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
+check('Content approval did not create any other approval', Object.entries(approvals.publication).every(([p, a]) => p.startsWith('/locations/') && /^V23\.1: /.test(a.reference) && /no named signer/.test(a.by)) && Object.keys(approvals.indexing).length === 0 && Object.keys(approvals.services).length === 0 && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && (!approvals.publicDeployment || /^V24: /.test(approvals.publicDeployment.reference)) && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
 check('Service slugs were not changed by the hostname migration', routes.some((r) => r.path === '/locations/st-petersburg-fl/'));
 const oldHost = ['st-petersburg', 'stageliora', 'com'].join('.');
 const scan = walk('dist').filter((f) => /\.(html|txt|xml|js)$/.test(f)).filter((f) => fs.readFileSync(f, 'utf8').includes(oldHost));
 check('Old hostname is absent from the build', scan.length === 0, scan);
 const srcScan = [...walk('src'), ...walk('scripts'), ...walk('server'), ...walk('functions'), 'astro.config.mjs', '.env.example', 'README.md'].filter((f) => fs.readFileSync(f, 'utf8').includes(oldHost));
 check('Old hostname is absent from code and configuration', srcScan.length === 0, srcScan);
-const metaBad = pages.filter(({ r, html }) => !html.includes(`property="og:url" content="https://st.petersburg.stageliora.com${r.path}"`) || !html.includes('name="twitter:card"') || !html.includes('"url":"https://st.petersburg.stageliora.com"')).map(({ r }) => r.path);
+const metaBad = pages.filter(({ r, html }) => !html.includes(`property="og:url" content="${business.siteUrl}${r.path}"`) || !html.includes('name="twitter:card"') || !html.includes(`"url":"${business.siteUrl}"`)).map(({ r }) => r.path);
 check('Open Graph, Twitter and structured data use the new hostname', metaBad.length === 0, metaBad);
 check('Build, publication, indexing and owner statuses are separate fields', routes.every((r) => buildStatusOf(r) && publicationOf(r) && indexingOf(r) && ownerApprovalOf(r)));
 check('No FAQ rich-result schema or unapproved service-area schema', !pages.some(({ html }) => /FAQPage|areaServed/.test(html)));
@@ -330,7 +330,7 @@ const prod = (fixture) => {
 };
 const none = prod(null);
 // Current real approvals (V23.1): location pages approved for publication, but no public deployment and no legal review.
-check('Current approvals: release is refused, nothing built, deployment and legal pages named', none.code !== 0 && !none.exists && /APPROVE PUBLIC DEPLOYMENT has not been recorded/.test(none.text) && /requires \/privacy-policy\//.test(none.text) && /requires \/terms-of-service\//.test(none.text), none.text);
+check('Current approvals: release is refused, nothing built, legal pages named', none.code !== 0 && !none.exists && /requires \/privacy-policy\//.test(none.text) && /requires \/terms-of-service\//.test(none.text), none.text);
 const raw = spawnSync('npx', ['astro', 'build'], { encoding: 'utf8', shell: true, env: { ...process.env, SITE_MODE: 'production', OUT_DIR: 'dist-qa/raw' } });
 check('Raw production build without the release script is refused', raw.status !== 0 && !fs.existsSync('dist-qa/raw/index.html'));
 const refuse = spawnSync('node', ['scripts/build-production.mjs'], { encoding: 'utf8', env: { ...process.env, QA_FIXTURE: 'valid', OUT_DIR: 'dist-production' } });

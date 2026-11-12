@@ -6,10 +6,11 @@ import path from 'node:path';
 import { validateRelease, candidateRoutes } from '../src/data/release.ts';
 import { routes, sitemapRoutes, findRoute } from '../src/data/routes.ts';
 import { serve } from './serve.mjs';
+import { business } from '../src/data/business.ts';
 
 const CANDIDATE = process.argv.includes('--candidate');
 const OUT = process.env.OUT_DIR || (CANDIDATE ? 'dist-candidate' : 'dist-production');
-const SITE = 'https://st.petersburg.stageliora.com';
+const SITE = business.siteUrl;
 const line = (s = '') => console.log(s);
 
 if (process.env.QA_FIXTURE && !OUT.startsWith('dist-qa')) { console.error('Refusing: QA_FIXTURE may only build into dist-qa/.'); process.exit(1); }

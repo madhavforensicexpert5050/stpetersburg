@@ -9,7 +9,8 @@ import { handleInquiry, resetRateLimit, resendSender, previewGuard, MAX_BODY } f
 const results = [];
 const check = (name, pass, detail = '') => { results.push({ name, pass, detail: String(detail) }); console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${!pass && detail ? `  ${detail}` : ''}`); };
 
-const ORIGIN = 'https://st.petersburg.stageliora.com';
+const { business } = await import('../src/data/business.ts');
+const ORIGIN = business.siteUrl;
 const env = { INQUIRY_TO: 'dev@devendergarg.com', INQUIRY_FROM: 'Site <a@b.example>', ALLOWED_ORIGIN: ORIGIN };
 const good = { name: 'Pat Secretname', email: 'pat.secret@example.com', phone: '555-SECRET', message: 'Private message about 33705 rooms.', consent: 'yes', services: ['Virtual Staging'], website: '' };
 function run(body, { over = {}, sendOk = true, sendThrows = false, envOver = {} } = {}) {

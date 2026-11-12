@@ -104,7 +104,10 @@ const LOCATION_PUBLICATION: ApprovalRecord = {
 const OWNER_APPROVALS: OwnerApprovals = {
   websiteContent: OWNER_CONTENT_DESIGN,
   pageDesign: OWNER_CONTENT_DESIGN,
-  publicDeployment: null,
+  // V24: "The owner explicitly approves completing the remaining StageLiora production-release work and deploying
+  // the verified website to Cloudflare." Deployment of whatever passes every other gate; it does not approve any
+  // route, legal page, service or search indexing, and the release still stops while those are missing.
+  publicDeployment: { by: 'Owner instruction in the Claude Code session (no named signer)', date: '2026-11-12', reference: 'V24: owner approves completing production-release work and deploying the verified website to Cloudflare Pages; search indexing explicitly stays disabled' },
   searchIndexing: null,
   // V23.1: the owner approved publishing the 12 location pages and the Locations hub, and nothing else.
   // This is route-level publication only. Public deployment of the site, search indexing, legal review and

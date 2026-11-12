@@ -3,18 +3,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { retiredRoutes } from './src/data/retired-routes.ts';
+import { business } from './src/data/business.ts';
 
 const mode = process.env.SITE_MODE === 'production' ? 'production' : 'preview';
 const indexing = process.env.INDEXING === 'on';
 
 /**
  * Where the build will be served. Each target has its own origin and base path.
- *   custom-domain (default): https://st.petersburg.stageliora.com/  — the future production host
+ *   custom-domain (default): business.siteUrl (src/data/business.ts) — the production host, set in one place
  *   github-pages:            https://madhavforensicexpert5050.github.io/stpetersburg/  — public noindex preview
  * Templates never hardcode either: they go through src/lib/url.ts, which reads BASE_URL and SITE.
  */
 const TARGETS = {
-  'custom-domain': { site: 'https://st.petersburg.stageliora.com', base: '/' },
+  'custom-domain': { site: business.siteUrl, base: '/' },
   'github-pages': { site: 'https://madhavforensicexpert5050.github.io', base: '/stpetersburg' },
 };
 const target = process.env.DEPLOY_TARGET || 'custom-domain';

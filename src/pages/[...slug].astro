@@ -49,9 +49,9 @@ if (route.template === 'home') schema.push({ '@type': 'WebSite', name: business.
 if (route.template === 'founder') {
   const roleOk = Boolean(approvals.founderRole?.by && approvals.founderRole?.date && approvals.founderRole?.reference);
   const photoOk = Boolean(approvals.founderPortrait?.by && approvals.founderPortrait?.date && approvals.founderPortrait?.reference);
-  schema.push({ '@type': 'ProfilePage', url: canonical, mainEntity: { '@type': 'Person', name: 'Devender Garg', ...(roleOk ? { jobTitle: 'Founder & Owner' } : {}), ...(photoOk ? { image: absUrl(founder.portrait.src) } : {}), worksFor: org } });
+  schema.push({ '@type': 'ProfilePage', url: canonical, mainEntity: { '@type': 'Person', '@id': `${siteRoot}/#founder`, name: 'Devender Garg', ...(roleOk ? { jobTitle: 'Founder & Owner' } : {}), ...(photoOk ? { image: absUrl(founder.portrait.src) } : {}), worksFor: org } });
 }
-if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name }); }
+if (route.template === 'service') { const s = getService(route.ref!); schema.push({ '@type': 'Service', name: s.name, description: s.description, url: canonical, provider: org, serviceType: s.name, areaServed: business.serviceArea }); }
 if (route.template === 'guide') {
   const g = getGuide(route.ref!);
   const f = featuredOf(g);

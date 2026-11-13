@@ -4,13 +4,15 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import sharp from 'sharp';
 import { media } from '../src/data/media.ts';
+import { approvals } from '../src/data/approvals.ts';
+const approvedIds=new Set(approvals.productionImages?.ids??[]);
 const provenance=JSON.parse(fs.readFileSync('public/media/generated/provenance.json','utf8'));
 const errors=[];let bytes=0,variants=0;
 for(const m of media){
  if(m.rights!=='ai-generated'){errors.push(`${m.id}: unreplaced asset`);continue;}
  const p=provenance.find(p=>p.id===m.id);
  if(!p||p.src!==m.src||!p.visualReview||!p.prompt)errors.push(`${m.id}: provenance missing`);
- if(m.ownerApproved||m.publication!=='synthetic-preview-only'||!/AI-created|AI-generated/.test(m.caption)||!/^AI-(created|generated)/.test(m.alt))errors.push(`${m.id}: synthetic classification or disclosure`);
+ if((m.ownerApproved?!(m.publication==='synthetic-approved-for-production'&&approvedIds.has(m.id)):m.publication!=='synthetic-preview-only')||!/AI-created|AI-generated/.test(m.caption)||!/^AI-(created|generated)/.test(m.alt))errors.push(`${m.id}: synthetic classification or disclosure`);
  if(!m.alt||!m.responsive||m.responsive.length!==3)errors.push(`${m.id}: alt text or responsive variants`);
  for(const v of m.responsive||[]){
   const file=path.join('public',v.src);

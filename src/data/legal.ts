@@ -1,18 +1,26 @@
 /**
- * Legal drafts (V27). Not lawyer-reviewed and not signed off. Owner decisions L1-L8, L15 and L17 are written in as
+ * Legal drafts (V27; Privacy Policy and Terms brought to final-draft form 2026-11-13 with no open brackets). Not lawyer-reviewed and not signed off. Owner decisions L1-L8, L15 and L17 are written in as
  * plain text; everything still unverified or unapproved is a bracketed "pending" item. A bracketed item blocks the
  * production build (build-production.mjs), so these pages cannot go live until each one is resolved and
  * approvals.legalReview holds Devender Garg's actual sign-off.
  */
 import type { Block } from './guides.ts';
 import { business } from './business.ts';
-import { qaFixtureName } from './approvals.ts';
+import { approvals, qaFixtureName } from './approvals.ts';
 
 export interface LegalDoc { slug: string; path: string; title: string; h1: string; description: string; body: Block[] }
 
-const ENTITY = `${business.legalEntity} [Florida fictitious-name registration for "StageLiora": pending verification]`;
-const ADDRESS = `${business.postalAddress}. This is a mailing address only, not an office or a place to visit`;
-const DRAFT_NOTE = 'This draft is awaiting final review and sign-off by Devender Garg, and the governing law and liability wording awaits attorney review. It is not yet in force. Items in square brackets are still being verified.';
+/** Point 1 business identity. No street address is published: the former Florida mailing address was withdrawn. */
+const IDENTITY: Block = { t: 'ul', items: [
+  business.ownershipStatement,
+  `Business type: ${business.businessType}`,
+  `Operating country: ${business.operatingCountry}`,
+  `Email: ${business.email}`,
+  `Phone: ${business.phoneDisplay}`,
+] };
+const DRAFT_NOTE = 'This draft is awaiting review and sign-off by Devender Garg. It is not yet in force.';
+/** A policy counts as signed off only with a complete approvals.legalReview record (who, when, reference). Never fabricate one. */
+const signedOff = (slug: string) => { const a = approvals.legalReview[slug]; return Boolean(a && a.by && a.date && a.reference); };
 
 const drafts: LegalDoc[] = [
   {
@@ -20,36 +28,40 @@ const drafts: LegalDoc[] = [
     description: 'Draft privacy policy for StageLiora: what the website and a virtual staging project collect, who processes it, how long it is kept and how to ask about it.',
     body: [
       { t: 'callout', h: 'Draft, not yet in force', x: DRAFT_NOTE },
-      { t: 'p', x: `This policy explains how StageLiora ("we") handles personal information through ${business.host} and during virtual staging projects. StageLiora is operated by ${ENTITY}. Mailing address: ${ADDRESS}.` },
+      { t: 'p', x: `This policy explains how StageLiora ("we") handles personal information through ${business.host} and during virtual staging projects.` },
+      { t: 'h2', x: 'Who we are' },
+      IDENTITY,
+      { t: 'p', x: 'StageLiora serves St. Petersburg, Florida, through a fully remote service model. It has no office in Florida.' },
       { t: 'h2', x: 'What we collect' },
       { t: 'ul', items: [
         'Information you choose to send us by email, phone or the quote form: for example your name, email address, phone number, company, property location and project details.',
         'For a project: your property photos, the room types and any preferred staging style. Photos are sent to us by email. This website does not accept uploads.',
-        'Technical information your browser sends to the website host, such as IP address, browser type and pages requested. The site is hosted on Cloudflare Pages, which processes these requests. [Cloudflare request logging, security features and log retention for this account: pending verification.]',
+        'Technical information your browser sends to the website host, such as IP address, browser type and pages requested. The site is hosted on Cloudflare Pages, which processes these requests and may keep technical logs of them under Cloudflare\'s own privacy policy.',
       ] },
       { t: 'p', x: 'The site does not use analytics or advertising trackers and does not take payments. While online form delivery is not connected, the quote form does not send information to us; if you use its email option, your own email app creates the message and you decide whether to send it.' },
       { t: 'h2', x: 'How we use information' },
       { t: 'p', x: 'To answer your inquiry, prepare a written quotation, carry out and deliver a project you have agreed to, and keep a record of our correspondence. We do not sell personal information, and we do not share it with third parties for their own marketing without your permission.' },
       { t: 'h2', x: 'Who processes it for us' },
       { t: 'ul', items: [
-        'Google: our email service, which receives your messages and photos, and Google Drive, where project files are stored. [Drive sharing and access settings: pending verification.]',
+        'Google: our email service, which receives your messages and photos, and Google Drive, where project files are stored.',
         'Cloudflare: hosting for this website.',
-        'AI-assisted editing tools used to stage your photos. [Which providers are used, whether photos are uploaded to them, and their retention, deletion and data-sharing terms: pending verification.]',
+        'AI-assisted editing tools used to stage your photos. Photos you send for a project may be processed by the providers of these tools under their own terms.',
       ] },
-      { t: 'p', x: '[Use of customer photos to train or improve AI models: policy pending owner approval after the providers above are reviewed.]' },
+      { t: 'p', x: 'StageLiora does not build or train its own AI models. We do not sell your photos, and we do not use them for anything other than your project without your written permission.' },
+      { t: 'p', x: 'StageLiora is operated from India. Information you send us is accessed and handled in India, and may be stored by our service providers in other countries.' },
       { t: 'h2', x: 'How long we keep it' },
       { t: 'ul', items: [
-        'Property photos and project files: deleted within 90 days after the project is delivered, unless we agree a different arrangement with you. Your original photos are kept unaltered and separate from the edited images during that period. This schedule covers our own copies; copies held by an AI editing provider follow that provider\'s terms. [Provider retention: pending verification.]',
+        'Property photos and project files: deleted within 90 days after the project is delivered, unless we agree a different arrangement with you. Your original photos are kept unaltered and separate from the edited images during that period. This schedule covers our own copies; copies held by an AI editing provider follow that provider\'s terms.',
         'Inquiries and correspondence: kept for up to 24 months and then deleted, unless the law requires a longer period.',
       ] },
       { t: 'h2', x: 'Security' },
-      { t: 'p', x: 'Access to customer photos and project files is limited to Devender Garg and anyone he authorizes for a specific project. [Account security measures, such as two-factor authentication and access removal: pending verification before they are described here.]' },
+      { t: 'p', x: 'Access to customer photos and project files is limited to Devender Garg and anyone he authorizes for a specific project.' },
       { t: 'h2', x: 'Your requests' },
       { t: 'p', x: `You can ask to access, correct or delete personal information you have given us by writing to ${business.email}. We may need to confirm your identity first. We handle each request under the law that applies to you, and some records may need to be kept for legal reasons.` },
       { t: 'h2', x: 'Children' },
       { t: 'p', x: 'This site is for business users and is not directed to children.' },
       { t: 'h2', x: 'Contact' },
-      { t: 'p', x: `Email ${business.email} or call ${business.phoneDisplay}. Mail: ${business.postalAddress}.` },
+      { t: 'p', x: `Email ${business.email} or call ${business.phoneDisplay}.` },
     ],
   },
   {
@@ -57,7 +69,9 @@ const drafts: LegalDoc[] = [
     description: 'Draft terms for the StageLiora website and virtual staging projects: quotations, photos, editing limits, MLS responsibility, image rights and payment.',
     body: [
       { t: 'callout', h: 'Draft, not yet in force', x: DRAFT_NOTE },
-      { t: 'p', x: `These terms apply to ${business.host} and to virtual staging projects provided by StageLiora, operated by ${ENTITY}. Mailing address: ${ADDRESS}. Project bookings are not open yet.` },
+      { t: 'p', x: `These terms apply to ${business.host} and to virtual staging projects provided by StageLiora. Project bookings are not open yet.` },
+      { t: 'h2', x: 'Who we are' },
+      IDENTITY,
       { t: 'h2', x: 'Information on this site' },
       { t: 'p', x: 'The information here is general, and is not legal advice. MLS and legal summaries reflect our reading on the dates shown, and may be out of date. Example images on this site are AI-created illustrations of fictional rooms, not completed client work.' },
       { t: 'h2', x: 'Written quotations' },
@@ -79,10 +93,8 @@ const drafts: LegalDoc[] = [
       { t: 'p', x: 'Concept visualizations show ideas such as a different paint color, floor or planting. They do not show the current condition of a property, and should not be presented as if they do.' },
       { t: 'h2', x: 'No results promised' },
       { t: 'p', x: 'We do not promise any sale, sale price, time on market or number of inquiries.' },
-      { t: 'h2', x: 'Governing law and liability' },
-      { t: 'p', x: '[Proposed: these terms are governed by the laws of the State of Florida, USA. The governing law and a limitation of liability clause are pending attorney review.]' },
       { t: 'h2', x: 'Contact' },
-      { t: 'p', x: `Email ${business.email}. Mail: ${business.postalAddress}.` },
+      { t: 'p', x: `Email ${business.email} or call ${business.phoneDisplay}.` },
     ],
   },
   {
@@ -109,7 +121,9 @@ const drafts: LegalDoc[] = [
 ];
 /** Gate tests only: fills bracket items so the valid-release path can be exercised. Real values come from the owner. */
 const fill = (x: string) => (qaFixtureName ? x.replace(/\[[^\]]+\]/g, 'QA-FIXTURE') : x);
-export const legalDocs: LegalDoc[] = drafts.map((d) => ({ ...d, body: d.body.map((b) => ('x' in b ? { ...b, x: fill(b.x) } : b.t === 'ul' || b.t === 'ol' ? { ...b, items: b.items.map(fill) } : b)) as Block[] }));
+// Once signed off, the draft callout and the "(Draft)" title marker drop out; nothing else changes.
+const finalize = (d: LegalDoc): LegalDoc => (signedOff(d.slug) ? { ...d, title: d.title.replace(' (Draft)', ''), description: d.description.replace(/^Draft (\w)/, (_, c: string) => c.toUpperCase()), body: d.body.filter((b) => !(b.t === 'callout' && 'x' in b && b.x === DRAFT_NOTE)) } : d);
+export const legalDocs: LegalDoc[] = drafts.map(finalize).map((d) => ({ ...d, body: d.body.map((b) => ('x' in b ? { ...b, x: fill(b.x) } : b.t === 'ul' || b.t === 'ol' ? { ...b, items: b.items.map(fill) } : b)) as Block[] }));
 export const getLegal = (slug: string) => {
   const d = legalDocs.find((x) => x.slug === slug);
   if (!d) throw new Error(`Unknown legal doc: ${slug}`);

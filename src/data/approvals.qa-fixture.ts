@@ -1,4 +1,5 @@
 /** FAKE approvals, used only by scripts/qa.mjs to prove the release gates work. Never real decisions. */
+import { generatedMedia } from './generated-media.ts';
 const R = { by: 'QA-FIXTURE', date: '2000-01-01', reference: 'Automated gate test. Not an owner decision.' };
 const rec = (keys: string[]) => Object.fromEntries(keys.map((k) => [k, R]));
 const service = { ...R, performedBy: 'QA', customerFiles: 'QA', output: 'QA', limitations: 'QA', turnaround: 'QA', revisions: 'QA', disclosureRestrictionsReviewed: true };
@@ -12,6 +13,8 @@ const valid = () => ({
   services: { 'virtual-staging': service }, prices: {}, planPricing: {}, pricingClaims: { bundleSavings: null, noBundleRequired: null },
   legalReview: rec(['privacy-policy', 'terms-of-service']), coverage: rec(['st-petersburg-fl']),
   formDeliveryVerified: null, genuineReviews: null, founderStatements: null, founderRole: null, founderPortrait: null, brandLogo: null,
+  // Fake: every generated image approved, so the valid path can build. The real record lists exact ids.
+  productionImages: { ...R, ids: Object.keys(generatedMedia) },
 });
 
 export function qaFixture(name: string) {
@@ -33,6 +36,7 @@ export function qaFixture(name: string) {
     case 'unknown-route': return { ...v, publication: { ...v.publication, '/does-not-exist/': R } };
     case 'unsigned': return { ...v, publication: { ...v.publication, '/about/': { by: '', date: '', reference: '' } } };
     case 'unverified-form-endpoint': return v;
+    case 'unapproved-image': return { ...v, productionImages: null };
     default: throw new Error(`Unknown QA fixture: ${name}`);
   }
 }

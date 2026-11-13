@@ -554,6 +554,7 @@ input:disabled, select:disabled { background: var(--wall); }
 .founder-note { margin: 18px 0 0; padding-left: 22px; border-left: 3px solid var(--sun); }
 .founder-note p { margin: 0; color: #fff; font: 500 clamp(1.25rem, 2.2vw, 1.7rem)/1.45 var(--display); }
 .founder-note footer { margin-top: 16px; color: var(--sun); font: 600 .95rem/1.2 var(--text); }
+.founder-bio { margin: 18px 0 0; max-width: 46ch; padding-left: 16px; border-left: 3px solid var(--sun); }
 .founder-contact { display: grid; gap: 12px; justify-items: start; }
 .founder-contact p { margin: 0; }
 .founder-home__in { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); align-items: start; max-width: 940px; }

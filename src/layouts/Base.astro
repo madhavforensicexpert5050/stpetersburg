@@ -18,7 +18,10 @@ const parts = path.split('/').filter(Boolean);
 const trail = parts.map((_, i) => '/' + parts.slice(0, i + 1).join('/') + '/').map((p) => ({ path: p, name: findRoute(p)?.crumb ?? p }));
 const crumbs = path === '/' || !route ? [] : [{ path: '/', name: 'Home' }, ...trail];
 const graph = [
-  { '@type': 'Organization', '@id': `${siteRoot}/#org`, name: business.brand, url: siteRoot, email: business.email, telephone: '+918890929329' },
+  // Point 1: a remote service business. No address, geo or opening hours: there is no office to visit.
+  // areaServed stays out until service-area schema is approved (qa.mjs).
+  { '@type': 'Organization', '@id': `${siteRoot}/#org`, name: business.brand, url: siteRoot, email: business.email, telephone: business.phoneHref.replace('tel:', ''),
+    founder: { '@type': 'Person', '@id': `${siteRoot}/#founder`, name: business.owner } },
   ...(crumbs.length ? [{ '@type': 'BreadcrumbList', itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: absUrl(c.path) })) }] : []),
   ...schema,
 ];

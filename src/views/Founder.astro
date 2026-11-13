@@ -61,7 +61,7 @@ const ph = f.portrait;
 
 <section class="section section--wall">
   <div class="wrap two-col">
-    <div><p class="eyebrow">StageLiora</p><h2>{f.building.h}</h2></div>
+    <div><p class="eyebrow">StageLiora</p><h2>{f.building.h}</h2><p class="founder-bio">{f.bio}</p></div>
     <div class="prose">
       {f.building.p.map((t) => <p>{t}</p>)}
       <div class="cta-row">{f.building.links.filter(([p]) => isLive(p)).map(([p, l, icon]) => <LinkButton href={p} label={l} icon={icon} />)}</div>

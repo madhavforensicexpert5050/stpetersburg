@@ -22,7 +22,7 @@ import { anyIllustrations } from '../data/media.ts';
     </div>
     <div class="grid">
       <div class="card"><h3>Who we work with</h3><p>Real estate agents, photographers, brokerages and property marketers.</p></div>
-      <div class="card"><h3>How we work</h3><p>Remotely, by email and phone. {business.brand} has no public office in St. Petersburg or elsewhere in Florida.</p></div>
+      <div class="card"><h3>How we work</h3><p>Founded and operated by {business.owner}, {business.brand} provides remote virtual staging services to real estate professionals and property owners in St. Petersburg, Florida. The business operates from {business.operatingCountry}.</p><p>Projects are handled by email and phone. There is no office or walk-in location in Florida.</p></div>
       {isLive('/about/devender-garg/') && <a class="card card--link" href={url('/about/devender-garg/')}><h3>Meet Devender Garg</h3><p>A personal note on the perspective behind StageLiora.</p></a>}
       <div class="card"><h3>Reach us</h3><p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>{isLive('/contact/') && <a class="textlink" href={url('/contact/')}>Contact page</a>}</div>
     </div>

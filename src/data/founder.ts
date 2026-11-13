@@ -24,6 +24,10 @@ export const founder = {
     altHeadshot: 'Portrait of Devender Garg, Founder and Owner of StageLiora',
   },
 
+  /** Point 1 owner-approved introduction (third person). Shown in the StageLiora section of the founder page.
+   *  No credentials, qualifications, awards, years of experience or employees may be added to it. */
+  bio: 'Devender Garg is the founder and owner of StageLiora. He personally manages customer communication and oversees virtual staging projects, combining AI-assisted editing with hands-on refinement to help present real estate listing photos effectively.',
+
   hero: {
     eyebrow: 'About me',
     h1: "Hi, I'm Devender Garg.",

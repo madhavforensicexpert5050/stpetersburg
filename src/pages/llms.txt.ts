@@ -8,6 +8,6 @@ export function GET() {
   const lines = listed.length
     ? listed.map((r) => `- [${r.title}](${siteRoot}${r.path}): ${r.description}`).join('\n')
     : 'This site is not published. No pages are approved for listing.';
-  const body = `# ${business.brand}\n\n> Virtual staging and real estate photo editing, written for the St. Petersburg, Florida market. Works remotely, with no public office in Florida. Makes no promise of MLS compliance.\n\n## Pages\n\n${lines}\n\n## Contact\n\n- Email: ${business.email}\n- Phone: ${business.phoneDisplay}\n`;
+  const body = `# ${business.brand}\n\n> ${business.tagline}. Founded and operated by ${business.owner}; a fully remote service with no office in Florida. Makes no promise of MLS compliance.\n\n## Pages\n\n${lines}\n\n## Contact\n\n- Email: ${business.email}\n- Phone: ${business.phoneDisplay}\n`;
   return new Response(body, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }

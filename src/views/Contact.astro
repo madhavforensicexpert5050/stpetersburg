@@ -6,7 +6,7 @@ import Notice from '../components/Notice.astro';
 import { business } from '../data/business.ts';
 import { isLive } from '../data/routes.ts';
 ---
-<PageHero path="/contact/" eyebrow="Contact" h1="Talk to StageLiora" lede="Ask a question about a listing, a photo or a rule you are unsure of." />
+<PageHero path="/contact/" eyebrow="Contact" h1="Talk to StageLiora" lede="Have questions about virtual staging for your property? Contact StageLiora to discuss your project requirements." />
 <section class="section">
   <div class="wrap doc-side">
     <div>
@@ -15,10 +15,10 @@ import { isLive } from '../data/routes.ts';
     </div>
     <aside class="side-box on-ink">
       <h2>Direct contact</h2>
+      <p>Founded and operated by {business.owner} from {business.operatingCountry}, {business.brand} serves St. Petersburg, Florida, through a fully remote service model.</p>
       <p><strong style="color:#fff">Email</strong><br /><a href={business.emailHref}>{business.email}</a></p>
       <p><strong style="color:#fff">Phone</strong><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
       <p class="small">This is an international number. Your carrier's calling rates apply from the U.S.</p>
-      <p class="small">StageLiora works remotely and has no public office or walk-in location in Florida.</p>
       {!isLive('/request-quote/') && <p class="small">Project bookings are not open yet. Questions about virtual staging or a specific listing photo are welcome.</p>}
       {isLive('/request-quote/') && <a class="btn btn--primary" href={url('/request-quote/')}>Request a Quote</a>}
     </aside>

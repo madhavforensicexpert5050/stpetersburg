@@ -6,13 +6,15 @@ import { getLegal } from '../data/legal.ts';
 import { approvals } from '../data/approvals.ts';
 const { slug } = Astro.props as { slug: string };
 const d = getLegal(slug);
-const reviewed = Boolean(approvals.legalReview[slug]);
+const review = approvals.legalReview[slug];
+const reviewed = Boolean(review && review.by && review.date && review.reference);
 ---
 <PageHero path={d.path} eyebrow={reviewed ? 'Legal' : 'Legal draft'} h1={d.h1} />
 <section class="section">
   <div class="wrap">
     <div class="prose">
-      {!reviewed && <Notice h="Draft: not reviewed by a lawyer">This text has not had legal review. Items in square brackets are waiting on owner or attorney input. Last edited November 5, 2026.</Notice>}
+      {!reviewed && <Notice h="Draft: awaiting sign-off">This text has not been signed off by the owner or reviewed by a lawyer. Items in square brackets are still open. Last edited November 13, 2026.</Notice>}
+      {reviewed && <p class="small muted">Last updated {review!.date}.</p>}
       <Blocks body={d.body} />
     </div>
   </div>

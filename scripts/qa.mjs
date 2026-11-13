@@ -132,6 +132,16 @@ const approvedAmounts = new Set(qaPlans.map((p) => qaHeadline(p.planId)?.amount)
 for (const { r, html } of pages) { if (['guide', 'guidesHub', 'location'].includes(r.template)) continue; const m = (visible(html).replace(/\$[\d.,]+[KM]/g, '').match(/\$\d[\d,.]*/g) || []).map((x) => x.replace(/[.,]$/, '')).filter((x) => !approvedAmounts.has(x)); if (m.length) priceHits.push(`${r.path}: ${m.join(', ')}`); }
 check('No StageLiora price shown unless it matches an owner-approved figure', !priceHits.length, priceHits);
 check('No street address pattern anywhere', !all.some(([, h]) => /(?<![\d+] )\b\d{2,5} [A-Z][a-z]+ (St|Street|Ave|Avenue|Blvd|Road|Rd|Suite)\b/.test(visible(h))));  // digits continuing a phone number are not a house number
+// Point 1: the former Florida mailing address was withdrawn. It must not appear in any page, metadata, JSON-LD or text output.
+const formerAddress = /4110\s*32nd|32nd\s+St(reet)?\.?\s+N(orth)?\b/i;
+const addressFiles = [...all, ...['llms.txt', 'robots.txt', 'sitemap.xml', '_redirects'].filter((f) => fs.existsSync('dist/' + f)).map((f) => [f, fs.readFileSync('dist/' + f, 'utf8')])];
+check('Former Florida mailing address appears nowhere in the build output', !addressFiles.some(([, h]) => formerAddress.test(h)), addressFiles.filter(([, h]) => formerAddress.test(h)).map(([p]) => p));
+// Point 1 business identity (owner-approved wording)
+const vis = (p) => visible(fs.readFileSync(p, 'utf8'));
+check('Footer tagline is the approved wording on every page', all.every(([, h]) => /<div class="foot-brand">[\s\S]*?<p>Virtual Staging for Real Estate Listings in St\. Petersburg, FL<\/p>/.test(h)));
+check('Contact page states the approved remote operating model', vis('dist/contact/index.html').includes('Founded and operated by Devender Garg from India, StageLiora serves St. Petersburg, Florida, through a fully remote service model.'));
+if (fs.existsSync('dist/about/index.html')) check('About page states the approved operating location', vis('dist/about/index.html').includes('Founded and operated by Devender Garg, StageLiora provides remote virtual staging services to real estate professionals and property owners in St. Petersburg, Florida. The business operates from India.'));
+if (fs.existsSync('dist/about/devender-garg/index.html')) check('Founder page shows the approved owner introduction', vis('dist/about/devender-garg/index.html').includes('Devender Garg is the founder and owner of StageLiora. He personally manages customer communication and oversees virtual staging projects'));
 
 // Near-duplicate location check on main content
 const mainText = (h) => visible((h.match(/<main[\s\S]*<\/main>/) || [''])[0]).toLowerCase();
@@ -173,7 +183,11 @@ const srcs = media.map((m) => path.join('public', m.src));
 check(`All ${media.length} manifest images exist on disk`, srcs.every((s) => fs.existsSync(s)));
 check('Media ids are unique', new Set(media.map((m) => m.id)).size === media.length);
 check('Every before has an after in its pair', media.filter((m) => m.pair).every((m) => media.some((x) => x.pair === m.pair && x.role !== m.role)));
-check('Synthetic examples are disclosed and remain separate from licensed client work', media.every((m) => m.rights === 'owner-licensed' || (!m.ownerApproved && (m.rights === 'project-placeholder' ? fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') : m.rights === 'ai-generated' && m.publication === 'synthetic-preview-only' && /AI-created|AI-generated/.test(m.caption) && /^AI-(created|generated)/.test(m.alt)))));
+check('Synthetic examples are disclosed and remain separate from licensed client work', media.every((m) => m.rights === 'owner-licensed' || (m.rights === 'project-placeholder' ? !m.ownerApproved && fs.readFileSync(path.join('public', m.src), 'utf8').includes('ILLUSTRATION') : m.rights === 'ai-generated' && (m.ownerApproved ? m.publication === 'synthetic-approved-for-production' && (approvals.productionImages?.ids ?? []).includes(m.id) : m.publication === 'synthetic-preview-only') && /AI-created|AI-generated/.test(m.caption) && /^AI-(created|generated)/.test(m.alt))));
+// V30: exactly the 36 owner-approved production images, none from outside the release list, and no licensed-photo status.
+const approvedImgs = media.filter((m) => m.ownerApproved);
+check('Exactly 36 AI images are approved for production, all from the V30 record, none marked as licensed photos', approvedImgs.length === 36 && approvals.productionImages?.ids.length === 36 && approvedImgs.every((m) => m.publication === 'synthetic-approved-for-production' && m.rights === 'ai-generated') && /^V30: /.test(approvals.productionImages?.reference ?? ''), approvedImgs.length);
+check('Portfolio stays gated: approving 36 images did not approve the Portfolio page images', !media.filter((m) => m.page === '/portfolio/').every((m) => m.ownerApproved));
 const { brandMedia } = await import('../src/data/media.ts');
 check('Images are served only through the manifest (property examples or approved brand images)', all.every(([, h]) => [...h.matchAll(/<img[^>]+src="(\/media[^"]+)"/g)].every((m) => media.some((x) => x.src === m[1]) || brandMedia.some((x) => x.src === m[1]))));
 // Image-specific wording must describe the file actually shown (image-notes.ts, visual-pages.ts).
@@ -336,7 +350,10 @@ check(`Owner content and design approval is recorded for all ${60 - retired.leng
   check('Pricing: no reference-site prices, unapproved savings badges or Individuals/Teams tabs', !/\$35\b|\$28\b|\$24\.50|\$399|\$799|Save 20%|Save 30%|Most Popular|For Individuals|For Teams/.test(pricingHtml) && saveShown.every((s) => allowedSave.has(s)));
 }
 check('No signer or signature was invented', /no named signer/.test(approvals.websiteContent.by));
-check('Content approval did not create any other approval', Object.entries(approvals.publication).every(([p, a]) => p.startsWith('/locations/') && /^V23\.1: /.test(a.reference) && /no named signer/.test(a.by)) && Object.keys(approvals.indexing).length === 0 && Object.entries(approvals.services).every(([k, v]) => k === 'virtual-staging' && /^V27: /.test(v.reference) && v.disclosureRestrictionsReviewed === false) && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).length === 0 && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && (!approvals.publicDeployment || /^V24: /.test(approvals.publicDeployment.reference)) && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
+// V30: the only publication records are the V23.1 location routes and the exact V30 release set; only two legal sign-offs exist.
+const V30_SET = new Set((await import('../src/data/approvals.ts')).V30_CORE_ROUTES);
+check('V30 release set is exactly 18 core routes and excludes /request-quote/ and /portfolio/', V30_SET.size === 18 && !V30_SET.has('/request-quote/') && !V30_SET.has('/portfolio/'));
+check('Content approval did not create any other approval', Object.entries(approvals.publication).every(([p, a]) => (p.startsWith('/locations/') && /^V23\.1: /.test(a.reference) && /no named signer/.test(a.by)) || (V30_SET.has(p) && /^V30: /.test(a.reference) && /no signature/.test(a.by))) && Object.keys(approvals.publication).length === 31 && Object.keys(approvals.indexing).length === 0 && Object.entries(approvals.services).every(([k, v]) => k === 'virtual-staging' && /^V27: .*V30: S7/.test(v.reference) && v.disclosureRestrictionsReviewed === true) && Object.keys(approvals.prices).length === 0 && Object.keys(approvals.legalReview).sort().join() === 'privacy-policy,terms-of-service' && Object.values(approvals.legalReview).every((a) => /^V30: /.test(a.reference) && /no attorney review/.test(a.reference)) && Object.values(approvals.coverage).every((c) => /^V23: /.test(c.reference) && /no named signer/.test(c.by)) && (!approvals.publicDeployment || /^V24: /.test(approvals.publicDeployment.reference)) && !approvals.searchIndexing && !approvals.formDeliveryVerified && !approvals.genuineReviews);
 check('Service slugs were not changed by the hostname migration', routes.some((r) => r.path === '/locations/st-petersburg-fl/'));
 const oldHost = ['st-petersburg', 'stageliora', 'com'].join('.');
 const scan = walk('dist').filter((f) => /\.(html|txt|xml|js)$/.test(f)).filter((f) => fs.readFileSync(f, 'utf8').includes(oldHost));
@@ -346,7 +363,14 @@ check('Old hostname is absent from code and configuration', srcScan.length === 0
 const metaBad = pages.filter(({ r, html }) => !html.includes(`property="og:url" content="${business.siteUrl}${r.path}"`) || !html.includes('name="twitter:card"') || !html.includes(`"url":"${business.siteUrl}"`)).map(({ r }) => r.path);
 check('Open Graph, Twitter and structured data use the new hostname', metaBad.length === 0, metaBad);
 check('Build, publication, indexing and owner statuses are separate fields', routes.every((r) => buildStatusOf(r) && publicationOf(r) && indexingOf(r) && ownerApprovalOf(r)));
-check('No FAQ rich-result schema or unapproved service-area schema', !pages.some(({ html }) => /FAQPage|areaServed/.test(html)));
+check('No FAQ rich-result schema', !pages.some(({ html }) => /FAQPage/.test(html)));
+// Point 1 owner decision (2026-11-13): areaServed is allowed only on Service nodes, only with the approved St. Petersburg value.
+const ldNodes = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].flatMap((m) => { try { const j = JSON.parse(m[1]); return j['@graph'] ?? [j]; } catch { return []; } });
+const approvedArea = JSON.stringify(business.serviceArea);
+const areaBad = pages.flatMap(({ r, html }) => ldNodes(html).filter((n) => 'areaServed' in n && (n['@type'] !== 'Service' || JSON.stringify(n.areaServed) !== approvedArea)).map(() => r.path));
+check('Service-area schema appears only on Service nodes with the approved St. Petersburg value', !areaBad.length, areaBad);
+const svcPages = pages.filter(({ r }) => r.template === 'service');
+check('Every service page Service schema names the approved service area', svcPages.length > 0 && svcPages.every(({ html }) => ldNodes(html).some((n) => n['@type'] === 'Service' && JSON.stringify(n.areaServed) === approvedArea)), svcPages.length);
 check('Removed unverified facts are gone', !pages.some(({ html }) => /27 acres|100\.6 road|six feet of surge/.test(html)));
 
 // ---------- Production release matrix (real builds through the real script) ----------
@@ -356,16 +380,29 @@ const prod = (fixture) => {
   return { code: r.status, out, text: r.stdout + r.stderr, exists: fs.existsSync(out) };
 };
 const none = prod(null);
-// Current real approvals (V23.1): location pages approved for publication, but no public deployment and no legal review.
-check('Current approvals: release is refused, nothing built, legal pages named', none.code !== 0 && !none.exists && /requires \/privacy-policy\//.test(none.text) && /requires \/terms-of-service\//.test(none.text), none.text);
+// Current real approvals (V30): exactly the 31 approved routes build, still noindex with an empty sitemap and no draft material.
+const builtIdx = none.exists ? walk('dist-production').filter((x) => x.endsWith('index.html')) : [];
+check('Current approvals: production build succeeds with exactly the 31 approved routes', none.code === 0 && none.exists && builtIdx.length === 31 && Object.keys(approvals.publication).every((p) => fs.existsSync(path.join('dist-production', p, 'index.html'))), none.text);
+if (none.exists) {
+  const ph = builtIdx.map((x) => fs.readFileSync(x, 'utf8'));
+  check('Current approvals: /request-quote/, /portfolio/ and private routes are not built', ['/request-quote/', '/portfolio/', '/reviews/', '/order/', '/account/', '/orders/', '/upload/'].every((p) => !fs.existsSync(path.join('dist-production', p, 'index.html'))));
+  check('Current approvals: every page noindex, sitemap empty, header noindex', ph.every((h) => /<meta name="robots" content="noindex/.test(h)) && !/<loc>/.test(fs.readFileSync('dist-production/sitemap.xml', 'utf8')) && /X-Robots-Tag: noindex/.test(fs.readFileSync('dist-production/_headers', 'utf8')));
+  check('Current approvals: no draft notice, placeholder or preview ribbon in production', ph.every((h) => !/not yet in force|\(Draft\)|Draft: awaiting|class="ribbon"|\[[A-Z][^\]]*pending/i.test(h)));
+  check('Current approvals: bookings stay closed on the homepage and Contact', ['index.html', 'contact/index.html'].every((p) => /bookings are not open yet/.test(fs.readFileSync(path.join('dist-production', p), 'utf8'))));
+  check('Current approvals: Portfolio is not linked from production pages', !ph.some((h) => /href="\/portfolio\//.test(h)));
+}
 const raw = spawnSync('npx', ['astro', 'build'], { encoding: 'utf8', shell: true, env: { ...process.env, SITE_MODE: 'production', OUT_DIR: 'dist-qa/raw' } });
 check('Raw production build without the release script is refused', raw.status !== 0 && !fs.existsSync('dist-qa/raw/index.html'));
+// The real release now builds dist-production (V30), so the check is that the fixture is refused and leaves that output untouched.
+const realIdx = 'dist-production/index.html';
+const before = fs.existsSync(realIdx) ? fs.statSync(realIdx).mtimeMs + ':' + fs.readFileSync(realIdx, 'utf8').length : 'absent';
 const refuse = spawnSync('node', ['scripts/build-production.mjs'], { encoding: 'utf8', env: { ...process.env, QA_FIXTURE: 'valid', OUT_DIR: 'dist-production' } });
-check('QA fixture cannot build into the real output folder', refuse.status === 1 && !fs.existsSync('dist-production/index.html'));
+const after = fs.existsSync(realIdx) ? fs.statSync(realIdx).mtimeMs + ':' + fs.readFileSync(realIdx, 'utf8').length : 'absent';
+check('QA fixture cannot build into the real output folder', refuse.status === 1 && /Refusing: QA_FIXTURE/.test(refuse.stdout + refuse.stderr) && before === after && !(fs.existsSync(realIdx) && /QA-FIXTURE/.test(fs.readFileSync(realIdx, 'utf8'))));
 for (const [fixture, why] of [['no-content-approval', 'content approval missing'], ['no-deployment-approval', 'deployment approval missing']]) {
   const x = prod(fixture); check(`Blocked when ${why}`, x.code === 2 && !x.exists, x.text);
 }
-for (const [fixture, why] of [['no-legal', 'legal review missing'], ['unapproved-service', 'service not approved'], ['incomplete-service', 'service answers incomplete'], ['private-route', 'disabled route approved'], ['index-unpublished', 'indexing an unpublished route'], ['index-noindex-route', 'indexing a noindex route'], ['no-coverage', 'location coverage missing'], ['placeholder-portfolio', 'portfolio of placeholders'], ['fake-reviews', 'reviews page with no reviews'], ['unknown-route', 'unknown route approved'], ['unsigned', 'approval without who or when']]) {
+for (const [fixture, why] of [['unapproved-image', 'a public page uses an unapproved image'], ['no-legal', 'legal review missing'], ['unapproved-service', 'service not approved'], ['incomplete-service', 'service answers incomplete'], ['private-route', 'disabled route approved'], ['index-unpublished', 'indexing an unpublished route'], ['index-noindex-route', 'indexing a noindex route'], ['no-coverage', 'location coverage missing'], ['placeholder-portfolio', 'portfolio of placeholders'], ['fake-reviews', 'reviews page with no reviews'], ['unknown-route', 'unknown route approved'], ['unsigned', 'approval without who or when']]) {
   const x = prod(fixture); check(`Invalid when ${why}`, x.code === 1 && !x.exists, x.text);
 }
 const cand = spawnSync('node', ['scripts/build-production.mjs', '--candidate'], { encoding: 'utf8', env: { ...process.env, OUT_DIR: 'dist-qa/candidate', SITE_MODE: '', INDEXING: '' } });

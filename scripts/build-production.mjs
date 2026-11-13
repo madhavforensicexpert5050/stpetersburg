@@ -7,6 +7,7 @@ import { validateRelease, candidateRoutes } from '../src/data/release.ts';
 import { routes, sitemapRoutes, findRoute } from '../src/data/routes.ts';
 import { serve } from './serve.mjs';
 import { business } from '../src/data/business.ts';
+import { productionApprovedImageStems } from '../src/data/media.ts';
 
 const CANDIDATE = process.argv.includes('--candidate');
 const OUT = process.env.OUT_DIR || (CANDIDATE ? 'dist-candidate' : 'dist-production');
@@ -31,6 +32,22 @@ execSync('npx astro build', { stdio: 'pipe', env: { ...process.env, SITE_MODE: '
 
 // ---------- Post-build validation against the actual output ----------
 const fail = [];
+
+// Images (V30): Astro copies all of public/ into the output. Only owner-approved images that a built page actually
+// uses may ship. Unreferenced files (including provenance.json and preview-only images) are removed from OUT only;
+// the originals in public/ are never touched. A page that uses an unapproved image fails the build.
+{
+  const texts = [];
+  (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(html|css|xml|txt|json|webmanifest)$/.test(e.name) && !p.includes(path.join('media', 'generated'))) texts.push(fs.readFileSync(p, 'utf8')); } })(OUT);
+  const all = texts.join('\n');
+  const used = new Set([...all.matchAll(/\/media\/generated\/[A-Za-z0-9._-]+/g)].map((m) => m[0]));
+  const approved = productionApprovedImageStems();
+  for (const u of used) if (!approved.has(u.replace(/(-\d+w)?\.[a-z]+$/, ''))) fail.push(`Unapproved image used on a public page: ${u}`);
+  const genDir = path.join(OUT, 'media', 'generated');
+  let removed = 0;
+  if (fs.existsSync(genDir)) for (const f of fs.readdirSync(genDir)) if (!used.has(`/media/generated/${f}`)) { fs.rmSync(path.join(genDir, f)); removed++; }
+  line(`Images: ${used.size} approved image files kept, ${removed} unreferenced files removed from ${OUT}/media/generated (originals untouched).`);
+}
 const expected = CANDIDATE ? candidate : report.publishable;
 if (CANDIDATE) report.indexable = [];
 const htmlFiles = [];
@@ -43,6 +60,7 @@ const forbidden = [[/class="ribbon"/, 'preview ribbon'], [/Internal draft/i, 'in
 const pages = htmlFiles.map((f) => [f, fs.readFileSync(f, 'utf8')]);
 for (const [f, html] of pages) {
   for (const [re, label] of forbidden) if (re.test(html)) fail.push(`${path.relative(OUT, f)} contains ${label}`);
+  for (const m of html.matchAll(/\b(?:src|srcset)="([^"]+)"/g)) for (const part of m[1].split(',')) { const u = part.trim().split(/\s+/)[0]; if (u.startsWith('/') && !u.startsWith('//') && !fs.existsSync(path.join(OUT, u.split(/[?#]/)[0]))) fail.push(`${path.relative(OUT, f)} has a broken image or script: ${u}`); }
   for (const m of html.matchAll(/\bhref="(\/[^"#?]*)/g)) { const t = path.join(OUT, m[1]); if (!(fs.existsSync(t) && (fs.statSync(t).isFile() || fs.existsSync(path.join(t, 'index.html'))))) fail.push(`${path.relative(OUT, f)} has a broken link: ${m[1]}`); }
 }
 

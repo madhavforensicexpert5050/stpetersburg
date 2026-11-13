@@ -26,7 +26,7 @@ const groups = [
     <div class="foot-grid">
       <div class="foot-brand">
         <BrandLogo variant="footer" />
-        <p>Virtual staging and real estate photo editing, written for the St. Petersburg, Florida market. We work remotely and have no public office in Florida.</p>
+        <p>{business.tagline}</p>
         <p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
       </div>
       {groups.map((g) => (

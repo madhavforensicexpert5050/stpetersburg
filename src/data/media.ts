@@ -9,7 +9,9 @@ import { generatedMedia } from './generated-media.ts';
 import { noteFor } from './image-notes.ts';
 
 export type Rights = 'project-placeholder' | 'owner-licensed' | 'ai-generated';
-export type Publication = 'placeholder-preview-only' | 'approved' | 'synthetic-preview-only';
+/** 'synthetic-approved-for-production': an AI-created example the owner approved for the production site (approvals.productionImages).
+ *  It stays disclosed as AI-created and does NOT count as a licensed photo ('approved'). */
+export type Publication = 'placeholder-preview-only' | 'approved' | 'synthetic-preview-only' | 'synthetic-approved-for-production';
 
 export type Scene =
   | { kind: 'interior'; room: RoomId; style: StyleId; furnish: 'none' | 'old' | 'staged'; wall?: string; floor?: 'oak' | 'tile' | 'worn' | 'walnut' | 'stone'; ceiling?: 'plain' | 'beams' | 'wood'; dim?: boolean }
@@ -151,7 +153,11 @@ const styleCompareSet: MediaItem[] = [
     { kind: 'interior', room: 'living-room', style: s.id, furnish: 'staged' }, { pair: 'ors-living-room', role: 'after' }), (t) => `AI-created image of ${t}`)),
 ];
 
-export const media: MediaItem[] = [...pairs, ...portfolio, ...library, ...styleCompareSet];
+const approvedProductionIds = (() => { const a = brandApprovals.productionImages; return new Set(a && a.by && a.date && a.reference ? a.ids : []); })();
+const applyProductionApproval = (m: MediaItem): MediaItem => (m.rights === 'ai-generated' && approvedProductionIds.has(m.id) ? { ...m, ownerApproved: true, publication: 'synthetic-approved-for-production' } : m);
+export const media: MediaItem[] = [...pairs, ...portfolio, ...library, ...styleCompareSet].map(applyProductionApproval);
+/** Public URL stems (without size suffix) of every image approved for the production site. */
+export const productionApprovedImageStems = (): Set<string> => new Set(media.filter((m) => m.ownerApproved).flatMap((m) => [m.src, ...(m.responsive ?? []).map((r) => r.src)]).map((s) => s.replace(/(-\d+w)?\.[a-z]+$/, '')));
 
 /**
  * Customer-facing wording for illustrative images. Every label below switches to genuine wording on its own

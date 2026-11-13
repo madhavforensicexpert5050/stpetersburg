@@ -4,14 +4,11 @@ import { business } from '../data/business.ts';
 import { pagedServices as services } from '../data/services.ts';
 import { legalDocs } from '../data/legal.ts';
 import { isLive } from '../data/routes.ts';
-import { anyIllustrations } from '../data/media.ts';
 import BrandLogo from './BrandLogo.astro';
 const year = new Date().getFullYear();
 // Only published pages: legal links appear automatically once a policy is approved and built.
-const bottomLinks = [
-  ...legalDocs.filter((d) => isLive(d.path)).map((d) => [d.path, d.h1]),
-  ...(anyIllustrations() && isLive('/about/') ? [['/about/#images', 'About our images']] : []),
-];
+// Owner decision (2026-11-13): no "About our images" link here. About #images stays, linked from the Portfolio.
+const bottomLinks = legalDocs.filter((d) => isLive(d.path)).map((d) => [d.path, d.h1]);
 const live = (xs: string[][]) => xs.filter(([p]) => isLive(p));
 // Each page appears once per group. Pages dropped from the header (Guides, Contact) stay reachable here.
 // The owner removed Who We Serve (V18.2) and Explore (V19); Portfolio is in the header.
@@ -26,7 +23,7 @@ const groups = [
     <div class="foot-grid">
       <div class="foot-brand">
         <BrandLogo variant="footer" />
-        <p>{business.tagline}</p>
+        <p>{business.footerAbout}</p>
         <p><a href={business.emailHref}>{business.email}</a><br /><a href={business.phoneHref}>{business.phoneDisplay}</a></p>
       </div>
       {groups.map((g) => (

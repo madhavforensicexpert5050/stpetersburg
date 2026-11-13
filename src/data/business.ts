@@ -17,6 +17,8 @@ export const business = {
   operatingCountry: 'India',
   /** Footer tagline (owner-approved wording; no "Remote"). */
   tagline: 'Virtual Staging for Real Estate Listings in St. Petersburg, FL',
+  /** Footer About text below the logo (owner-supplied wording, 2026-11-13; used exactly as given). */
+  footerAbout: 'StageLiora helps real estate professionals in St. Petersburg, Florida, present properties through thoughtful virtual staging and image visualization. Led by Devender Garg, our remote service focuses on realistic presentation, preserving property details, and clear project communication. We help agents explore visual possibilities while respecting original photos and listing requirements.',
   /** Launch dependencies. Null means unknown; never substitute a guess. */
   /** Point 1 owner decision (2026-11-13): the unverified V27 "doing business as" statement was removed.
    *  The legal form of the business and any business-name registration stay pending verification (legal drafts). */

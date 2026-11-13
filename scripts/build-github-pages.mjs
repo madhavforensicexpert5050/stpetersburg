@@ -93,8 +93,8 @@ for (const f of htmlFiles) {
   if (name !== 'about/index.html' && /AI-created example|AI concept ·|· AI concept/.test(visible)) fail.push(`${name} still shows a per-image AI disclosure label`);
   for (const a of html.matchAll(/<img[^>]*src="[^"]*\/media\/generated\/[^"]*"[^>]*>/g)) if (!/alt="AI-(created|generated)|\salt(="")?[\s>]/.test(a[0])) { fail.push(`${name} has a generated image without honest alt text`); break; }
   if (/class="cta-band"/.test(html) && !/Project bookings are not open yet/.test(visible)) fail.push(`${name} has a contact call to action without the bookings limitation`);
-  // Transparency without labels: the one media-information disclosure must be reachable from every page.
-  if (/\/media\/generated\//.test(html) && !/href="\/stpetersburg\/about\/#images"/.test(html)) fail.push(`${name} shows generated images but no link to the image information`);
+  // Owner decision (2026-11-13): the footer no longer links to About #images, so pages with generated images are not
+  // required to link to it. Honest "AI-created image of" alt text is still required above; About #images remains.
   for (const m of html.matchAll(attrRe)) {
     const v = m[1];
     if (!v.startsWith('/') || v.startsWith('//')) continue;

@@ -138,7 +138,8 @@ const addressFiles = [...all, ...['llms.txt', 'robots.txt', 'sitemap.xml', '_red
 check('Former Florida mailing address appears nowhere in the build output', !addressFiles.some(([, h]) => formerAddress.test(h)), addressFiles.filter(([, h]) => formerAddress.test(h)).map(([p]) => p));
 // Point 1 business identity (owner-approved wording)
 const vis = (p) => visible(fs.readFileSync(p, 'utf8'));
-check('Footer tagline is the approved wording on every page', all.every(([, h]) => /<div class="foot-brand">[\s\S]*?<p>Virtual Staging for Real Estate Listings in St\. Petersburg, FL<\/p>/.test(h)));
+check('Footer About text is the owner-supplied wording on every page', all.every(([, h]) => { const m = h.match(/<div class="foot-brand">[\s\S]*?<p>([^<]*)<\/p>/); return m && m[1].replace(/&#39;/g, "'") === business.footerAbout; }));
+check('Footer has no "About our images" link (owner decision 2026-11-13)', all.every(([, h]) => { const f = (h.match(/<footer class="site-footer">[\s\S]*?<\/footer>/) || [''])[0]; return f && !/About our images|about\/#images/.test(f); }));
 check('Contact page states the approved remote operating model', vis('dist/contact/index.html').includes('Founded and operated by Devender Garg from India, StageLiora serves St. Petersburg, Florida, through a fully remote service model.'));
 if (fs.existsSync('dist/about/index.html')) check('About page states the approved operating location', vis('dist/about/index.html').includes('Founded and operated by Devender Garg, StageLiora provides remote virtual staging services to real estate professionals and property owners in St. Petersburg, Florida. The business operates from India.'));
 if (fs.existsSync('dist/about/devender-garg/index.html')) check('Founder page shows the approved owner introduction', vis('dist/about/devender-garg/index.html').includes('Devender Garg is the founder and owner of StageLiora. He personally manages customer communication and oversees virtual staging projects'));

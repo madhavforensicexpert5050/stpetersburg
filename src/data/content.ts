@@ -93,15 +93,12 @@ export const interiorDesign = {
   ],
 };
 
-/**
- * The approved StageLiora workflow (V27 owner direction). Step 4 deliberately does not claim a personal final review:
- * that is the owner's proposed wording and has not been verified as an operating fact.
- */
 export const process = [
-  { n: '01', h: 'Request virtual staging', b: 'Tell us about the property, the rooms you want staged and where the images will be used. Once a written quotation is agreed, you send high-resolution JPG or PNG photos by email, with the room type and any preferred style.' },
-  { n: '02', h: 'Personal project management', b: 'Devender Garg, StageLiora’s founder, handles each project himself. The written quotation sets the price, payment terms, estimated turnaround and revision terms before any work starts.' },
-  { n: '03', h: 'AI-assisted editing and manual refinement', b: 'Each image is staged with AI-assisted editing and then refined by hand, so furniture sits at the true scale of the room while walls, windows, floors and fixtures stay exactly as photographed.' },
-  { n: '04', h: 'Review and delivery', b: 'The finished images are checked against their originals and delivered as JPG or PNG files, at the original pixel dimensions where possible. Keep your originals and complete the disclosure your MLS requires.' },
+  { n: '01', h: 'Share your property details', b: 'Tell us the room types, how the photos were taken and where the images will be used. The MLS matters, because the rules differ.' },
+  { n: '02', h: 'Discuss your project', b: 'We talk through which edits suit each room, what should stay unchanged and which service fits. Nothing starts until scope and cost are agreed.' },
+  { n: '03', h: 'Share your photos', b: 'Send only full-resolution photos you have the right to edit. There is no upload on this site, so the transfer method is agreed with you.' },
+  { n: '04', h: 'Review the visuals', b: 'Check each edited image against its original. Walls, windows, floors and fixtures should match before any image is used.' },
+  { n: '05', h: 'Prepare for listing use', b: 'Keep the original and complete the disclosure your MLS requires. In Stellar MLS that happens in the listing fields, not on the image.' },
 ];
 
 /**
